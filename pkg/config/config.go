@@ -9,7 +9,7 @@ import (
 // mongo db config struct
 type MongoDB struct {
 	Host string `yaml:"host,omitempty"`
-	Port int32  `yaml:"port,omitempty"`
+	Port string `yaml:"port,omitempty"`
 }
 
 // Base config struct
@@ -27,7 +27,7 @@ func (c *BaseConfig) GetConfigDB() *MongoDB {
 
 	return &MongoDB{
 		Host: "localhost",
-		Port: 27017,
+		Port: "27017",
 	}
 }
 
