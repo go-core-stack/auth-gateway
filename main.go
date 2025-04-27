@@ -9,6 +9,7 @@ import (
 	"github.com/Prabhjot-Sethi/core/values"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
 )
 
 var (
@@ -48,5 +49,22 @@ func main() {
 	err = client.HealthCheck(context.Background())
 	if err != nil {
 		log.Panicf("failed to perform Health check with DB Error: %s", err)
+	}
+
+	tenantTbl, err := table.LocateTenantTable(client)
+	if err != nil {
+		log.Panicf("failed to locate Tenant table: %s", err)
+	}
+
+	tKey := &table.TenantKey{
+		Name: "root",
+	}
+
+	tEntry := &table.TenantEntry{
+		Desc: "Root Tenant for the system, created by default",
+	}
+	err = tenantTbl.Insert(context.Background(), tKey, tEntry)
+	if err != nil {
+		log.Panicf("failed to locate root tenant entry: %s", err)
 	}
 }
