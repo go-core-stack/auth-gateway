@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"time"
 
 	"github.com/Prabhjot-Sethi/core/db"
 	"github.com/Prabhjot-Sethi/core/values"
@@ -96,4 +97,11 @@ func main() {
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()
+
+	log.Println("Initialization of Auth Gateway completed")
+	// TODO(prabhjot) enter in endless loop to keep the microservice running
+	// later on this will be handled differently as part of the server hosting
+	for {
+		time.Sleep(5 * time.Second)
+	}
 }
