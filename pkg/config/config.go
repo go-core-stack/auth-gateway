@@ -48,7 +48,9 @@ func ParseConfig(filePath string) (*BaseConfig, error) {
 		// ensure that we close the file before returning from
 		// here, following constructs of release the unused
 		// resources for garbage collector to kick in
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 
 		// Get a new Yaml decoder
 		decoder := yaml.NewDecoder(file)
