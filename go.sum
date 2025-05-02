@@ -1,5 +1,5 @@
-github.com/Prabhjot-Sethi/core v0.0.0-20250427215245-194fe0028e0b h1:aaTaT6BgAwqa4NnZeJ5MhT0Z8978Di98Gy2SlnXz99Y=
-github.com/Prabhjot-Sethi/core v0.0.0-20250427215245-194fe0028e0b/go.mod h1:KKWJFqu2j6ZXHDhlzMsLFTFuswEVQ9+ryUkARqdel7U=
+github.com/Prabhjot-Sethi/core v0.0.0-20250502095037-8d9d3b95cabf h1:uLc+6DqFiT2UKwLsBAUs8RgO6ejKnTHaOB2+3h237Dc=
+github.com/Prabhjot-Sethi/core v0.0.0-20250502095037-8d9d3b95cabf/go.mod h1:KKWJFqu2j6ZXHDhlzMsLFTFuswEVQ9+ryUkARqdel7U=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/golang/snappy v1.0.0 h1:Oy607GVXHs7RtbggtPBnr2RmDArIsAefDwvrdWvRhGs=

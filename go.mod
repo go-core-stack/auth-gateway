@@ -3,7 +3,7 @@ module github.com/Prabhjot-Sethi/auth-gateway
 go 1.24
 
 require (
-	github.com/Prabhjot-Sethi/core v0.0.0-20250427215245-194fe0028e0b
+	github.com/Prabhjot-Sethi/core v0.0.0-20250502095037-8d9d3b95cabf
 	gopkg.in/yaml.v2 v2.4.0
 )
 
