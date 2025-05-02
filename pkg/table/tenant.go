@@ -5,11 +5,21 @@ import "github.com/Prabhjot-Sethi/core/db"
 var tenantTable *TenantTable
 
 type TenantKey struct {
+	// Name as a key for the tenant
 	Name string `bson:"name,omitempty"`
 }
 
-type TenantEntry struct {
+type TenantConfig struct {
+	// Display name for the tenant
+	DispName string `bson:"dispName,omitempty"`
+
+	// Descriptive text for the tenant
 	Desc string `bson:"desc,omitempty"`
+}
+
+type TenantEntry struct {
+	// Configuration provided for the tenant
+	Config *TenantConfig `bson:"config,omitempty"`
 }
 
 type TenantTable struct {

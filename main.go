@@ -4,9 +4,13 @@ import (
 	"context"
 	"flag"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/Prabhjot-Sethi/core/db"
+	"github.com/Prabhjot-Sethi/core/sync"
 	"github.com/Prabhjot-Sethi/core/values"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
@@ -22,7 +26,11 @@ var (
 )
 
 const (
-	RootTenantName = "root"
+	// name of the root tenant to be created by default
+	rootTenantName = "root"
+
+	// service name this process will be hosting
+	serviceName = "auth-gateway"
 )
 
 // Parse flags for the process
@@ -44,12 +52,15 @@ func locateRootTenant() {
 
 	// Root Tenant Key
 	tKey := &table.TenantKey{
-		Name: RootTenantName,
+		Name: rootTenantName,
 	}
 
 	// Root Tenant Entry
 	tEntry := &table.TenantEntry{
-		Desc: "Root Tenant for the system, created by default",
+		Config: &table.TenantConfig{
+			DispName: "Root Tenant",
+			Desc:     "Root Tenant for the system, created by default",
+		},
 	}
 
 	// Locate the Tenant Entry
@@ -60,6 +71,15 @@ func locateRootTenant() {
 }
 
 func main() {
+	// setup a context for the main function allowing cleanup
+	ctx, cancelFn := context.WithCancel(context.Background())
+	defer func() {
+		cancelFn()
+		// Allow a buffer time of 10 seconds for processing the closure
+		// of the provided context
+		time.Sleep(10 * time.Second)
+	}()
+
 	// Parse the flag options for the process
 	parseFlags()
 	conf, err := config.ParseConfig(configFile)
@@ -94,14 +114,23 @@ func main() {
 		log.Panicf("failed to perform Health check with DB Error: %s", err)
 	}
 
+	// initialize the sync owner table
+	err = sync.InitializeOwnerTableDefault(ctx, client, serviceName)
+	if err != nil {
+		log.Panicf("Failed to initialize owner table using default store: %s", err)
+	}
+
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()
 
 	log.Println("Initialization of Auth Gateway completed")
-	// TODO(prabhjot) enter in endless loop to keep the microservice running
-	// later on this will be handled differently as part of the server hosting
-	for {
-		time.Sleep(5 * time.Second)
-	}
+
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
+	s := <-sigc
+	log.Printf("Terminating Process got signal: %s", s)
 }
