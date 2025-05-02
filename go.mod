@@ -3,12 +3,13 @@ module github.com/Prabhjot-Sethi/auth-gateway
 go 1.24
 
 require (
-	github.com/Prabhjot-Sethi/core v0.0.0-20250502095037-8d9d3b95cabf
+	github.com/Prabhjot-Sethi/core v0.0.0-20250502125735-01345d49caf4
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	github.com/golang/snappy v1.0.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
