@@ -60,6 +60,7 @@ func locateRootTenant() {
 		Config: &table.TenantConfig{
 			DispName: "Root Tenant",
 			Desc:     "Root Tenant for the system, created by default",
+			Admin:    "admin",
 		},
 	}
 
