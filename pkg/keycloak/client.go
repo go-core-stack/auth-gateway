@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Nerzal/gocloak/v13"
+
 	"github.com/Prabhjot-Sethi/core/errors"
 )
 
@@ -62,7 +63,7 @@ func New(url string) (*Client, error) {
 
 	// perform adming login using the provided login credentials and user realm
 	token, err := client.LoginAdmin(context.Background(), getKeycloakUsername(),
-		getKeyclaokPassword(), client.userRealm)
+		getKeycloakPassword(), client.userRealm)
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +121,7 @@ func (c *Client) refreshToken() {
 	}
 }
 
+// Logout and Close the existing Keycloak Client and session
 func (c *Client) Logout(ctx context.Context) error {
 	c.tokenMu.Lock()
 	defer c.tokenMu.Unlock()
