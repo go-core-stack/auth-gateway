@@ -19,6 +19,7 @@ const (
 	defaultKeycloakAdminPassword = "password"
 )
 
+// gets Keycloak admin username from the environment variable
 func getKeycloakUsername() string {
 	val, found := os.LookupEnv(keycloakAdminEnv)
 	if !found {
@@ -28,7 +29,8 @@ func getKeycloakUsername() string {
 	return val
 }
 
-func getKeyclaokPassword() string {
+// gets Keycloak admin password from the environment variable
+func getKeycloakPassword() string {
 	val, found := os.LookupEnv(keycloakPassEnv)
 	if !found {
 		// return default value if not found
