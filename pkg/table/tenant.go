@@ -3,9 +3,17 @@
 
 package table
 
-import "github.com/Prabhjot-Sethi/core/db"
+import (
+	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/Prabhjot-Sethi/core/db"
+	"github.com/Prabhjot-Sethi/core/errors"
+	"github.com/Prabhjot-Sethi/core/table"
+	"github.com/Prabhjot-Sethi/core/utils"
+)
 
 var tenantTable *TenantTable
+var encryptor utils.IOEncryptor
 
 type TenantKey struct {
 	// Name as a key for the tenant
@@ -65,6 +73,37 @@ type TenantInfo struct {
 	PTaxID string `bson:"pTaxId,omitempty"`
 }
 
+type UserCredentials struct {
+	// User Id - username or email id using which user would login
+	UserID string `bson:"userID,omitempty"`
+
+	// Password - first time password for the user
+	// this will be stored by cryptographically encoding
+	Password string `bson:"password,omitempty"`
+}
+
+func (c *UserCredentials) MarshalBSON() ([]byte, error) {
+	type UserCredentialsAlias UserCredentials
+	pass, _ := encryptor.EncryptString(c.Password)
+	raw := &UserCredentialsAlias{
+		UserID:   c.UserID,
+		Password: pass,
+	}
+	return bson.Marshal(raw)
+}
+
+func (c *UserCredentials) UnmarshalBSON(data []byte) error {
+	type UserCredentialsAlias UserCredentials
+	raw := &UserCredentialsAlias{}
+	err := bson.Unmarshal(data, raw)
+	if err != nil {
+		return err
+	}
+	c.UserID = raw.UserID
+	c.Password, _ = encryptor.DecryptString(raw.Password)
+	return nil
+}
+
 type TenantConfig struct {
 	// Display name for the tenant
 	DispName string `bson:"dispName,omitempty"`
@@ -79,11 +118,32 @@ type TenantConfig struct {
 	Contact *TenantContact `bson:"contact,omitempty"`
 
 	// User ID of Default Admin for the tenant
-	Admin string `bson:"admin,omitempty"`
+	DefaultAdmin *UserCredentials `bson:"defaultAdmin,omitempty"`
 
 	// additional tenant information, requirement based on
 	// local laws
 	Info *TenantInfo `bson:"info,omitempty"`
+}
+
+type TenantKCStatus struct {
+	// time when last updated
+	UpdateTime int64 `bson:"updateTime,omitempty"`
+
+	// realm name which is configured in Keycloak
+	RealmName string `bson:"realmName,omitempty"`
+}
+
+type TenantRoleStatus struct {
+	// time when last updated
+	UpdateTime int64 `bson:"updateTime,omitempty"`
+}
+
+type TenantAdminStatus struct {
+	// time when last updated
+	UpdateTime int64 `bson:"updateTime,omitempty"`
+
+	// ID of the Default Tenant Admin
+	Admin string `bson:"admin,omitempty"`
 }
 
 type TenantEntry struct {
@@ -92,11 +152,28 @@ type TenantEntry struct {
 
 	// Configuration provided for the tenant
 	Config *TenantConfig `bson:"config,omitempty"`
+
+	// keycloak Status - as per the setup manager
+	KCStatus *TenantKCStatus `bson:"kcStatus,omitempty"`
+
+	// Roles status - as per roles manager
+	RoleStatus *TenantRoleStatus `bson:"roleStatus,omitempty"`
+
+	// admin status
+	AdminStatus *TenantAdminStatus `bson:"adminStatus,omitempty"`
 }
 
 type TenantTable struct {
-	db.StoreCollectionTable[*TenantKey, *TenantEntry]
+	table.Table[*TenantKey, *TenantEntry]
 	col db.StoreCollection
+}
+
+func GetTenantTable() (*TenantTable, error) {
+	if tenantTable != nil {
+		return tenantTable, nil
+	}
+
+	return nil, errors.Wrapf(errors.NotFound, "tenant table not found")
 }
 
 func LocateTenantTable(client db.StoreClient) (*TenantTable, error) {
@@ -104,14 +181,26 @@ func LocateTenantTable(client db.StoreClient) (*TenantTable, error) {
 		return tenantTable, nil
 	}
 
+	var err error
+	if encryptor == nil {
+		encryptor, err = utils.InitializeEncryptor("TenantTable", "mydummykey")
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	col := client.GetCollection(AuthDatabaseName, TenantsCollectionName)
 
-	tenantTable := &TenantTable{
-		StoreCollectionTable: db.StoreCollectionTable[*TenantKey, *TenantEntry]{
-			Col: col,
-		},
+	tbl := &TenantTable{
 		col: col,
 	}
+
+	err = tbl.Table.Initialize(col)
+	if err != nil {
+		return nil, err
+	}
+
+	tenantTable = tbl
 
 	return tenantTable, nil
 }

@@ -17,6 +17,8 @@ import (
 	"github.com/Prabhjot-Sethi/core/values"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/tenant"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
 )
 
@@ -63,7 +65,10 @@ func locateRootTenant() {
 		Config: &table.TenantConfig{
 			DispName: "Root Tenant",
 			Desc:     "Root Tenant for the system, created by default",
-			Admin:    "admin",
+			DefaultAdmin: &table.UserCredentials{
+				UserID:   "admin",
+				Password: "Password",
+			},
 		},
 	}
 
@@ -127,6 +132,34 @@ func main() {
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()
+
+	// create a new keycloak client
+	client, err := keycloak.New("http://localhost:8080")
+	if err != nil {
+		// failed to create keycloak client, nothing more can be done
+		log.Panicf("failed to create keycloak client: %s", err)
+	}
+	defer func() {
+		_ = client.Logout(context.Background())
+	}()
+
+	// Create tenant setup controller
+	_, err = tenant.NewSetupController(client)
+	if err != nil {
+		log.Panicf("failed to create tenant setup controller: %s", err)
+	}
+
+	// Create tenant Roles controller
+	_, err = tenant.NewRoleController(client)
+	if err != nil {
+		log.Panicf("failed to create tenant roles controller: %s", err)
+	}
+
+	// Create tenant Admin controller
+	_, err = tenant.NewAdminController(client)
+	if err != nil {
+		log.Panicf("failed to create tenant admin controller: %s", err)
+	}
 
 	log.Println("Initialization of Auth Gateway completed")
 
