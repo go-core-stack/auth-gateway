@@ -6,7 +6,10 @@ package main
 import (
 	"context"
 	"flag"
+	"io/fs"
 	"log"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,6 +19,7 @@ import (
 	"github.com/Prabhjot-Sethi/core/sync"
 	"github.com/Prabhjot-Sethi/core/values"
 
+	"github.com/Prabhjot-Sethi/auth-gateway/api"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/tenant"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
@@ -36,6 +40,9 @@ const (
 
 	// service name this process will be hosting
 	serviceName = "auth-gateway"
+
+	// API Port for the server
+	APIPort = ":8090"
 )
 
 // Parse flags for the process
@@ -78,6 +85,16 @@ func locateRootTenant() {
 	if err != nil {
 		log.Panicf("failed to locate root tenant entry: %s", err)
 	}
+}
+
+func getSwaggerHandler() http.Handler {
+	//mime.AddExtensionType(".svg", "image/svg+xml")
+	// Use subdirectory in embedded files
+	subFS, err := fs.Sub(api.Swagger, "swagger")
+	if err != nil {
+		panic("couldn't create sub filesystem: " + err.Error())
+	}
+	return http.FileServer(http.FS(subFS))
 }
 
 func main() {
@@ -161,6 +178,14 @@ func main() {
 	if err != nil {
 		log.Panicf("failed to create tenant admin controller: %s", err)
 	}
+
+	go func() {
+		lis, err := net.Listen("tcp", APIPort)
+		if err != nil {
+			log.Fatalf("failed to start listener for internal api port: %s", err)
+		}
+		log.Panicln(http.Serve(lis, getSwaggerHandler()))
+	}()
 
 	log.Println("Initialization of Auth Gateway completed")
 
