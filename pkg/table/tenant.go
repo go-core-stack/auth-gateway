@@ -123,6 +123,9 @@ type TenantConfig struct {
 	// additional tenant information, requirement based on
 	// local laws
 	Info *TenantInfo `bson:"info,omitempty"`
+
+	// is this tenant root tenant
+	IsRoot bool `bson:"isRoot,omitempty"`
 }
 
 type TenantKCStatus struct {

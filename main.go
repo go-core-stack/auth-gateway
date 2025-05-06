@@ -69,6 +69,7 @@ func locateRootTenant() {
 				UserID:   "admin",
 				Password: "Password",
 			},
+			IsRoot: true,
 		},
 	}
 
