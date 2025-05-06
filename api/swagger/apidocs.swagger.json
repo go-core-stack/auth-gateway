@@ -1,0 +1,163 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Auth Gateway API Specification",
+    "version": "1.0"
+  },
+  "tags": [
+    {
+      "name": "User"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/tenant/{tenant}/users": {
+      "get": {
+        "summary": "Get List of existing users in a tenant",
+        "operationId": "User_GetUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUsersListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under which the user list is requested",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset from where to start the list of users",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the response to specified count",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "search",
+            "description": "prefix match to consider",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiUserListEntry": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        },
+        "creationTimestamp": {
+          "type": "string",
+          "format": "int64",
+          "title": "created since"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access by the user"
+        }
+      },
+      "title": "user information for the list entry"
+    },
+    "apiUsersListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "number of users in the tenant"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiUserListEntry"
+          },
+          "title": "items - list of users"
+        }
+      },
+      "title": "Response to the list of users in a tenant"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Auth Gateway API Specification - sample descriptive information"
+  }
+}

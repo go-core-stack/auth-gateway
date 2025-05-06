@@ -1,0 +1,80 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "1.0"
+    title: "Auth Gateway API Specification"
+  }
+  external_docs: {
+    description: "Auth Gateway API Specification - sample descriptive information"
+  }
+};
+
+// Service provided to manage users
+service User {
+  // Get List of existing users in a tenant
+  rpc GetUsers(UsersListReq) returns (UsersListResp) {
+    option (google.api.http) = {
+      get: "/v1/tenant/{tenant}/users"
+    };
+  }
+}
+
+// Request List of users in a tenant
+message UsersListReq {
+  // tenant under which the user list is requested
+  string tenant = 1;
+  
+  // offset from where to start the list of users
+  int32 offset = 2; 
+  
+  // limit the response to specified count
+  int32 limit = 3;
+      
+  // prefix match to consider
+  string search = 4;
+}
+
+// user information for the list entry
+message UserListEntry {
+  // username or user id
+  string username = 1;
+  
+  // user email
+  string email = 2;
+    
+  // first name of user
+  string firstName = 3;
+    
+  // last name of user
+  string lastName = 4;
+  
+  // is user enabled
+  bool enabled = 5;
+
+  // created since
+  int64 creationTimestamp = 6;
+
+  // last access by the user
+  int64 lastAccess = 7;
+}
+
+// Response to the list of users in a tenant
+message UsersListResp {
+  // number of users in the tenant
+  int32 count = 1;
+  
+  // items - list of users
+  repeated UserListEntry items = 2;
+}
