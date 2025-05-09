@@ -29,6 +29,21 @@ service User {
       get: "/api/auth/v1/tenant/{tenant}/users"
     };
   }
+
+  // Create a new user for the given tenant
+  rpc CreateUser(UserCreateReq) returns (UserCreateResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/tenant/{tenant}/user"
+      body: "*"
+    };
+  }
+
+  // Delete an existing user for the given tenant
+  rpc DeleteUser(UserDeleteReq) returns (UserDeleteResp) {
+    option (google.api.http) = {
+      delete: "/api/auth/v1/tenant/{tenant}/user/{username}"
+    };
+  }
 }
 
 // Request List of users in a tenant
@@ -77,4 +92,59 @@ message UsersListResp {
   
   // items - list of users
   repeated UserListEntry items = 2;
+}
+
+// user create request message
+message UserCreateReq {
+  // tenant under which this user will be created
+  string tenant = 1;
+
+  // user ID
+  string username = 2;
+
+  // email address of the user
+  string email = 3;
+
+  // first name of the user
+  string firstname = 4;
+
+  // last name of the user
+  string lastname = 5;
+
+  // if the user needs to be created disabled
+  bool disabled = 6;
+
+  // temporary first login password to be set for the user
+  string password = 7;
+}
+
+// response to user create request
+message UserCreateResp {
+  // username or user id
+  string username = 1;
+  
+  // user email
+  string email = 2;
+    
+  // first name of user
+  string firstName = 3;
+    
+  // last name of user
+  string lastName = 4;
+  
+  // is user enabled
+  bool enabled = 5;
+}
+
+// delete user request message
+message UserDeleteReq {
+  // tenant under which this action needs to be taken
+  string tenant = 1;
+
+  // user id which needs to be deleted
+  string username = 2;
+}
+
+// response to the user delete message
+message UserDeleteResp {
 }

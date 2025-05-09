@@ -16,6 +16,85 @@
     "application/json"
   ],
   "paths": {
+    "/api/auth/v1/tenant/{tenant}/user": {
+      "post": {
+        "summary": "Create a new user for the given tenant",
+        "operationId": "User_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under which this user will be created",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserCreateUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{tenant}/user/{username}": {
+      "delete": {
+        "summary": "Delete an existing user for the given tenant",
+        "operationId": "User_DeleteUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under which this action needs to be taken",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user id which needs to be deleted",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
     "/api/auth/v1/tenant/{tenant}/users": {
       "get": {
         "summary": "Get List of existing users in a tenant",
@@ -73,6 +152,66 @@
     }
   },
   "definitions": {
+    "UserCreateUserBody": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "user ID"
+        },
+        "email": {
+          "type": "string",
+          "title": "email address of the user"
+        },
+        "firstname": {
+          "type": "string",
+          "title": "first name of the user"
+        },
+        "lastname": {
+          "type": "string",
+          "title": "last name of the user"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "if the user needs to be created disabled"
+        },
+        "password": {
+          "type": "string",
+          "title": "temporary first login password to be set for the user"
+        }
+      },
+      "title": "user create request message"
+    },
+    "apiUserCreateResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        }
+      },
+      "title": "response to user create request"
+    },
+    "apiUserDeleteResp": {
+      "type": "object",
+      "title": "response to the user delete message"
+    },
     "apiUserListEntry": {
       "type": "object",
       "properties": {

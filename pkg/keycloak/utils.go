@@ -3,7 +3,12 @@
 
 package keycloak
 
-import "os"
+import (
+	"net/http"
+	"os"
+
+	"github.com/Nerzal/gocloak/v13"
+)
 
 const (
 	// Environment variable for keycloak admin username
@@ -37,4 +42,13 @@ func getKeycloakPassword() string {
 		return defaultKeycloakAdminPassword
 	}
 	return val
+}
+
+func IsConflictError(err error) bool {
+	if apiErr, ok := err.(*gocloak.APIError); ok {
+		if apiErr.Code == http.StatusConflict {
+			return true
+		}
+	}
+	return false
 }
