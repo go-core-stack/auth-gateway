@@ -24,9 +24,9 @@ type UserApiServer struct {
 	client    *keycloak.Client
 }
 
-func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*api.UsersListResp, error) {
+func (s *UserApiServer) getTenant(ctx context.Context, name string) (*table.TenantEntry, error) {
 	tKey := table.TenantKey{
-		Name: req.Tenant,
+		Name: name,
 	}
 
 	tEntry := &table.TenantEntry{}
@@ -34,15 +34,22 @@ func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*a
 	if err != nil {
 		log.Printf("failed to find the tenant entry: %s", err)
 		if errors.IsNotFound(err) {
-			return nil, status.Errorf(codes.NotFound, "Tenant %s not found", req.Tenant)
+			return nil, status.Errorf(codes.NotFound, "Tenant %s not found", name)
 		}
 		return nil, status.Errorf(codes.Internal, "Somthing went wrong, Please try again later")
 	}
 
 	if tEntry.KCStatus == nil || tEntry.KCStatus.RealmName == "" {
-		return nil, status.Errorf(codes.Unavailable, "Tenant %s setup not completed", req.Tenant)
+		return nil, status.Errorf(codes.Unavailable, "Tenant %s setup not completed", name)
 	}
+	return tEntry, nil
+}
 
+func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*api.UsersListResp, error) {
+	tEntry, err := s.getTenant(ctx, req.Tenant)
+	if err != nil {
+		return nil, err
+	}
 	token, _ := s.client.GetAccessToken()
 	limit := req.Limit
 	if limit == 0 {
@@ -119,6 +126,76 @@ func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*a
 	}
 
 	return resp, nil
+}
+
+func (s *UserApiServer) CreateUser(ctx context.Context, req *api.UserCreateReq) (*api.UserCreateResp, error) {
+	tEntry, err := s.getTenant(ctx, req.Tenant)
+	if err != nil {
+		return nil, err
+	}
+	enabled := !req.Disabled
+	user := gocloak.User{
+		FirstName: gocloak.StringP(req.Firstname),
+		LastName:  gocloak.StringP(req.Lastname),
+		Email:     gocloak.StringP(req.Email),
+		Enabled:   gocloak.BoolP(enabled),
+		Username:  gocloak.StringP(req.Username),
+	}
+	token, _ := s.client.GetAccessToken()
+	userID, err := s.client.CreateUser(ctx, token, tEntry.KCStatus.RealmName, user)
+	if err != nil {
+		log.Printf("failed to create user for Tenant: %s, got error: %s", req.Tenant, err)
+		if ok := keycloak.IsConflictError(err); ok {
+			return nil, status.Errorf(codes.AlreadyExists, "user already exists")
+		}
+		return nil, status.Errorf(codes.InvalidArgument, "failed to create user: %s", err.Error())
+	}
+	user.ID = gocloak.StringP(userID)
+	if req.Password != "" {
+		err = s.client.SetPassword(ctx, token, userID, tEntry.KCStatus.RealmName, req.Password, true)
+		if err != nil {
+			log.Printf("failed to set user first login password in for user %s:%s, got error: %s", req.Tenant, req.Username, err)
+			return nil, status.Errorf(codes.InvalidArgument, "failed to set user password %s", err.Error())
+		}
+	}
+
+	resp := &api.UserCreateResp{
+		Username:  req.Username,
+		Email:     req.Email,
+		FirstName: req.Firstname,
+		LastName:  req.Lastname,
+		Enabled:   !req.Disabled,
+	}
+	return resp, nil
+}
+
+func (s *UserApiServer) DeleteUser(ctx context.Context, req *api.UserDeleteReq) (*api.UserDeleteResp, error) {
+	tEntry, err := s.getTenant(ctx, req.Tenant)
+	if err != nil {
+		return nil, err
+	}
+
+	if tEntry.Config.DefaultAdmin.UserID == req.Username {
+		return nil, status.Errorf(codes.PermissionDenied, "Default Tenant Admin")
+	}
+
+	token, _ := s.client.GetAccessToken()
+	params := gocloak.GetUsersParams{
+		Username: gocloak.StringP(req.Username),
+	}
+	users, err := s.client.GetUsers(ctx, token, tEntry.KCStatus.RealmName, params)
+	if err != nil || len(users) == 0 {
+		log.Printf("failed to find the user in given tenant %s, got error: %s", req.Tenant, err)
+		return nil, status.Errorf(codes.InvalidArgument, "user not found")
+	}
+	// assume that it is always the first and the only user in the list
+	err = s.client.DeleteUser(ctx, token, tEntry.KCStatus.RealmName, *users[0].ID)
+	if err != nil {
+		log.Printf("failed to delete user %s:%s, got error: %s", req.Tenant, req.Username, err)
+		return nil, status.Errorf(codes.InvalidArgument, "failed to delete user %s", err)
+	}
+
+	return &api.UserDeleteResp{}, nil
 }
 
 func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client) *UserApiServer {

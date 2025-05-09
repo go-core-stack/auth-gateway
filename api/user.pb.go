@@ -254,6 +254,280 @@ func (x *UsersListResp) GetItems() []*UserListEntry {
 	return nil
 }
 
+// user create request message
+type UserCreateReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under which this user will be created
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// user ID
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	// email address of the user
+	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	// first name of the user
+	Firstname string `protobuf:"bytes,4,opt,name=firstname,proto3" json:"firstname,omitempty"`
+	// last name of the user
+	Lastname string `protobuf:"bytes,5,opt,name=lastname,proto3" json:"lastname,omitempty"`
+	// if the user needs to be created disabled
+	Disabled bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	// temporary first login password to be set for the user
+	Password      string `protobuf:"bytes,7,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserCreateReq) Reset() {
+	*x = UserCreateReq{}
+	mi := &file_user_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserCreateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserCreateReq) ProtoMessage() {}
+
+func (x *UserCreateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserCreateReq.ProtoReflect.Descriptor instead.
+func (*UserCreateReq) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UserCreateReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+func (x *UserCreateReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserCreateReq) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *UserCreateReq) GetFirstname() string {
+	if x != nil {
+		return x.Firstname
+	}
+	return ""
+}
+
+func (x *UserCreateReq) GetLastname() string {
+	if x != nil {
+		return x.Lastname
+	}
+	return ""
+}
+
+func (x *UserCreateReq) GetDisabled() bool {
+	if x != nil {
+		return x.Disabled
+	}
+	return false
+}
+
+func (x *UserCreateReq) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+// response to user create request
+type UserCreateResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// username or user id
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	// user email
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// first name of user
+	FirstName string `protobuf:"bytes,3,opt,name=firstName,proto3" json:"firstName,omitempty"`
+	// last name of user
+	LastName string `protobuf:"bytes,4,opt,name=lastName,proto3" json:"lastName,omitempty"`
+	// is user enabled
+	Enabled       bool `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserCreateResp) Reset() {
+	*x = UserCreateResp{}
+	mi := &file_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserCreateResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserCreateResp) ProtoMessage() {}
+
+func (x *UserCreateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserCreateResp.ProtoReflect.Descriptor instead.
+func (*UserCreateResp) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UserCreateResp) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserCreateResp) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *UserCreateResp) GetFirstName() string {
+	if x != nil {
+		return x.FirstName
+	}
+	return ""
+}
+
+func (x *UserCreateResp) GetLastName() string {
+	if x != nil {
+		return x.LastName
+	}
+	return ""
+}
+
+func (x *UserCreateResp) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+// delete user request message
+type UserDeleteReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under which this action needs to be taken
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// user id which needs to be deleted
+	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserDeleteReq) Reset() {
+	*x = UserDeleteReq{}
+	mi := &file_user_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserDeleteReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserDeleteReq) ProtoMessage() {}
+
+func (x *UserDeleteReq) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserDeleteReq.ProtoReflect.Descriptor instead.
+func (*UserDeleteReq) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UserDeleteReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+func (x *UserDeleteReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+// response to the user delete message
+type UserDeleteResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserDeleteResp) Reset() {
+	*x = UserDeleteResp{}
+	mi := &file_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserDeleteResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserDeleteResp) ProtoMessage() {}
+
+func (x *UserDeleteResp) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserDeleteResp.ProtoReflect.Descriptor instead.
+func (*UserDeleteResp) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{6}
+}
+
 var File_user_proto protoreflect.FileDescriptor
 
 const file_user_proto_rawDesc = "" +
@@ -277,9 +551,31 @@ const file_user_proto_rawDesc = "" +
 	"lastAccess\"O\n" +
 	"\rUsersListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12(\n" +
-	"\x05items\x18\x02 \x03(\v2\x12.api.UserListEntryR\x05items2e\n" +
+	"\x05items\x18\x02 \x03(\v2\x12.api.UserListEntryR\x05items\"\xcb\x01\n" +
+	"\rUserCreateReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1c\n" +
+	"\tfirstname\x18\x04 \x01(\tR\tfirstname\x12\x1a\n" +
+	"\blastname\x18\x05 \x01(\tR\blastname\x12\x1a\n" +
+	"\bdisabled\x18\x06 \x01(\bR\bdisabled\x12\x1a\n" +
+	"\bpassword\x18\a \x01(\tR\bpassword\"\x96\x01\n" +
+	"\x0eUserCreateResp\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
+	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
+	"\blastName\x18\x04 \x01(\tR\blastName\x12\x18\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"C\n" +
+	"\rUserDeleteReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"\x10\n" +
+	"\x0eUserDeleteResp2\xb7\x02\n" +
 	"\x04User\x12]\n" +
-	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\"*\x82\xd3\xe4\x93\x02$\x12\"/api/auth/v1/tenant/{tenant}/usersB\x99\x01\x92Aj\x12%\n" +
+	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\"*\x82\xd3\xe4\x93\x02$\x12\"/api/auth/v1/tenant/{tenant}/users\x12c\n" +
+	"\n" +
+	"CreateUser\x12\x12.api.UserCreateReq\x1a\x13.api.UserCreateResp\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/auth/v1/tenant/{tenant}/user\x12k\n" +
+	"\n" +
+	"DeleteUser\x12\x12.api.UserDeleteReq\x1a\x13.api.UserDeleteResp\"4\x82\xd3\xe4\x93\x02.*,/api/auth/v1/tenant/{tenant}/user/{username}B\x99\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
 	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
 
@@ -295,18 +591,26 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_user_proto_goTypes = []any{
-	(*UsersListReq)(nil),  // 0: api.UsersListReq
-	(*UserListEntry)(nil), // 1: api.UserListEntry
-	(*UsersListResp)(nil), // 2: api.UsersListResp
+	(*UsersListReq)(nil),   // 0: api.UsersListReq
+	(*UserListEntry)(nil),  // 1: api.UserListEntry
+	(*UsersListResp)(nil),  // 2: api.UsersListResp
+	(*UserCreateReq)(nil),  // 3: api.UserCreateReq
+	(*UserCreateResp)(nil), // 4: api.UserCreateResp
+	(*UserDeleteReq)(nil),  // 5: api.UserDeleteReq
+	(*UserDeleteResp)(nil), // 6: api.UserDeleteResp
 }
 var file_user_proto_depIdxs = []int32{
 	1, // 0: api.UsersListResp.items:type_name -> api.UserListEntry
 	0, // 1: api.User.GetUsers:input_type -> api.UsersListReq
-	2, // 2: api.User.GetUsers:output_type -> api.UsersListResp
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
+	3, // 2: api.User.CreateUser:input_type -> api.UserCreateReq
+	5, // 3: api.User.DeleteUser:input_type -> api.UserDeleteReq
+	2, // 4: api.User.GetUsers:output_type -> api.UsersListResp
+	4, // 5: api.User.CreateUser:output_type -> api.UserCreateResp
+	6, // 6: api.User.DeleteUser:output_type -> api.UserDeleteResp
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -323,7 +627,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
