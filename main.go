@@ -237,7 +237,7 @@ func main() {
 	serverCtx := startGRPCServers()
 
 	// Setup as new user server
-	_ = server.NewUserServer(serverCtx)
+	_ = server.NewUserServer(serverCtx, client)
 
 	log.Println("Initialization of Auth Gateway completed")
 
