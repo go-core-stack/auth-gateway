@@ -12,8 +12,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
+
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/Prabhjot-Sethi/core/db"
 	"github.com/Prabhjot-Sethi/core/sync"
@@ -23,6 +28,8 @@ import (
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/tenant"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/server"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
 )
 
@@ -43,6 +50,9 @@ const (
 
 	// API Port for the server
 	APIPort = ":8090"
+
+	// GRPC Port for the server
+	GrpcPort = ":8091"
 )
 
 // Parse flags for the process
@@ -95,6 +105,50 @@ func getSwaggerHandler() http.Handler {
 		panic("couldn't create sub filesystem: " + err.Error())
 	}
 	return http.FileServer(http.FS(subFS))
+}
+
+func startGRPCServers() *model.GrpcServerContext {
+	var opts = []grpc.ServerOption{}
+	serverCtx := &model.GrpcServerContext{
+		Server: grpc.NewServer(opts...),
+	}
+
+	go func() {
+		lis, err := net.Listen("tcp", GrpcPort)
+		if err != nil {
+			log.Panicf("failed to start GRPC Server")
+		}
+		log.Panic(serverCtx.Server.Serve(lis))
+	}()
+
+	serverCtx.Mux = runtime.NewServeMux()
+	oa := getSwaggerHandler()
+	gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/") {
+			// all APIs are handled via GRPC gateway
+			serverCtx.Mux.ServeHTTP(w, r)
+		} else {
+			oa.ServeHTTP(w, r)
+		}
+	})
+
+	go func() {
+		lis, err := net.Listen("tcp", APIPort)
+		if err != nil {
+			log.Panicf("failed to start GRPC Gateway Server")
+		}
+		log.Panic(http.Serve(lis, gwHandler))
+	}()
+
+	var err error
+	serverCtx.Conn, err = grpc.NewClient(GrpcPort,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Panicf("failed to get grpc client handle: %s", err)
+	}
+
+	return serverCtx
 }
 
 func main() {
@@ -179,13 +233,11 @@ func main() {
 		log.Panicf("failed to create tenant admin controller: %s", err)
 	}
 
-	go func() {
-		lis, err := net.Listen("tcp", APIPort)
-		if err != nil {
-			log.Fatalf("failed to start listener for internal api port: %s", err)
-		}
-		log.Panicln(http.Serve(lis, getSwaggerHandler()))
-	}()
+	// start GRPC Servers
+	serverCtx := startGRPCServers()
+
+	// Setup as new user server
+	_ = server.NewUserServer(serverCtx)
 
 	log.Println("Initialization of Auth Gateway completed")
 

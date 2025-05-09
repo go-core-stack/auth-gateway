@@ -277,9 +277,9 @@ const file_user_proto_rawDesc = "" +
 	"lastAccess\"O\n" +
 	"\rUsersListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12(\n" +
-	"\x05items\x18\x02 \x03(\v2\x12.api.UserListEntryR\x05items2\\\n" +
-	"\x04User\x12T\n" +
-	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/tenant/{tenant}/usersB\x99\x01\x92Aj\x12%\n" +
+	"\x05items\x18\x02 \x03(\v2\x12.api.UserListEntryR\x05items2e\n" +
+	"\x04User\x12]\n" +
+	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\"*\x82\xd3\xe4\x93\x02$\x12\"/api/auth/v1/tenant/{tenant}/usersB\x99\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
 	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
 

@@ -198,7 +198,7 @@ func LocateTenantTable(client db.StoreClient) (*TenantTable, error) {
 		col: col,
 	}
 
-	err = tbl.Table.Initialize(col)
+	err = tbl.Initialize(col)
 	if err != nil {
 		return nil, err
 	}
