@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/v1/tenant/{tenant}/users": {
+    "/api/auth/v1/tenant/{tenant}/users": {
       "get": {
         "summary": "Get List of existing users in a tenant",
         "operationId": "User_GetUsers",
