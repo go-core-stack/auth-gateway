@@ -1,0 +1,57 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "1.0"
+    title: "Auth Gateway API Specification"
+  }
+  external_docs: {
+    description: "Auth Gateway API Specification - sample descriptive information"
+  }
+  schemes: HTTP
+  security_definitions: {
+    security: {
+      key: "keycloakAuth"
+      value: {
+        type: TYPE_OAUTH2
+        flow: FLOW_ACCESS_CODE
+        authorization_url: "http://192.168.100.21:8080/realms/root/protocol/openid-connect/auth"
+        token_url: "http://192.168.100.21:8080/realms/root/protocol/openid-connect/token"
+        scopes: {
+          scope: {
+            key: "openid"
+            value: "OpenID scope"
+          }
+          scope: {
+            key: "profile"
+            value: "Access profile info"
+          }
+          scope: {
+            key: "email"
+            value: "Access email info"
+          }
+        }
+      }
+    }
+  }
+  security: {
+    security_requirement: {
+      key: "keycloakAuth"
+      value: {
+        scope: "openid";
+        scope: "profile";
+        scope: "email";
+      }
+    }
+  }
+};

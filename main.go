@@ -84,7 +84,7 @@ func locateRootTenant() {
 			Desc:     "Root Tenant for the system, created by default",
 			DefaultAdmin: &table.UserCredentials{
 				UserID:   "admin",
-				Password: "Password",
+				Password: "password",
 			},
 			IsRoot: true,
 		},
