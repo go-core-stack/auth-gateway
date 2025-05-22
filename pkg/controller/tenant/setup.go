@@ -80,6 +80,100 @@ func (r *SetupReconciler) Reconcile(k any) (*reconciler.Result, error) {
 			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
 		}
 	}
+
+	if entry.AuthClient == nil || entry.AuthClient.UpdateTime == 0 {
+		// create Auth client corresponding to the tenant
+		token, err := r.ctrl.client.GetAccessToken()
+		if err != nil {
+			log.Panicf("keycloak session not active: %s", err)
+		}
+		clientId := "controller"
+		params := gocloak.GetClientsParams{
+			ClientID: gocloak.StringP(clientId),
+		}
+		found, err := r.ctrl.client.GetClients(context.Background(), token, key.Name, params)
+		if err != nil {
+			log.Printf("failed to fetch clients from keycloak: %s", err)
+			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
+		}
+
+		id := ""
+		if len(found) == 0 {
+			authClient := gocloak.Client{
+				ClientID:     gocloak.StringP(clientId),
+				Protocol:     gocloak.StringP("openid-connect"),
+				Enabled:      gocloak.BoolP(true),
+				RedirectURIs: &[]string{"*"},
+				WebOrigins:   &[]string{"*"},
+			}
+			id, err = r.ctrl.client.CreateClient(context.Background(), token, key.Name, authClient)
+			if err != nil {
+				log.Printf("failed to create auth client in keycloak: %s", err)
+				return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
+			}
+		} else {
+			id = *found[0].ID
+		}
+
+		mList := []gocloak.ProtocolMapperRepresentation{
+			{
+				Config: &map[string]string{
+					"access.token.claim":       "true",
+					"id.token.claim":           "false",
+					"included.client.audience": clientId,
+				},
+				Name:           gocloak.StringP("audience-info"),
+				Protocol:       gocloak.StringP("openid-connect"),
+				ProtocolMapper: gocloak.StringP("oidc-audience-mapper"),
+			},
+			{
+				Config: &map[string]string{
+					"access.token.claim": "true",
+					"id.token.claim":     "false",
+					"claim.name":         "realm",
+					"claim.value":        key.Name,
+					"jsonType.label":     "string",
+				},
+				Name:           gocloak.StringP("realm-info"),
+				Protocol:       gocloak.StringP("openid-connect"),
+				ProtocolMapper: gocloak.StringP("oidc-hardcoded-claim-mapper"),
+			},
+		}
+
+		for _, mapper := range mList {
+			if len(found) != 0 {
+				// we need to handle this as we may have a situation for a partial
+				// keycloak client configuration
+				if found[0].ProtocolMappers != nil {
+					for _, m := range *found[0].ProtocolMappers {
+						if *m.Name == *mapper.Name {
+							// skip if mapper already exists
+							continue
+						}
+					}
+				}
+			}
+			_, err := r.ctrl.client.CreateClientProtocolMapper(context.Background(), token, key.Name, id, mapper)
+			if err != nil {
+				log.Printf("failed to create client protocol mapper: %s", err)
+				return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
+			}
+		}
+
+		update := &table.TenantEntry{
+			AuthClient: &table.TenantAuthClientStatus{
+				ClientId:   clientId,
+				UpdateTime: time.Now().Unix(),
+			},
+		}
+
+		err = r.ctrl.tbl.Update(context.Background(), key, update)
+		if err != nil {
+			log.Printf("failed to update Realm for tenant %s: got err %s", key.Name, err)
+			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
+		}
+	}
+
 	return &reconciler.Result{}, nil
 }
 

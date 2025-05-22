@@ -136,6 +136,14 @@ type TenantKCStatus struct {
 	RealmName string `bson:"realmName,omitempty"`
 }
 
+type TenantAuthClientStatus struct {
+	// time when last updated
+	UpdateTime int64 `bson:"updateTime,omitempty"`
+
+	// Client ID which is configured in Keycloak
+	ClientId string `bson:"clientID,omitempty"`
+}
+
 type TenantRoleStatus struct {
 	// time when last updated
 	UpdateTime int64 `bson:"updateTime,omitempty"`
@@ -164,6 +172,9 @@ type TenantEntry struct {
 
 	// admin status
 	AdminStatus *TenantAdminStatus `bson:"adminStatus,omitempty"`
+
+	// auth client status
+	AuthClient *TenantAuthClientStatus `bson:"authClient,omitempty"`
 }
 
 type TenantTable struct {
