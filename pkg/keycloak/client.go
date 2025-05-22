@@ -76,6 +76,35 @@ func New(url string) (*Client, error) {
 	return client, nil
 }
 
+// create a new keycloak client for given endpoint
+// and user credentials
+// This requires direct flow validations enabled, which
+// typically is not considered secure and is not
+// recommended for production scenarios, more to be used
+// in development environment.
+// where direct flow enablement needs to be done manually
+func NewUserClient(url, realm, user, password string) (*Client, error) {
+	client := &Client{
+		GoCloak:   *(gocloak.NewClient(url)),
+		userRealm: realm,
+		clientID:  "controller",
+		url:       url,
+	}
+
+	// perform adming login using the provided login credentials and user realm
+	token, err := client.Login(context.Background(), client.clientID, "", client.userRealm, user, password)
+	if err != nil {
+		return nil, err
+	}
+
+	client.token = token
+
+	// starts the loop to keep the access token active all the time
+	go client.refreshToken()
+
+	return client, nil
+}
+
 // Gets the current access token from the client
 func (c *Client) GetAccessToken() (string, error) {
 	c.tokenMu.RLock()
