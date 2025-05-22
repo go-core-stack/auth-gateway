@@ -25,8 +25,10 @@ import (
 	"github.com/Prabhjot-Sethi/core/values"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/api"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/tenant"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/gateway"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/server"
@@ -135,9 +137,9 @@ func startGRPCServers() *model.GrpcServerContext {
 	go func() {
 		lis, err := net.Listen("tcp", APIPort)
 		if err != nil {
-			log.Panicf("failed to start GRPC Gateway Server")
+			log.Panicf("failed to start GRPC Gateway Server: %s", err)
 		}
-		log.Panic(http.Serve(lis, gwHandler))
+		log.Panic(http.Serve(lis, gateway.New(gwHandler)))
 	}()
 
 	var err error
@@ -214,6 +216,13 @@ func main() {
 	defer func() {
 		_ = client.Logout(context.Background())
 	}()
+
+	// Initialize auth package, needs to be done before starting the
+	// gateway service which in turn will be using auth package
+	err = auth.Initialize("http://localhost:8080", "account")
+	if err != nil {
+		log.Panicf("failed to initialize auth package: %s", err)
+	}
 
 	// Create tenant setup controller
 	_, err = tenant.NewSetupController(client)
