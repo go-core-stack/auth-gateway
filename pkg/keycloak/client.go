@@ -5,6 +5,7 @@ package keycloak
 
 import (
 	"context"
+	"crypto/tls"
 	"log"
 	"sync"
 	"time"
@@ -103,6 +104,23 @@ func NewUserClient(url, realm, user, password string) (*Client, error) {
 	go client.refreshToken()
 
 	return client, nil
+}
+
+// create a new unauthenticated public keycloak client for given endpoint
+// typically will be consumed by public authentication validators
+//
+// Public client is required only to be consumed by OIDC verifier for
+// validating the provided token and usage is expected to be restricted
+// to auth gateway internal use only
+func NewPublicClient(url string) *Client {
+	client := &Client{
+		GoCloak: *(gocloak.NewClient(url)),
+	}
+
+	restyClient := client.RestyClient()
+	// skip ssl verify as we are always going to connect to internal url of the keycloak
+	restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+	return client
 }
 
 // Gets the current access token from the client
