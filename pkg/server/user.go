@@ -9,13 +9,16 @@ import (
 	"strconv"
 
 	"github.com/Nerzal/gocloak/v13"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/Prabhjot-Sethi/core/auth"
+	"github.com/Prabhjot-Sethi/core/errors"
+
 	"github.com/Prabhjot-Sethi/auth-gateway/api"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
-	"github.com/Prabhjot-Sethi/core/errors"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type UserApiServer struct {
@@ -46,6 +49,10 @@ func (s *UserApiServer) getTenant(ctx context.Context, name string) (*table.Tena
 }
 
 func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*api.UsersListResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo != nil {
+		log.Printf("got auth info %v", *authInfo)
+	}
 	tEntry, err := s.getTenant(ctx, req.Tenant)
 	if err != nil {
 		return nil, err

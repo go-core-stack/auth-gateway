@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 
+	common "github.com/Prabhjot-Sethi/core/auth"
+
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
 )
 
@@ -23,7 +25,12 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Authentication failed: %s", err), http.StatusUnauthorized)
 		return
 	}
-	log.Printf("Got Auth Info %v", *authInfo)
+	// Add Auth info for the backend server
+	err = common.SetAuthInfoHeader(r, authInfo)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to process auth information: %s", err), http.StatusInternalServerError)
+		return
+	}
 	s.server.ServeHTTP(w, r)
 }
 

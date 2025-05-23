@@ -16,10 +16,12 @@ import (
 	"syscall"
 	"time"
 
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	common "github.com/Prabhjot-Sethi/core/auth"
 	"github.com/Prabhjot-Sethi/core/db"
 	"github.com/Prabhjot-Sethi/core/sync"
 	"github.com/Prabhjot-Sethi/core/values"
@@ -111,6 +113,11 @@ func getSwaggerHandler() http.Handler {
 
 func startGRPCServers() *model.GrpcServerContext {
 	var opts = []grpc.ServerOption{}
+	// Ensure adding an interceptor to process the auth Headers
+	// Validating its existence in common place and storing its
+	// processed value in the context
+	opts = append(opts, grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(common.ProcessAuthInfo)))
+	opts = append(opts, grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(common.ProcessAuthInfo)))
 	serverCtx := &model.GrpcServerContext{
 		Server: grpc.NewServer(opts...),
 	}
@@ -123,7 +130,14 @@ func startGRPCServers() *model.GrpcServerContext {
 		log.Panic(serverCtx.Server.Serve(lis))
 	}()
 
-	serverCtx.Mux = runtime.NewServeMux()
+	// Create a server mux with incoming header matcher ensuring,
+	// processing of custom headers
+	serverCtx.Mux = runtime.NewServeMux(runtime.WithIncomingHeaderMatcher(func(key string) (string, bool) {
+		if key == common.HttpClientAuthContext {
+			return common.GrpcClientAuthContext, true
+		}
+		return key, false
+	}))
 	oa := getSwaggerHandler()
 	gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
