@@ -7,6 +7,9 @@
   "tags": [
     {
       "name": "User"
+    },
+    {
+      "name": "MyAccount"
     }
   ],
   "consumes": [
@@ -30,7 +33,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -70,7 +73,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -109,7 +112,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -149,6 +152,181 @@
           "User"
         ]
       }
+    },
+    "/api/myaccount/v1/api-key": {
+      "post": {
+        "summary": "create a new api key for api access",
+        "operationId": "MyAccount_CreateApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-key/{id}": {
+      "delete": {
+        "summary": "delete an existing api key",
+        "operationId": "MyAccount_DeleteApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "key id that needs to be deleted",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-key/{id}/disable": {
+      "post": {
+        "summary": "disabling an existing enabled api key, not action is performed\nif the key is already disabled",
+        "operationId": "MyAccount_DisableApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyDisableResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "key id that needs to be disabled",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-key/{id}/enable": {
+      "post": {
+        "summary": "enabling an existing disabled api key, not action is performed\nif the key is already enabled",
+        "operationId": "MyAccount_EnableApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyEnableResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "key id that needs to be enabled",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-keys": {
+      "get": {
+        "summary": "list all available api keys for the user",
+        "operationId": "MyAccount_ListApiKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeysListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/info": {
+      "get": {
+        "summary": "get my account info",
+        "operationId": "MyAccount_GetMyInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMyInfoGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyAccount"
+        ]
+      }
     }
   },
   "definitions": {
@@ -181,6 +359,132 @@
         }
       },
       "title": "user create request message"
+    },
+    "apiApiKeyCreateReq": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "key id will be allocated by virtue of key creation\nuser is expected to provide an optional name for\nease of reference, it is recommended to be unique\nbut not validated or ensured to be unique"
+        },
+        "validity": {
+          "type": "string",
+          "format": "int64",
+          "title": "validity of the api key, tenure in seconds for\nwhich this api key is being created\nwhen not set or 0 it means key with no expiry"
+        }
+      }
+    },
+    "apiApiKeyCreateResp": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name of the api key provided by the creator"
+        },
+        "id": {
+          "type": "string",
+          "title": "ID of the access key that will be used by the\nclient and server to identify ApiKey in use"
+        },
+        "status": {
+          "$ref": "#/definitions/apiApiKeyDefStatus",
+          "title": "current status of the Api Key"
+        },
+        "lastUsed": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key was used last time"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key was created"
+        },
+        "expireAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key will expire"
+        },
+        "secret": {
+          "type": "string",
+          "title": "Secret to be used in conjunction with key id\nfor authentication of client using the api key\nbut typically the auth mechanism used will not\nexpect to share this secret ever on the wire\nafter it is being created, neither on APIs nor\nfor authentication"
+        }
+      }
+    },
+    "apiApiKeyDefStatus": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Expired",
+        "Disabled"
+      ],
+      "default": "Active",
+      "title": "- Active: ApiKey is active\n - Expired: ApiKey has expired\n - Disabled: ApiKey is disabled"
+    },
+    "apiApiKeyDeleteResp": {
+      "type": "object"
+    },
+    "apiApiKeyDisableResp": {
+      "type": "object"
+    },
+    "apiApiKeyEnableResp": {
+      "type": "object"
+    },
+    "apiApiKeyListEntry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name of the api key provided by the creator"
+        },
+        "id": {
+          "type": "string",
+          "title": "ID of the access key that will be used by the\nclient and server to identify ApiKey in use"
+        },
+        "status": {
+          "$ref": "#/definitions/apiApiKeyDefStatus",
+          "title": "current status of the Api Key"
+        },
+        "lastUsed": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key was used last time"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key was created"
+        },
+        "expireAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key will expire"
+        }
+      }
+    },
+    "apiApiKeysListResp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiApiKeyListEntry"
+          }
+        }
+      }
+    },
+    "apiMyInfoGetResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username which is used for login"
+        },
+        "fullName": {
+          "type": "string",
+          "title": "full user name"
+        }
+      }
     },
     "apiUserCreateResp": {
       "type": "object",
@@ -267,16 +571,7 @@
       },
       "title": "Response to the list of users in a tenant"
     },
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "@type": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {}
-    },
-    "rpcStatus": {
+    "googlerpcStatus": {
       "type": "object",
       "properties": {
         "code": {
@@ -294,6 +589,15 @@
           }
         }
       }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
     }
   },
   "externalDocs": {
