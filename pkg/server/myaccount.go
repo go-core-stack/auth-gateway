@@ -39,7 +39,7 @@ func (s *MyAccountServer) GetMyInfo(ctx context.Context, req *api.MyInfoGetReq) 
 	}
 	return &api.MyInfoGetResp{
 		Username: authInfo.UserName, // Use username from auth info
-		FullName: authInfo.Email,    // Use email as full name
+		FullName: authInfo.FullName, // Use full name from auth info
 	}, nil
 }
 
