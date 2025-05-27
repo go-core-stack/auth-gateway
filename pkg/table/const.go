@@ -11,4 +11,7 @@ const (
 const (
 	// tenants collection name
 	TenantsCollectionName = "tenants"
+
+	// api keys collection name
+	ApiKeyCollectionName = "api-keys"
 )

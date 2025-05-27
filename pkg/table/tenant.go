@@ -9,11 +9,9 @@ import (
 	"github.com/Prabhjot-Sethi/core/db"
 	"github.com/Prabhjot-Sethi/core/errors"
 	"github.com/Prabhjot-Sethi/core/table"
-	"github.com/Prabhjot-Sethi/core/utils"
 )
 
 var tenantTable *TenantTable
-var encryptor utils.IOEncryptor
 
 type TenantKey struct {
 	// Name as a key for the tenant
@@ -195,21 +193,12 @@ func LocateTenantTable(client db.StoreClient) (*TenantTable, error) {
 		return tenantTable, nil
 	}
 
-	var err error
-	if encryptor == nil {
-		encryptor, err = utils.InitializeEncryptor("TenantTable", "mydummykey")
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	col := client.GetCollection(AuthDatabaseName, TenantsCollectionName)
-
 	tbl := &TenantTable{
 		col: col,
 	}
 
-	err = tbl.Initialize(col)
+	err := tbl.Initialize(col)
 	if err != nil {
 		return nil, err
 	}

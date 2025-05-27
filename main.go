@@ -217,6 +217,20 @@ func main() {
 		log.Panicf("Failed to initialize owner table using default store: %s", err)
 	}
 
+	// create the required tables backed by database store
+
+	// locate the tenant table to work with
+	_, err = table.LocateTenantTable(client)
+	if err != nil {
+		log.Panicf("failed to locate Tenant table: %s", err)
+	}
+
+	// locate the api key table to work with
+	_, err = table.LocateApiKeyTable(client)
+	if err != nil {
+		log.Panicf("failed to locate API Key table: %s", err)
+	}
+
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()
