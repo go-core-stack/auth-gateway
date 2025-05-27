@@ -3,7 +3,7 @@ module github.com/Prabhjot-Sethi/auth-gateway
 go 1.24
 
 require (
-	github.com/Prabhjot-Sethi/core v0.0.0-20250527094439-860a96f7ec86
+	github.com/Prabhjot-Sethi/core v0.0.0-20250527163145-d66c9d199b79
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
 	google.golang.org/genproto/googleapis/api v0.0.0-20250505200425-f936aa4a68b2
 	google.golang.org/grpc v1.72.1
@@ -30,7 +30,7 @@ require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/coreos/go-oidc/v3 v3.14.1
 	github.com/golang/snappy v1.0.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
+	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
