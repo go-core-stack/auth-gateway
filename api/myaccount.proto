@@ -1,0 +1,190 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "1.0"
+    title: "Auth Gateway API Specification"
+  }
+  external_docs: {
+    description: "Auth Gateway API Specification - sample descriptive information"
+  }
+};
+
+service MyAccount {
+  // get my account info
+  rpc GetMyInfo(MyInfoGetReq) returns (MyInfoGetResp) {
+    option (google.api.http) = {                                                              
+      get: "/api/myaccount/v1/info"                                                           
+    };                                                                                        
+  }
+
+  // create a new api key for api access
+  rpc CreateApiKey(ApiKeyCreateReq) returns (ApiKeyCreateResp) {
+    option (google.api.http) = {
+      post: "/api/myaccount/v1/api-key"
+      body: "*"
+    };
+  }
+
+  // disabling an existing enabled api key, not action is performed
+  // if the key is already disabled
+  rpc DisableApiKey(ApiKeyDisableReq) returns (ApiKeyDisableResp) {
+    option (google.api.http) = {
+      post: "/api/myaccount/v1/api-key/{id}/disable"
+    };
+  }
+
+  // enabling an existing disabled api key, not action is performed
+  // if the key is already enabled
+  rpc EnableApiKey(ApiKeyEnableReq) returns (ApiKeyEnableResp) {
+    option (google.api.http) = {
+      post: "/api/myaccount/v1/api-key/{id}/enable"
+    };
+  }
+
+  // delete an existing api key
+  rpc DeleteApiKey(ApiKeyDeleteReq) returns (ApiKeyDeleteResp) {
+    option (google.api.http) = {
+      delete: "/api/myaccount/v1/api-key/{id}"
+    };
+  }   
+    
+  // list all available api keys for the user
+  rpc ListApiKeys(ApiKeysListReq) returns (ApiKeysListResp) {
+    option (google.api.http) = {
+      get: "/api/myaccount/v1/api-keys"
+    };
+  }
+}
+
+message MyInfoGetReq {
+}
+
+message MyInfoGetResp {
+  // username which is used for login
+  string username = 1;
+
+  // full user name
+  string fullName = 2;
+}
+
+message ApiKeyCreateReq {
+  // key id will be allocated by virtue of key creation
+  // user is expected to provide an optional name for
+  // ease of reference, it is recommended to be unique
+  // but not validated or ensured to be unique
+  string name = 1;
+
+  // validity of the api key, tenure in seconds for
+  // which this api key is being created
+  // when not set or 0 it means key with no expiry
+  int64 validity = 2;
+
+  // TODO eventually we will have ApiKeys to work with
+  // session approvers to provide better security
+}
+
+message ApiKeyDef {
+  enum Status {
+    // ApiKey is active
+    Active = 0;
+
+    // ApiKey has expired
+    Expired = 1;
+
+    // ApiKey is disabled
+    Disabled = 2;
+  }
+}
+
+message ApiKeyCreateResp {
+  // name of the api key provided by the creator
+  string name = 1;
+
+  // ID of the access key that will be used by the
+  // client and server to identify ApiKey in use
+  string id = 2;
+
+  // current status of the Api Key
+  ApiKeyDef.Status status = 3;
+
+  // timestamp when the api key was used last time
+  int64 lastUsed = 4;
+
+  // timestamp when the api key was created
+  int64 createTime = 5;
+
+  // timestamp when the api key will expire
+  int64 expireAt = 6;
+
+  // Secret to be used in conjunction with key id
+  // for authentication of client using the api key
+  // but typically the auth mechanism used will not
+  // expect to share this secret ever on the wire
+  // after it is being created, neither on APIs nor
+  // for authentication
+  string secret = 7;
+}
+
+message ApiKeyDisableReq {
+  // key id that needs to be disabled
+  string id = 1;
+}
+
+message ApiKeyDisableResp {
+}
+
+message ApiKeyEnableReq {
+  // key id that needs to be enabled
+  string id = 1;
+}
+
+message ApiKeyEnableResp {
+}
+
+message ApiKeyDeleteReq {
+  // key id that needs to be deleted
+  string id = 1;
+}
+
+message ApiKeyDeleteResp {
+}
+
+message ApiKeysListReq {
+}
+
+message ApiKeyListEntry {
+  // name of the api key provided by the creator
+  string name = 1;
+
+  // ID of the access key that will be used by the
+  // client and server to identify ApiKey in use
+  string id = 2;
+
+  // current status of the Api Key
+  ApiKeyDef.Status status = 3;
+
+  // timestamp when the api key was used last time
+  int64 lastUsed = 4;
+
+  // timestamp when the api key was created
+  int64 createTime = 5;
+
+  // timestamp when the api key will expire
+  int64 expireAt = 6;
+}
+
+message ApiKeysListResp {
+  repeated ApiKeyListEntry items = 1;
+}
