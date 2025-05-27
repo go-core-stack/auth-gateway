@@ -31,8 +31,7 @@ type AdminReconciler struct {
 func (r *AdminReconciler) Reconcile(k any) (*reconciler.Result, error) {
 	key := k.(*table.TenantKey)
 
-	entry := &table.TenantEntry{}
-	err := r.ctrl.tbl.Find(context.Background(), key, entry)
+	entry, err := r.ctrl.tbl.Find(context.Background(), key)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// entry is deleted, nothing needs to be done

@@ -32,8 +32,7 @@ func (s *UserApiServer) getTenant(ctx context.Context, name string) (*table.Tena
 		Name: name,
 	}
 
-	tEntry := &table.TenantEntry{}
-	err := s.tenantTbl.Find(ctx, &tKey, tEntry)
+	tEntry, err := s.tenantTbl.Find(ctx, &tKey)
 	if err != nil {
 		log.Printf("failed to find the tenant entry: %s", err)
 		if errors.IsNotFound(err) {
