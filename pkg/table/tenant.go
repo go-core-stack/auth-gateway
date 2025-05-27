@@ -178,7 +178,7 @@ type TenantEntry struct {
 }
 
 type TenantTable struct {
-	table.Table[*TenantKey, *TenantEntry]
+	table.Table[TenantKey, TenantEntry]
 	col db.StoreCollection
 }
 
