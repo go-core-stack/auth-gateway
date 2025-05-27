@@ -262,6 +262,9 @@ func main() {
 	// Setup as new user server
 	_ = server.NewUserServer(serverCtx, client)
 
+	// setup myaccount server
+	_ = server.NewMyAccountServer(serverCtx)
+
 	log.Println("Initialization of Auth Gateway completed")
 
 	sigc := make(chan os.Signal, 1)
