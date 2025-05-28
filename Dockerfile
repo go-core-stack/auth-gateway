@@ -6,8 +6,9 @@ WORKDIR /workspace
 COPY ./ .
 
 RUN git config --global url."https://${GIT_TOKEN}:x-oauth-basic@github.com/Prabhjot-Sethi".insteadOf "https://github.com/Prabhjot-Sethi"
+RUN git config --global url."https://${GIT_TOKEN}:x-oauth-basic@github.com/go-core-stack".insteadOf "https://github.com/go-core-stack"
 
-RUN go env -w GOPRIVATE=github.com/Prabhjot-Sethi/*
+RUN go env -w GOPRIVATE="github.com/Prabhjot-Sethi/*,github.com/go-core-stack/*"
 
 RUN go mod download
 
