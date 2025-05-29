@@ -6,7 +6,7 @@ package server
 import (
 	"context"
 	"log"
-	"strconv"
+	"time"
 
 	"github.com/Nerzal/gocloak/v13"
 	"google.golang.org/grpc/codes"
@@ -14,6 +14,7 @@ import (
 
 	"github.com/Prabhjot-Sethi/core/auth"
 	"github.com/Prabhjot-Sethi/core/errors"
+	"github.com/Prabhjot-Sethi/core/utils"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/api"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
@@ -24,6 +25,7 @@ import (
 type UserApiServer struct {
 	api.UnimplementedUserServer
 	tenantTbl *table.TenantTable
+	userTbl   *table.UserTable
 	client    *keycloak.Client
 }
 
@@ -48,85 +50,35 @@ func (s *UserApiServer) getTenant(ctx context.Context, name string) (*table.Tena
 }
 
 func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*api.UsersListResp, error) {
-	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
-	if authInfo != nil {
-		log.Printf("got auth info %v", *authInfo)
-	}
-	tEntry, err := s.getTenant(ctx, req.Tenant)
+	_, err := auth.GetAuthInfoFromContext(ctx)
 	if err != nil {
-		return nil, err
-	}
-	token, _ := s.client.GetAccessToken()
-	limit := req.Limit
-	if limit == 0 {
-		limit = 10
-	}
-	params := gocloak.GetUsersParams{
-		First:  gocloak.IntP(int(req.Offset)),
-		Max:    gocloak.IntP(int(limit)),
-		Search: gocloak.StringP(req.Search),
-	}
-	count, err := s.client.GetUserCount(ctx, token, tEntry.KCStatus.RealmName, params)
-	if err != nil {
-		log.Printf("failed to get users count: %s", err)
-		return nil, status.Errorf(codes.Internal, "Somthing went wrong, Please try again later")
+		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
 	}
 
-	users, err := s.client.GetUsers(ctx, token, tEntry.KCStatus.RealmName, params)
+	count, err := s.userTbl.CountByTenant(ctx, req.Tenant)
 	if err != nil {
-		log.Printf("failed to get users list: %s", err)
-		return nil, status.Errorf(codes.Internal, "Somthing went wrong, Please try again later")
+		log.Printf("failed to count users for tenant %s: %s", req.Tenant, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
-
 	resp := &api.UsersListResp{
 		Count: int32(count),
 		Items: []*api.UserListEntry{},
 	}
 
+	users, err := s.userTbl.GetByTenant(ctx, req.Tenant, int64(req.Offset), int64(req.Limit))
+	if err != nil && !errors.IsNotFound(err) {
+		log.Printf("failed to fetch users for tenant %s: %s", req.Tenant, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
 	for _, user := range users {
-		username := ""
-		if user.Username != nil {
-			username = *user.Username
-		}
-		email := ""
-		if user.Email != nil {
-			email = *user.Email
-		}
-		firstName := ""
-		if user.FirstName != nil {
-			firstName = *user.FirstName
-		}
-		lastName := ""
-		if user.LastName != nil {
-			lastName = *user.LastName
-		}
-		enabled := false
-		if user.Enabled != nil {
-			enabled = *user.Enabled
-		}
-		createTime := int64(0)
-		if user.CreatedTimestamp != nil {
-			createTime = *user.CreatedTimestamp
-		}
-		lastAccess := int64(0)
-		if user.Attributes != nil {
-			if val, ok := (*user.Attributes)["LastAccess"]; ok && len(val) != 0 {
-				i, err := strconv.ParseInt(val[0], 10, 64)
-				if err != nil {
-					log.Println("failed to fetch last access timestamp, invalid value", val)
-				} else {
-					lastAccess = i
-				}
-			}
-		}
 		item := &api.UserListEntry{
-			Username:          username,
-			Email:             email,
-			FirstName:         firstName,
-			LastName:          lastName,
-			Enabled:           enabled,
-			CreationTimestamp: createTime / 1000,
-			LastAccess:        lastAccess,
+			Username:          user.Key.Username,
+			Email:             user.Info.Email,
+			FirstName:         user.Info.FirstName,
+			LastName:          user.Info.LastName,
+			Enabled:           !utils.PBool(user.Disabled),
+			CreationTimestamp: user.Created,
+			LastAccess:        user.LastAccess,
 		}
 		resp.Items = append(resp.Items, item)
 	}
@@ -135,33 +87,29 @@ func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*a
 }
 
 func (s *UserApiServer) CreateUser(ctx context.Context, req *api.UserCreateReq) (*api.UserCreateResp, error) {
-	tEntry, err := s.getTenant(ctx, req.Tenant)
+	_, err := s.getTenant(ctx, req.Tenant)
 	if err != nil {
 		return nil, err
 	}
-	enabled := !req.Disabled
-	user := gocloak.User{
-		FirstName: gocloak.StringP(req.Firstname),
-		LastName:  gocloak.StringP(req.Lastname),
-		Email:     gocloak.StringP(req.Email),
-		Enabled:   gocloak.BoolP(enabled),
-		Username:  gocloak.StringP(req.Username),
+	now := time.Now().Unix()
+	uEntry := &table.UserEntry{
+		Key: &table.UserKey{
+			Tenant:   req.Tenant,
+			Username: req.Username,
+		},
+		Info: &table.UserInfo{
+			FirstName: req.Firstname,
+			LastName:  req.Lastname,
+			Email:     req.Email,
+		},
+		Created:  now,
+		Updated:  now,
+		Disabled: gocloak.BoolP(req.Disabled),
 	}
-	token, _ := s.client.GetAccessToken()
-	userID, err := s.client.CreateUser(ctx, token, tEntry.KCStatus.RealmName, user)
+	err = s.userTbl.Insert(ctx, uEntry.Key, uEntry)
 	if err != nil {
-		log.Printf("failed to create user for Tenant: %s, got error: %s", req.Tenant, err)
-		if ok := keycloak.IsConflictError(err); ok {
-			return nil, status.Errorf(codes.AlreadyExists, "user already exists")
-		}
-		return nil, status.Errorf(codes.InvalidArgument, "failed to create user: %s", err.Error())
-	}
-	user.ID = gocloak.StringP(userID)
-	if req.Password != "" {
-		err = s.client.SetPassword(ctx, token, userID, tEntry.KCStatus.RealmName, req.Password, true)
-		if err != nil {
-			log.Printf("failed to set user first login password in for user %s:%s, got error: %s", req.Tenant, req.Username, err)
-			return nil, status.Errorf(codes.InvalidArgument, "failed to set user password %s", err.Error())
+		if !errors.IsAlreadyExists(err) {
+			return nil, status.Errorf(codes.InvalidArgument, "failed to create user: %s", err.Error())
 		}
 	}
 
@@ -185,20 +133,20 @@ func (s *UserApiServer) DeleteUser(ctx context.Context, req *api.UserDeleteReq) 
 		return nil, status.Errorf(codes.PermissionDenied, "Default Tenant Admin")
 	}
 
-	token, _ := s.client.GetAccessToken()
-	params := gocloak.GetUsersParams{
-		Username: gocloak.StringP(req.Username),
+	now := time.Now().Unix()
+	uEntry := &table.UserEntry{
+		Key: &table.UserKey{
+			Tenant:   req.Tenant,
+			Username: req.Username,
+		},
+		Updated: now,
+		Deleted: gocloak.BoolP(true),
 	}
-	users, err := s.client.GetUsers(ctx, token, tEntry.KCStatus.RealmName, params)
-	if err != nil || len(users) == 0 {
-		log.Printf("failed to find the user in given tenant %s, got error: %s", req.Tenant, err)
-		return nil, status.Errorf(codes.InvalidArgument, "user not found")
-	}
-	// assume that it is always the first and the only user in the list
-	err = s.client.DeleteUser(ctx, token, tEntry.KCStatus.RealmName, *users[0].ID)
+	err = s.userTbl.Update(ctx, uEntry.Key, uEntry)
 	if err != nil {
-		log.Printf("failed to delete user %s:%s, got error: %s", req.Tenant, req.Username, err)
-		return nil, status.Errorf(codes.InvalidArgument, "failed to delete user %s", err)
+		if !errors.IsAlreadyExists(err) {
+			return nil, status.Errorf(codes.InvalidArgument, "failed to create user: %s", err.Error())
+		}
 	}
 
 	return &api.UserDeleteResp{}, nil
@@ -209,8 +157,13 @@ func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client) *UserA
 	if err != nil {
 		log.Panicf("failed to get tenant table: %s", err)
 	}
+	uTbl, err := table.GetUserTable()
+	if err != nil {
+		log.Panicf("failed to get user table: %s", err)
+	}
 	srv := &UserApiServer{
 		tenantTbl: tbl,
+		userTbl:   uTbl,
 		client:    client,
 	}
 	api.RegisterUserServer(ctx.Server, srv)
