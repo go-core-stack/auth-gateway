@@ -14,4 +14,7 @@ const (
 
 	// api keys collection name
 	ApiKeyCollectionName = "api-keys"
+
+	// users collection name
+	UserCollectionName = "users"
 )

@@ -30,6 +30,7 @@ import (
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/tenant"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/user"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/gateway"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
@@ -76,6 +77,12 @@ func locateRootTenant() {
 		log.Panicf("failed to locate Tenant table: %s", err)
 	}
 
+	// get user table
+	userTbl, err := table.GetUserTable()
+	if err != nil {
+		log.Panicf("failed to get user table: %s", err)
+	}
+
 	// Root Tenant Key
 	tKey := &table.TenantKey{
 		Name: rootTenantName,
@@ -98,6 +105,27 @@ func locateRootTenant() {
 	err = tenantTbl.Locate(context.Background(), tKey, tEntry)
 	if err != nil {
 		log.Panicf("failed to locate root tenant entry: %s", err)
+	}
+
+	now := time.Now().Unix()
+	uEntry := &table.UserEntry{
+		Key: &table.UserKey{
+			Tenant:   rootTenantName,
+			Username: tEntry.Config.DefaultAdmin.UserID,
+		},
+		Created: now,
+		Updated: now,
+		Info: &table.UserInfo{
+			Email: "test@example.com",
+		},
+		Password: &table.UserTempPassword{
+			Value: tEntry.Config.DefaultAdmin.Password,
+		},
+	}
+
+	err = userTbl.Locate(context.Background(), uEntry.Key, uEntry)
+	if err != nil {
+		log.Panicf("failed to locate root tenant user entry: %s", err)
 	}
 }
 
@@ -219,13 +247,19 @@ func main() {
 
 	// create the required tables backed by database store
 
-	// locate the tenant table to work with
+	// locate the tenant table
 	_, err = table.LocateTenantTable(client)
 	if err != nil {
 		log.Panicf("failed to locate Tenant table: %s", err)
 	}
 
-	// locate the api key table to work with
+	// locate the users table
+	_, err = table.LocateUserTable(client)
+	if err != nil {
+		log.Panicf("failed to locate user table: %s", err)
+	}
+
+	// locate the api key table
 	_, err = table.LocateApiKeyTable(client)
 	if err != nil {
 		log.Panicf("failed to locate API Key table: %s", err)
@@ -268,6 +302,12 @@ func main() {
 	_, err = tenant.NewAdminController(client)
 	if err != nil {
 		log.Panicf("failed to create tenant admin controller: %s", err)
+	}
+
+	// create user controller
+	_, err = user.NewUserController(client)
+	if err != nil {
+		log.Panicf("failed to create user controller: %s", err)
 	}
 
 	// start GRPC Servers
