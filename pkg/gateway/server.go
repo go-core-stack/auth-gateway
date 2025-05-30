@@ -31,6 +31,7 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 	var authInfo *common.AuthInfo
 	var user *table.UserEntry
 	var err error
+	now := time.Now().Unix()
 	keyId := s.validator.GetKeyId(r)
 	// check if an API key is used
 	if keyId != "" {
@@ -46,6 +47,9 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 		}
 		if entry.UserInfo == nil {
 			return nil, errors.Wrapf(errors.Unauthorized, "user not available")
+		}
+		if entry.Config.ExpireAt != 0 && entry.Config.ExpireAt < now {
+			return nil, errors.Wrapf(errors.Unauthorized, "Api Key is %s expired", keyId)
 		}
 		_, err = s.validator.Validate(r, entry.Secret.Value)
 		if err != nil {
@@ -69,6 +73,19 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 			return nil, errors.Wrapf(errors.Unknown, "Something went wrong while processing request: %s", err)
 		}
 
+		// trigger an update to lastUsed timestamp for ApiKey
+		if entry.LastUsed == 0 || (entry.LastUsed+60) <= now {
+			update := &table.ApiKeyEntry{
+				Key: table.ApiKeyId{
+					Id: keyId,
+				},
+				LastUsed: now,
+			}
+			err = s.apiKeys.Update(r.Context(), &update.Key, update)
+			if err != nil {
+				log.Printf("Failed to update last access for user %s in tenant %s: %s", authInfo.UserName, authInfo.Realm, err)
+			}
+		}
 	} else {
 		var err error
 		authInfo, err = auth.AuthenticateRequest(r, "")
@@ -80,7 +97,6 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 			Tenant:   authInfo.Realm,
 			Username: authInfo.UserName,
 		}
-		now := time.Now().Unix()
 		user, err = s.userTbl.Find(r.Context(), uKey)
 		if err != nil {
 			if !errors.IsNotFound(err) {
