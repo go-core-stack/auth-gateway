@@ -55,22 +55,27 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 		if err != nil {
 			return nil, errors.Wrapf(errors.Unauthorized, "Invalid Signature")
 		}
-		authInfo = &common.AuthInfo{
-			Realm:    entry.UserInfo.Tenant,
-			UserName: entry.UserInfo.Username,
-		}
 
 		uKey := &table.UserKey{
-			Tenant:   authInfo.Realm,
-			Username: authInfo.UserName,
+			Tenant:   entry.UserInfo.Tenant,
+			Username: entry.UserInfo.Username,
 		}
 		user, err = s.userTbl.Find(r.Context(), uKey)
 		if err != nil {
 			if errors.IsNotFound(err) {
-				return nil, errors.Wrapf(errors.Unauthorized, "User %s not found in tenant %s", authInfo.UserName, authInfo.Realm)
+				return nil, errors.Wrapf(errors.Unauthorized, "User %s not found in tenant %s", entry.UserInfo.Username, entry.UserInfo.Tenant)
 			}
-			log.Printf("Failed to find user %s in tenant %s: %s", authInfo.UserName, authInfo.Realm, err)
+			log.Printf("Failed to find user %s in tenant %s: %s", entry.UserInfo.Username, entry.UserInfo.Tenant, err)
 			return nil, errors.Wrapf(errors.Unknown, "Something went wrong while processing request: %s", err)
+		}
+
+		authInfo = &common.AuthInfo{
+			Realm:     user.Key.Tenant,
+			UserName:  user.Key.Username,
+			Email:     user.Info.Email,
+			FirstName: user.Info.FirstName,
+			LastName:  user.Info.LastName,
+			FullName:  user.Info.FirstName + " " + user.Info.LastName,
 		}
 
 		// trigger an update to lastUsed timestamp for ApiKey

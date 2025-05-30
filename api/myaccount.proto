@@ -75,8 +75,14 @@ message MyInfoGetResp {
   // username which is used for login
   string username = 1;
 
-  // full user name
-  string fullName = 2;
+  // first name of the user
+  string firstName = 2;
+
+  // last name of the user
+  string lastName = 3;
+
+  // email of the user
+  string email = 4;
 }
 
 message ApiKeyCreateReq {
