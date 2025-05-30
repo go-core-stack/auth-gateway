@@ -75,7 +75,7 @@ func (x ApiKeyDef_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ApiKeyDef_Status.Descriptor instead.
 func (ApiKeyDef_Status) EnumDescriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{3, 0}
+	return file_myaccount_proto_rawDescGZIP(), []int{7, 0}
 }
 
 type MyInfoGetReq struct {
@@ -186,6 +186,206 @@ func (x *MyInfoGetResp) GetEmail() string {
 	return ""
 }
 
+// my session information
+type MySessionInfo struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// session id
+	SessionId string `protobuf:"bytes,1,opt,name=sessionId,proto3" json:"sessionId,omitempty"`
+	// start time
+	Started int64 `protobuf:"varint,2,opt,name=started,proto3" json:"started,omitempty"`
+	// last access time
+	LastAccess int64 `protobuf:"varint,3,opt,name=lastAccess,proto3" json:"lastAccess,omitempty"`
+	// incoming client ip
+	Ip            string `protobuf:"bytes,4,opt,name=ip,proto3" json:"ip,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MySessionInfo) Reset() {
+	*x = MySessionInfo{}
+	mi := &file_myaccount_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySessionInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySessionInfo) ProtoMessage() {}
+
+func (x *MySessionInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySessionInfo.ProtoReflect.Descriptor instead.
+func (*MySessionInfo) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *MySessionInfo) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *MySessionInfo) GetStarted() int64 {
+	if x != nil {
+		return x.Started
+	}
+	return 0
+}
+
+func (x *MySessionInfo) GetLastAccess() int64 {
+	if x != nil {
+		return x.LastAccess
+	}
+	return 0
+}
+
+func (x *MySessionInfo) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+// my sessions get response
+type MySessionsGetResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*MySessionInfo       `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MySessionsGetResp) Reset() {
+	*x = MySessionsGetResp{}
+	mi := &file_myaccount_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySessionsGetResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySessionsGetResp) ProtoMessage() {}
+
+func (x *MySessionsGetResp) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySessionsGetResp.ProtoReflect.Descriptor instead.
+func (*MySessionsGetResp) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *MySessionsGetResp) GetItems() []*MySessionInfo {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+// logout session request
+type MySessionsLogoutReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=sessionId,proto3" json:"sessionId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MySessionsLogoutReq) Reset() {
+	*x = MySessionsLogoutReq{}
+	mi := &file_myaccount_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySessionsLogoutReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySessionsLogoutReq) ProtoMessage() {}
+
+func (x *MySessionsLogoutReq) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySessionsLogoutReq.ProtoReflect.Descriptor instead.
+func (*MySessionsLogoutReq) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *MySessionsLogoutReq) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+// session logout empty response
+type MySessionsLogoutResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MySessionsLogoutResp) Reset() {
+	*x = MySessionsLogoutResp{}
+	mi := &file_myaccount_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySessionsLogoutResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySessionsLogoutResp) ProtoMessage() {}
+
+func (x *MySessionsLogoutResp) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySessionsLogoutResp.ProtoReflect.Descriptor instead.
+func (*MySessionsLogoutResp) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{5}
+}
+
 type ApiKeyCreateReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// key id will be allocated by virtue of key creation
@@ -203,7 +403,7 @@ type ApiKeyCreateReq struct {
 
 func (x *ApiKeyCreateReq) Reset() {
 	*x = ApiKeyCreateReq{}
-	mi := &file_myaccount_proto_msgTypes[2]
+	mi := &file_myaccount_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -215,7 +415,7 @@ func (x *ApiKeyCreateReq) String() string {
 func (*ApiKeyCreateReq) ProtoMessage() {}
 
 func (x *ApiKeyCreateReq) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[2]
+	mi := &file_myaccount_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -228,7 +428,7 @@ func (x *ApiKeyCreateReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyCreateReq.ProtoReflect.Descriptor instead.
 func (*ApiKeyCreateReq) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{2}
+	return file_myaccount_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ApiKeyCreateReq) GetName() string {
@@ -253,7 +453,7 @@ type ApiKeyDef struct {
 
 func (x *ApiKeyDef) Reset() {
 	*x = ApiKeyDef{}
-	mi := &file_myaccount_proto_msgTypes[3]
+	mi := &file_myaccount_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -265,7 +465,7 @@ func (x *ApiKeyDef) String() string {
 func (*ApiKeyDef) ProtoMessage() {}
 
 func (x *ApiKeyDef) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[3]
+	mi := &file_myaccount_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -278,7 +478,7 @@ func (x *ApiKeyDef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyDef.ProtoReflect.Descriptor instead.
 func (*ApiKeyDef) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{3}
+	return file_myaccount_proto_rawDescGZIP(), []int{7}
 }
 
 type ApiKeyCreateResp struct {
@@ -309,7 +509,7 @@ type ApiKeyCreateResp struct {
 
 func (x *ApiKeyCreateResp) Reset() {
 	*x = ApiKeyCreateResp{}
-	mi := &file_myaccount_proto_msgTypes[4]
+	mi := &file_myaccount_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -321,7 +521,7 @@ func (x *ApiKeyCreateResp) String() string {
 func (*ApiKeyCreateResp) ProtoMessage() {}
 
 func (x *ApiKeyCreateResp) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[4]
+	mi := &file_myaccount_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -334,7 +534,7 @@ func (x *ApiKeyCreateResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyCreateResp.ProtoReflect.Descriptor instead.
 func (*ApiKeyCreateResp) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{4}
+	return file_myaccount_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ApiKeyCreateResp) GetName() string {
@@ -396,7 +596,7 @@ type ApiKeyDisableReq struct {
 
 func (x *ApiKeyDisableReq) Reset() {
 	*x = ApiKeyDisableReq{}
-	mi := &file_myaccount_proto_msgTypes[5]
+	mi := &file_myaccount_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -408,7 +608,7 @@ func (x *ApiKeyDisableReq) String() string {
 func (*ApiKeyDisableReq) ProtoMessage() {}
 
 func (x *ApiKeyDisableReq) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[5]
+	mi := &file_myaccount_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -421,7 +621,7 @@ func (x *ApiKeyDisableReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyDisableReq.ProtoReflect.Descriptor instead.
 func (*ApiKeyDisableReq) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{5}
+	return file_myaccount_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ApiKeyDisableReq) GetId() string {
@@ -439,7 +639,7 @@ type ApiKeyDisableResp struct {
 
 func (x *ApiKeyDisableResp) Reset() {
 	*x = ApiKeyDisableResp{}
-	mi := &file_myaccount_proto_msgTypes[6]
+	mi := &file_myaccount_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -451,7 +651,7 @@ func (x *ApiKeyDisableResp) String() string {
 func (*ApiKeyDisableResp) ProtoMessage() {}
 
 func (x *ApiKeyDisableResp) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[6]
+	mi := &file_myaccount_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -464,7 +664,7 @@ func (x *ApiKeyDisableResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyDisableResp.ProtoReflect.Descriptor instead.
 func (*ApiKeyDisableResp) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{6}
+	return file_myaccount_proto_rawDescGZIP(), []int{10}
 }
 
 type ApiKeyEnableReq struct {
@@ -477,7 +677,7 @@ type ApiKeyEnableReq struct {
 
 func (x *ApiKeyEnableReq) Reset() {
 	*x = ApiKeyEnableReq{}
-	mi := &file_myaccount_proto_msgTypes[7]
+	mi := &file_myaccount_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -489,7 +689,7 @@ func (x *ApiKeyEnableReq) String() string {
 func (*ApiKeyEnableReq) ProtoMessage() {}
 
 func (x *ApiKeyEnableReq) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[7]
+	mi := &file_myaccount_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -502,7 +702,7 @@ func (x *ApiKeyEnableReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyEnableReq.ProtoReflect.Descriptor instead.
 func (*ApiKeyEnableReq) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{7}
+	return file_myaccount_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ApiKeyEnableReq) GetId() string {
@@ -520,7 +720,7 @@ type ApiKeyEnableResp struct {
 
 func (x *ApiKeyEnableResp) Reset() {
 	*x = ApiKeyEnableResp{}
-	mi := &file_myaccount_proto_msgTypes[8]
+	mi := &file_myaccount_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -532,7 +732,7 @@ func (x *ApiKeyEnableResp) String() string {
 func (*ApiKeyEnableResp) ProtoMessage() {}
 
 func (x *ApiKeyEnableResp) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[8]
+	mi := &file_myaccount_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -545,7 +745,7 @@ func (x *ApiKeyEnableResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyEnableResp.ProtoReflect.Descriptor instead.
 func (*ApiKeyEnableResp) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{8}
+	return file_myaccount_proto_rawDescGZIP(), []int{12}
 }
 
 type ApiKeyDeleteReq struct {
@@ -558,7 +758,7 @@ type ApiKeyDeleteReq struct {
 
 func (x *ApiKeyDeleteReq) Reset() {
 	*x = ApiKeyDeleteReq{}
-	mi := &file_myaccount_proto_msgTypes[9]
+	mi := &file_myaccount_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -570,7 +770,7 @@ func (x *ApiKeyDeleteReq) String() string {
 func (*ApiKeyDeleteReq) ProtoMessage() {}
 
 func (x *ApiKeyDeleteReq) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[9]
+	mi := &file_myaccount_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -583,7 +783,7 @@ func (x *ApiKeyDeleteReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyDeleteReq.ProtoReflect.Descriptor instead.
 func (*ApiKeyDeleteReq) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{9}
+	return file_myaccount_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ApiKeyDeleteReq) GetId() string {
@@ -601,7 +801,7 @@ type ApiKeyDeleteResp struct {
 
 func (x *ApiKeyDeleteResp) Reset() {
 	*x = ApiKeyDeleteResp{}
-	mi := &file_myaccount_proto_msgTypes[10]
+	mi := &file_myaccount_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -613,7 +813,7 @@ func (x *ApiKeyDeleteResp) String() string {
 func (*ApiKeyDeleteResp) ProtoMessage() {}
 
 func (x *ApiKeyDeleteResp) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[10]
+	mi := &file_myaccount_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -626,7 +826,7 @@ func (x *ApiKeyDeleteResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyDeleteResp.ProtoReflect.Descriptor instead.
 func (*ApiKeyDeleteResp) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{10}
+	return file_myaccount_proto_rawDescGZIP(), []int{14}
 }
 
 type ApiKeysListReq struct {
@@ -637,7 +837,7 @@ type ApiKeysListReq struct {
 
 func (x *ApiKeysListReq) Reset() {
 	*x = ApiKeysListReq{}
-	mi := &file_myaccount_proto_msgTypes[11]
+	mi := &file_myaccount_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -649,7 +849,7 @@ func (x *ApiKeysListReq) String() string {
 func (*ApiKeysListReq) ProtoMessage() {}
 
 func (x *ApiKeysListReq) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[11]
+	mi := &file_myaccount_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -662,7 +862,7 @@ func (x *ApiKeysListReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeysListReq.ProtoReflect.Descriptor instead.
 func (*ApiKeysListReq) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{11}
+	return file_myaccount_proto_rawDescGZIP(), []int{15}
 }
 
 type ApiKeyListEntry struct {
@@ -686,7 +886,7 @@ type ApiKeyListEntry struct {
 
 func (x *ApiKeyListEntry) Reset() {
 	*x = ApiKeyListEntry{}
-	mi := &file_myaccount_proto_msgTypes[12]
+	mi := &file_myaccount_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -698,7 +898,7 @@ func (x *ApiKeyListEntry) String() string {
 func (*ApiKeyListEntry) ProtoMessage() {}
 
 func (x *ApiKeyListEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[12]
+	mi := &file_myaccount_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -711,7 +911,7 @@ func (x *ApiKeyListEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyListEntry.ProtoReflect.Descriptor instead.
 func (*ApiKeyListEntry) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{12}
+	return file_myaccount_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ApiKeyListEntry) GetName() string {
@@ -765,7 +965,7 @@ type ApiKeysListResp struct {
 
 func (x *ApiKeysListResp) Reset() {
 	*x = ApiKeysListResp{}
-	mi := &file_myaccount_proto_msgTypes[13]
+	mi := &file_myaccount_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -777,7 +977,7 @@ func (x *ApiKeysListResp) String() string {
 func (*ApiKeysListResp) ProtoMessage() {}
 
 func (x *ApiKeysListResp) ProtoReflect() protoreflect.Message {
-	mi := &file_myaccount_proto_msgTypes[13]
+	mi := &file_myaccount_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -790,7 +990,7 @@ func (x *ApiKeysListResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeysListResp.ProtoReflect.Descriptor instead.
 func (*ApiKeysListResp) Descriptor() ([]byte, []int) {
-	return file_myaccount_proto_rawDescGZIP(), []int{13}
+	return file_myaccount_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ApiKeysListResp) GetItems() []*ApiKeyListEntry {
@@ -798,6 +998,43 @@ func (x *ApiKeysListResp) GetItems() []*ApiKeyListEntry {
 		return x.Items
 	}
 	return nil
+}
+
+// my sessions get req
+type MySessionsGetReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MySessionsGetReq) Reset() {
+	*x = MySessionsGetReq{}
+	mi := &file_myaccount_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySessionsGetReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySessionsGetReq) ProtoMessage() {}
+
+func (x *MySessionsGetReq) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySessionsGetReq.ProtoReflect.Descriptor instead.
+func (*MySessionsGetReq) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{18}
 }
 
 var File_myaccount_proto protoreflect.FileDescriptor
@@ -810,7 +1047,19 @@ const file_myaccount_proto_rawDesc = "" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
 	"\tfirstName\x18\x02 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x03 \x01(\tR\blastName\x12\x14\n" +
-	"\x05email\x18\x04 \x01(\tR\x05email\"A\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\"w\n" +
+	"\rMySessionInfo\x12\x1c\n" +
+	"\tsessionId\x18\x01 \x01(\tR\tsessionId\x12\x18\n" +
+	"\astarted\x18\x02 \x01(\x03R\astarted\x12\x1e\n" +
+	"\n" +
+	"lastAccess\x18\x03 \x01(\x03R\n" +
+	"lastAccess\x12\x0e\n" +
+	"\x02ip\x18\x04 \x01(\tR\x02ip\"=\n" +
+	"\x11MySessionsGetResp\x12(\n" +
+	"\x05items\x18\x01 \x03(\v2\x12.api.MySessionInfoR\x05items\"3\n" +
+	"\x13MySessionsLogoutReq\x12\x1c\n" +
+	"\tsessionId\x18\x01 \x01(\tR\tsessionId\"\x16\n" +
+	"\x14MySessionsLogoutResp\"A\n" +
 	"\x0fApiKeyCreateReq\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bvalidity\x18\x02 \x01(\x03R\bvalidity\"<\n" +
@@ -850,9 +1099,12 @@ const file_myaccount_proto_rawDesc = "" +
 	"createTime\x12\x1a\n" +
 	"\bexpireAt\x18\x06 \x01(\x03R\bexpireAt\"=\n" +
 	"\x0fApiKeysListResp\x12*\n" +
-	"\x05items\x18\x01 \x03(\v2\x14.api.ApiKeyListEntryR\x05items2\xe1\x04\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.api.ApiKeyListEntryR\x05items\"\x12\n" +
+	"\x10MySessionsGetReq2\xbc\x06\n" +
 	"\tMyAccount\x12R\n" +
-	"\tGetMyInfo\x12\x11.api.MyInfoGetReq\x1a\x12.api.MyInfoGetResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/myaccount/v1/info\x12a\n" +
+	"\tGetMyInfo\x12\x11.api.MyInfoGetReq\x1a\x12.api.MyInfoGetResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/myaccount/v1/info\x12b\n" +
+	"\rGetMySessions\x12\x15.api.MySessionsGetReq\x1a\x16.api.MySessionsGetResp\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/myaccount/v1/sessions\x12u\n" +
+	"\x10LogoutMySessions\x12\x18.api.MySessionsLogoutReq\x1a\x19.api.MySessionsLogoutResp\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/myaccount/v1/logout-sessions\x12a\n" +
 	"\fCreateApiKey\x12\x14.api.ApiKeyCreateReq\x1a\x15.api.ApiKeyCreateResp\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/myaccount/v1/api-key\x12n\n" +
 	"\rDisableApiKey\x12\x15.api.ApiKeyDisableReq\x1a\x16.api.ApiKeyDisableResp\".\x82\xd3\xe4\x93\x02(\"&/api/myaccount/v1/api-key/{id}/disable\x12j\n" +
 	"\fEnableApiKey\x12\x14.api.ApiKeyEnableReq\x1a\x15.api.ApiKeyEnableResp\"-\x82\xd3\xe4\x93\x02'\"%/api/myaccount/v1/api-key/{id}/enable\x12c\n" +
@@ -874,45 +1126,55 @@ func file_myaccount_proto_rawDescGZIP() []byte {
 }
 
 var file_myaccount_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_myaccount_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_myaccount_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_myaccount_proto_goTypes = []any{
-	(ApiKeyDef_Status)(0),     // 0: api.ApiKeyDef.Status
-	(*MyInfoGetReq)(nil),      // 1: api.MyInfoGetReq
-	(*MyInfoGetResp)(nil),     // 2: api.MyInfoGetResp
-	(*ApiKeyCreateReq)(nil),   // 3: api.ApiKeyCreateReq
-	(*ApiKeyDef)(nil),         // 4: api.ApiKeyDef
-	(*ApiKeyCreateResp)(nil),  // 5: api.ApiKeyCreateResp
-	(*ApiKeyDisableReq)(nil),  // 6: api.ApiKeyDisableReq
-	(*ApiKeyDisableResp)(nil), // 7: api.ApiKeyDisableResp
-	(*ApiKeyEnableReq)(nil),   // 8: api.ApiKeyEnableReq
-	(*ApiKeyEnableResp)(nil),  // 9: api.ApiKeyEnableResp
-	(*ApiKeyDeleteReq)(nil),   // 10: api.ApiKeyDeleteReq
-	(*ApiKeyDeleteResp)(nil),  // 11: api.ApiKeyDeleteResp
-	(*ApiKeysListReq)(nil),    // 12: api.ApiKeysListReq
-	(*ApiKeyListEntry)(nil),   // 13: api.ApiKeyListEntry
-	(*ApiKeysListResp)(nil),   // 14: api.ApiKeysListResp
+	(ApiKeyDef_Status)(0),        // 0: api.ApiKeyDef.Status
+	(*MyInfoGetReq)(nil),         // 1: api.MyInfoGetReq
+	(*MyInfoGetResp)(nil),        // 2: api.MyInfoGetResp
+	(*MySessionInfo)(nil),        // 3: api.MySessionInfo
+	(*MySessionsGetResp)(nil),    // 4: api.MySessionsGetResp
+	(*MySessionsLogoutReq)(nil),  // 5: api.MySessionsLogoutReq
+	(*MySessionsLogoutResp)(nil), // 6: api.MySessionsLogoutResp
+	(*ApiKeyCreateReq)(nil),      // 7: api.ApiKeyCreateReq
+	(*ApiKeyDef)(nil),            // 8: api.ApiKeyDef
+	(*ApiKeyCreateResp)(nil),     // 9: api.ApiKeyCreateResp
+	(*ApiKeyDisableReq)(nil),     // 10: api.ApiKeyDisableReq
+	(*ApiKeyDisableResp)(nil),    // 11: api.ApiKeyDisableResp
+	(*ApiKeyEnableReq)(nil),      // 12: api.ApiKeyEnableReq
+	(*ApiKeyEnableResp)(nil),     // 13: api.ApiKeyEnableResp
+	(*ApiKeyDeleteReq)(nil),      // 14: api.ApiKeyDeleteReq
+	(*ApiKeyDeleteResp)(nil),     // 15: api.ApiKeyDeleteResp
+	(*ApiKeysListReq)(nil),       // 16: api.ApiKeysListReq
+	(*ApiKeyListEntry)(nil),      // 17: api.ApiKeyListEntry
+	(*ApiKeysListResp)(nil),      // 18: api.ApiKeysListResp
+	(*MySessionsGetReq)(nil),     // 19: api.MySessionsGetReq
 }
 var file_myaccount_proto_depIdxs = []int32{
-	0,  // 0: api.ApiKeyCreateResp.status:type_name -> api.ApiKeyDef.Status
-	0,  // 1: api.ApiKeyListEntry.status:type_name -> api.ApiKeyDef.Status
-	13, // 2: api.ApiKeysListResp.items:type_name -> api.ApiKeyListEntry
-	1,  // 3: api.MyAccount.GetMyInfo:input_type -> api.MyInfoGetReq
-	3,  // 4: api.MyAccount.CreateApiKey:input_type -> api.ApiKeyCreateReq
-	6,  // 5: api.MyAccount.DisableApiKey:input_type -> api.ApiKeyDisableReq
-	8,  // 6: api.MyAccount.EnableApiKey:input_type -> api.ApiKeyEnableReq
-	10, // 7: api.MyAccount.DeleteApiKey:input_type -> api.ApiKeyDeleteReq
-	12, // 8: api.MyAccount.ListApiKeys:input_type -> api.ApiKeysListReq
-	2,  // 9: api.MyAccount.GetMyInfo:output_type -> api.MyInfoGetResp
-	5,  // 10: api.MyAccount.CreateApiKey:output_type -> api.ApiKeyCreateResp
-	7,  // 11: api.MyAccount.DisableApiKey:output_type -> api.ApiKeyDisableResp
-	9,  // 12: api.MyAccount.EnableApiKey:output_type -> api.ApiKeyEnableResp
-	11, // 13: api.MyAccount.DeleteApiKey:output_type -> api.ApiKeyDeleteResp
-	14, // 14: api.MyAccount.ListApiKeys:output_type -> api.ApiKeysListResp
-	9,  // [9:15] is the sub-list for method output_type
-	3,  // [3:9] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	3,  // 0: api.MySessionsGetResp.items:type_name -> api.MySessionInfo
+	0,  // 1: api.ApiKeyCreateResp.status:type_name -> api.ApiKeyDef.Status
+	0,  // 2: api.ApiKeyListEntry.status:type_name -> api.ApiKeyDef.Status
+	17, // 3: api.ApiKeysListResp.items:type_name -> api.ApiKeyListEntry
+	1,  // 4: api.MyAccount.GetMyInfo:input_type -> api.MyInfoGetReq
+	19, // 5: api.MyAccount.GetMySessions:input_type -> api.MySessionsGetReq
+	5,  // 6: api.MyAccount.LogoutMySessions:input_type -> api.MySessionsLogoutReq
+	7,  // 7: api.MyAccount.CreateApiKey:input_type -> api.ApiKeyCreateReq
+	10, // 8: api.MyAccount.DisableApiKey:input_type -> api.ApiKeyDisableReq
+	12, // 9: api.MyAccount.EnableApiKey:input_type -> api.ApiKeyEnableReq
+	14, // 10: api.MyAccount.DeleteApiKey:input_type -> api.ApiKeyDeleteReq
+	16, // 11: api.MyAccount.ListApiKeys:input_type -> api.ApiKeysListReq
+	2,  // 12: api.MyAccount.GetMyInfo:output_type -> api.MyInfoGetResp
+	4,  // 13: api.MyAccount.GetMySessions:output_type -> api.MySessionsGetResp
+	6,  // 14: api.MyAccount.LogoutMySessions:output_type -> api.MySessionsLogoutResp
+	9,  // 15: api.MyAccount.CreateApiKey:output_type -> api.ApiKeyCreateResp
+	11, // 16: api.MyAccount.DisableApiKey:output_type -> api.ApiKeyDisableResp
+	13, // 17: api.MyAccount.EnableApiKey:output_type -> api.ApiKeyEnableResp
+	15, // 18: api.MyAccount.DeleteApiKey:output_type -> api.ApiKeyDeleteResp
+	18, // 19: api.MyAccount.ListApiKeys:output_type -> api.ApiKeysListResp
+	12, // [12:20] is the sub-list for method output_type
+	4,  // [4:12] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_myaccount_proto_init() }
@@ -926,7 +1188,7 @@ func file_myaccount_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_myaccount_proto_rawDesc), len(file_myaccount_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   14,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

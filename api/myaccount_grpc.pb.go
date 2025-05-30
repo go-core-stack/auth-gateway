@@ -22,12 +22,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MyAccount_GetMyInfo_FullMethodName     = "/api.MyAccount/GetMyInfo"
-	MyAccount_CreateApiKey_FullMethodName  = "/api.MyAccount/CreateApiKey"
-	MyAccount_DisableApiKey_FullMethodName = "/api.MyAccount/DisableApiKey"
-	MyAccount_EnableApiKey_FullMethodName  = "/api.MyAccount/EnableApiKey"
-	MyAccount_DeleteApiKey_FullMethodName  = "/api.MyAccount/DeleteApiKey"
-	MyAccount_ListApiKeys_FullMethodName   = "/api.MyAccount/ListApiKeys"
+	MyAccount_GetMyInfo_FullMethodName        = "/api.MyAccount/GetMyInfo"
+	MyAccount_GetMySessions_FullMethodName    = "/api.MyAccount/GetMySessions"
+	MyAccount_LogoutMySessions_FullMethodName = "/api.MyAccount/LogoutMySessions"
+	MyAccount_CreateApiKey_FullMethodName     = "/api.MyAccount/CreateApiKey"
+	MyAccount_DisableApiKey_FullMethodName    = "/api.MyAccount/DisableApiKey"
+	MyAccount_EnableApiKey_FullMethodName     = "/api.MyAccount/EnableApiKey"
+	MyAccount_DeleteApiKey_FullMethodName     = "/api.MyAccount/DeleteApiKey"
+	MyAccount_ListApiKeys_FullMethodName      = "/api.MyAccount/ListApiKeys"
 )
 
 // MyAccountClient is the client API for MyAccount service.
@@ -36,6 +38,11 @@ const (
 type MyAccountClient interface {
 	// get my account info
 	GetMyInfo(ctx context.Context, in *MyInfoGetReq, opts ...grpc.CallOption) (*MyInfoGetResp, error)
+	// get all my active sessions
+	GetMySessions(ctx context.Context, in *MySessionsGetReq, opts ...grpc.CallOption) (*MySessionsGetResp, error)
+	// logout my active session(/s), if a specific session id is
+	// not provided, it will logout all sessions except the current one
+	LogoutMySessions(ctx context.Context, in *MySessionsLogoutReq, opts ...grpc.CallOption) (*MySessionsLogoutResp, error)
 	// create a new api key for api access
 	CreateApiKey(ctx context.Context, in *ApiKeyCreateReq, opts ...grpc.CallOption) (*ApiKeyCreateResp, error)
 	// disabling an existing enabled api key, not action is performed
@@ -62,6 +69,26 @@ func (c *myAccountClient) GetMyInfo(ctx context.Context, in *MyInfoGetReq, opts 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MyInfoGetResp)
 	err := c.cc.Invoke(ctx, MyAccount_GetMyInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myAccountClient) GetMySessions(ctx context.Context, in *MySessionsGetReq, opts ...grpc.CallOption) (*MySessionsGetResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MySessionsGetResp)
+	err := c.cc.Invoke(ctx, MyAccount_GetMySessions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myAccountClient) LogoutMySessions(ctx context.Context, in *MySessionsLogoutReq, opts ...grpc.CallOption) (*MySessionsLogoutResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MySessionsLogoutResp)
+	err := c.cc.Invoke(ctx, MyAccount_LogoutMySessions_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,6 +151,11 @@ func (c *myAccountClient) ListApiKeys(ctx context.Context, in *ApiKeysListReq, o
 type MyAccountServer interface {
 	// get my account info
 	GetMyInfo(context.Context, *MyInfoGetReq) (*MyInfoGetResp, error)
+	// get all my active sessions
+	GetMySessions(context.Context, *MySessionsGetReq) (*MySessionsGetResp, error)
+	// logout my active session(/s), if a specific session id is
+	// not provided, it will logout all sessions except the current one
+	LogoutMySessions(context.Context, *MySessionsLogoutReq) (*MySessionsLogoutResp, error)
 	// create a new api key for api access
 	CreateApiKey(context.Context, *ApiKeyCreateReq) (*ApiKeyCreateResp, error)
 	// disabling an existing enabled api key, not action is performed
@@ -148,6 +180,12 @@ type UnimplementedMyAccountServer struct{}
 
 func (UnimplementedMyAccountServer) GetMyInfo(context.Context, *MyInfoGetReq) (*MyInfoGetResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMyInfo not implemented")
+}
+func (UnimplementedMyAccountServer) GetMySessions(context.Context, *MySessionsGetReq) (*MySessionsGetResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMySessions not implemented")
+}
+func (UnimplementedMyAccountServer) LogoutMySessions(context.Context, *MySessionsLogoutReq) (*MySessionsLogoutResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogoutMySessions not implemented")
 }
 func (UnimplementedMyAccountServer) CreateApiKey(context.Context, *ApiKeyCreateReq) (*ApiKeyCreateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateApiKey not implemented")
@@ -199,6 +237,42 @@ func _MyAccount_GetMyInfo_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MyAccountServer).GetMyInfo(ctx, req.(*MyInfoGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyAccount_GetMySessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MySessionsGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyAccountServer).GetMySessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyAccount_GetMySessions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyAccountServer).GetMySessions(ctx, req.(*MySessionsGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyAccount_LogoutMySessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MySessionsLogoutReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyAccountServer).LogoutMySessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyAccount_LogoutMySessions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyAccountServer).LogoutMySessions(ctx, req.(*MySessionsLogoutReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -303,6 +377,14 @@ var MyAccount_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMyInfo",
 			Handler:    _MyAccount_GetMyInfo_Handler,
+		},
+		{
+			MethodName: "GetMySessions",
+			Handler:    _MyAccount_GetMySessions_Handler,
+		},
+		{
+			MethodName: "LogoutMySessions",
+			Handler:    _MyAccount_LogoutMySessions_Handler,
 		},
 		{
 			MethodName: "CreateApiKey",

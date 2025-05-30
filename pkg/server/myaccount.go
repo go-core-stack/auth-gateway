@@ -7,17 +7,22 @@ import (
 	"context"
 	"log"
 	"math/rand"
+	"strings"
 	"time"
 
-	"github.com/Prabhjot-Sethi/auth-gateway/api"
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
-	"github.com/Prabhjot-Sethi/core/auth"
-	"github.com/Prabhjot-Sethi/core/errors"
-	"github.com/Prabhjot-Sethi/core/utils"
+	"github.com/Nerzal/gocloak/v13"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/Prabhjot-Sethi/core/auth"
+	"github.com/Prabhjot-Sethi/core/errors"
+	"github.com/Prabhjot-Sethi/core/utils"
+
+	"github.com/Prabhjot-Sethi/auth-gateway/api"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
 )
 
 var (
@@ -42,6 +47,7 @@ func generateSecret() string {
 type MyAccountServer struct {
 	api.UnimplementedMyAccountServer
 	apiKeys *table.ApiKeyTable // apiKeys table for managing API keys
+	client  *keycloak.Client
 }
 
 // GetMyInfo returns account information for the current user.
@@ -67,6 +73,101 @@ func (s *MyAccountServer) GetMyInfo(ctx context.Context, req *api.MyInfoGetReq) 
 		LastName:  authInfo.LastName,  // Use last name from auth info
 		Email:     authInfo.Email,     // Use email from auth info
 	}, nil
+}
+
+func (s *MyAccountServer) GetMySessions(ctx context.Context, req *api.MySessionsGetReq) (*api.MySessionsGetResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	resp := &api.MySessionsGetResp{}
+
+	token, _ := s.client.GetAccessToken()
+	var sessions []*gocloak.UserSessionRepresentation
+	params := gocloak.GetUsersParams{
+		Username: gocloak.StringP(authInfo.UserName),
+	}
+	users, err := s.client.GetUsers(ctx, token, authInfo.Realm, params)
+	if err != nil || len(users) == 0 {
+		log.Printf("failed to fetch myaccount users, got error: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	// validate case-insensitive match for username
+	if *users[0].Username != strings.ToLower(authInfo.UserName) {
+		log.Printf("failed to find self user from keycloak")
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	sessions, err = s.client.GetUserSessions(ctx, token, authInfo.Realm, *users[0].ID)
+	if err != nil {
+		log.Printf("failed to get myaccount sessions, got error: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	for _, session := range sessions {
+		sessionId := ""
+		if session.ID != nil {
+			sessionId = *session.ID
+		}
+
+		startTime := int64(0)
+		if session.Start != nil {
+			startTime = *session.Start
+		}
+
+		lastAccess := int64(0)
+		if session.LastAccess != nil {
+			lastAccess = *session.LastAccess
+		}
+
+		ipAddress := ""
+		if session.IPAddress != nil {
+			ipAddress = *session.IPAddress
+		}
+		item := &api.MySessionInfo{
+			SessionId:  sessionId,  // Use session ID from Keycloak
+			Started:    startTime,  // Use session start time from Keycloak
+			LastAccess: lastAccess, // Use session last access time from Keycloak
+			Ip:         ipAddress,  // Use session IP address from Keycloak
+		}
+		resp.Items = append(resp.Items, item)
+	}
+
+	return resp, nil
+}
+
+func (s *MyAccountServer) LogoutMySessions(ctx context.Context, req *api.MySessionsLogoutReq) (*api.MySessionsLogoutResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+	params := gocloak.GetUsersParams{
+		Username: gocloak.StringP(authInfo.UserName),
+	}
+	token, _ := s.client.GetAccessToken()
+	users, err := s.client.GetUsers(ctx, token, authInfo.Realm, params)
+	if err != nil || len(users) == 0 {
+		log.Printf("failed to fetch myaccount users, got error: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	// validate exact match for username
+	if *users[0].Username != authInfo.UserName {
+		log.Printf("failed to find myaccount user, got error: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	if req.SessionId == "" {
+		err = s.client.LogoutAllSessions(ctx, token, authInfo.Realm, *users[0].ID)
+		if err != nil {
+			log.Printf("failed to close all myaccount sessions, got error: %s", err)
+			return nil, status.Errorf(codes.Internal, "failed to logout myaccount sessions %s", err.Error())
+		}
+	} else {
+		err = s.client.LogoutUserSession(ctx, token, authInfo.Realm, req.SessionId)
+		if err != nil {
+			log.Printf("failed to close specified myaccount session, got error %s", err)
+			return nil, status.Errorf(codes.Internal, "failed to logout myaccount session %s", err.Error())
+		}
+	}
+	return &api.MySessionsLogoutResp{}, nil
 }
 
 // CreateApiKey returns a dummy API key entry for the user.
@@ -313,13 +414,14 @@ func (s *MyAccountServer) ListApiKeys(ctx context.Context, req *api.ApiKeysListR
 // Returns:
 //
 //	*MyAccountServer - the registered server instance
-func NewMyAccountServer(ctx *model.GrpcServerContext) *MyAccountServer {
+func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client) *MyAccountServer {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("failed to get API key table: %s", err)
 	}
 	srv := &MyAccountServer{
 		apiKeys: apiKeys, // Initialize the API keys table
+		client:  client,
 	}
 	api.RegisterMyAccountServer(ctx.Server, srv)
 	err = api.RegisterMyAccountHandler(context.Background(), ctx.Mux, ctx.Conn)

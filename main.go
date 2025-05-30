@@ -325,7 +325,7 @@ func main() {
 	_ = server.NewUserServer(serverCtx, client)
 
 	// setup myaccount server
-	_ = server.NewMyAccountServer(serverCtx)
+	_ = server.NewMyAccountServer(serverCtx, client)
 
 	log.Println("Initialization of Auth Gateway completed")
 
