@@ -22,9 +22,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	User_GetUsers_FullMethodName   = "/api.User/GetUsers"
-	User_CreateUser_FullMethodName = "/api.User/CreateUser"
-	User_DeleteUser_FullMethodName = "/api.User/DeleteUser"
+	User_GetUsers_FullMethodName    = "/api.User/GetUsers"
+	User_CreateUser_FullMethodName  = "/api.User/CreateUser"
+	User_GetUser_FullMethodName     = "/api.User/GetUser"
+	User_EnableUser_FullMethodName  = "/api.User/EnableUser"
+	User_DisableUser_FullMethodName = "/api.User/DisableUser"
+	User_UpdateUser_FullMethodName  = "/api.User/UpdateUser"
+	User_DeleteUser_FullMethodName  = "/api.User/DeleteUser"
 )
 
 // UserClient is the client API for User service.
@@ -37,6 +41,14 @@ type UserClient interface {
 	GetUsers(ctx context.Context, in *UsersListReq, opts ...grpc.CallOption) (*UsersListResp, error)
 	// Create a new user for the given tenant
 	CreateUser(ctx context.Context, in *UserCreateReq, opts ...grpc.CallOption) (*UserCreateResp, error)
+	// Get an existing user for the given tenant
+	GetUser(ctx context.Context, in *UserGetReq, opts ...grpc.CallOption) (*UserGetResp, error)
+	// Enable an existing disabled user for the given tenant
+	EnableUser(ctx context.Context, in *UserEnableReq, opts ...grpc.CallOption) (*UserEnableResp, error)
+	// Disable an existing enabled user for the given tenant
+	DisableUser(ctx context.Context, in *UserDisableReq, opts ...grpc.CallOption) (*UserDisableResp, error)
+	// Update an existing user for the given tenant
+	UpdateUser(ctx context.Context, in *UserUpdateReq, opts ...grpc.CallOption) (*UserUpdateResp, error)
 	// Delete an existing user for the given tenant
 	DeleteUser(ctx context.Context, in *UserDeleteReq, opts ...grpc.CallOption) (*UserDeleteResp, error)
 }
@@ -69,6 +81,46 @@ func (c *userClient) CreateUser(ctx context.Context, in *UserCreateReq, opts ...
 	return out, nil
 }
 
+func (c *userClient) GetUser(ctx context.Context, in *UserGetReq, opts ...grpc.CallOption) (*UserGetResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserGetResp)
+	err := c.cc.Invoke(ctx, User_GetUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) EnableUser(ctx context.Context, in *UserEnableReq, opts ...grpc.CallOption) (*UserEnableResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserEnableResp)
+	err := c.cc.Invoke(ctx, User_EnableUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) DisableUser(ctx context.Context, in *UserDisableReq, opts ...grpc.CallOption) (*UserDisableResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserDisableResp)
+	err := c.cc.Invoke(ctx, User_DisableUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UpdateUser(ctx context.Context, in *UserUpdateReq, opts ...grpc.CallOption) (*UserUpdateResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserUpdateResp)
+	err := c.cc.Invoke(ctx, User_UpdateUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) DeleteUser(ctx context.Context, in *UserDeleteReq, opts ...grpc.CallOption) (*UserDeleteResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UserDeleteResp)
@@ -89,6 +141,14 @@ type UserServer interface {
 	GetUsers(context.Context, *UsersListReq) (*UsersListResp, error)
 	// Create a new user for the given tenant
 	CreateUser(context.Context, *UserCreateReq) (*UserCreateResp, error)
+	// Get an existing user for the given tenant
+	GetUser(context.Context, *UserGetReq) (*UserGetResp, error)
+	// Enable an existing disabled user for the given tenant
+	EnableUser(context.Context, *UserEnableReq) (*UserEnableResp, error)
+	// Disable an existing enabled user for the given tenant
+	DisableUser(context.Context, *UserDisableReq) (*UserDisableResp, error)
+	// Update an existing user for the given tenant
+	UpdateUser(context.Context, *UserUpdateReq) (*UserUpdateResp, error)
 	// Delete an existing user for the given tenant
 	DeleteUser(context.Context, *UserDeleteReq) (*UserDeleteResp, error)
 	mustEmbedUnimplementedUserServer()
@@ -106,6 +166,18 @@ func (UnimplementedUserServer) GetUsers(context.Context, *UsersListReq) (*UsersL
 }
 func (UnimplementedUserServer) CreateUser(context.Context, *UserCreateReq) (*UserCreateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedUserServer) GetUser(context.Context, *UserGetReq) (*UserGetResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedUserServer) EnableUser(context.Context, *UserEnableReq) (*UserEnableResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnableUser not implemented")
+}
+func (UnimplementedUserServer) DisableUser(context.Context, *UserDisableReq) (*UserDisableResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DisableUser not implemented")
+}
+func (UnimplementedUserServer) UpdateUser(context.Context, *UserUpdateReq) (*UserUpdateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedUserServer) DeleteUser(context.Context, *UserDeleteReq) (*UserDeleteResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
@@ -167,6 +239,78 @@ func _User_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUser(ctx, req.(*UserGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_EnableUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserEnableReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).EnableUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_EnableUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).EnableUser(ctx, req.(*UserEnableReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_DisableUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserDisableReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).DisableUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_DisableUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).DisableUser(ctx, req.(*UserDisableReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UpdateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_UpdateUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UpdateUser(ctx, req.(*UserUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserDeleteReq)
 	if err := dec(in); err != nil {
@@ -199,6 +343,22 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _User_CreateUser_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _User_GetUser_Handler,
+		},
+		{
+			MethodName: "EnableUser",
+			Handler:    _User_EnableUser_Handler,
+		},
+		{
+			MethodName: "DisableUser",
+			Handler:    _User_DisableUser_Handler,
+		},
+		{
+			MethodName: "UpdateUser",
+			Handler:    _User_UpdateUser_Handler,
 		},
 		{
 			MethodName: "DeleteUser",
