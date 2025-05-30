@@ -3,7 +3,7 @@ module github.com/Prabhjot-Sethi/auth-gateway
 go 1.24
 
 require (
-	github.com/Prabhjot-Sethi/core v0.0.0-20250527163145-d66c9d199b79
+	github.com/Prabhjot-Sethi/core v0.0.0-20250530043956-a0ebb9f1128e
 	github.com/go-core-stack/auth v0.0.0-20250528170241-85f1f3510b9b
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
 	google.golang.org/genproto/googleapis/api v0.0.0-20250505200425-f936aa4a68b2

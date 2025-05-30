@@ -2,8 +2,8 @@ cloud.google.com/go/compute/metadata v0.6.0 h1:A6hENjEsCDtC1k8byVsgwvVcioamEHvZ4
 cloud.google.com/go/compute/metadata v0.6.0/go.mod h1:FjyFAW1MW0C203CEOMDTu3Dk1FlqW3Rga40jzHL4hfg=
 github.com/Nerzal/gocloak/v13 v13.9.0 h1:YWsJsdM5b0yhM2Ba3MLydiOlujkBry4TtdzfIzSVZhw=
 github.com/Nerzal/gocloak/v13 v13.9.0/go.mod h1:YYuDcXZ7K2zKECyVP7pPqjKxx2AzYSpKDj8d6GuyM10=
-github.com/Prabhjot-Sethi/core v0.0.0-20250527163145-d66c9d199b79 h1:29CgnKKTJGd1PzQOEQbOFNWNkATcAVwQW09GL5rTXvk=
-github.com/Prabhjot-Sethi/core v0.0.0-20250527163145-d66c9d199b79/go.mod h1:cn63e/sRukPvOSmpiWQed/wHUsjDpSNMQJ6EXSeRAgs=
+github.com/Prabhjot-Sethi/core v0.0.0-20250530043956-a0ebb9f1128e h1:+fRMfeO6nR2ubT9Wj4s5H8GZ9SxraTs6O2KvNQkURmM=
+github.com/Prabhjot-Sethi/core v0.0.0-20250530043956-a0ebb9f1128e/go.mod h1:cn63e/sRukPvOSmpiWQed/wHUsjDpSNMQJ6EXSeRAgs=
 github.com/coreos/go-oidc/v3 v3.14.1 h1:9ePWwfdwC4QKRlCXsJGou56adA/owXczOzwKdOumLqk=
 github.com/coreos/go-oidc/v3 v3.14.1/go.mod h1:HaZ3szPaZ0e4r6ebqvsLWlk2Tn+aejfmrfah6hnSYEU=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
