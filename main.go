@@ -23,6 +23,7 @@ import (
 
 	common "github.com/Prabhjot-Sethi/core/auth"
 	"github.com/Prabhjot-Sethi/core/db"
+	"github.com/Prabhjot-Sethi/core/errors"
 	"github.com/Prabhjot-Sethi/core/sync"
 	"github.com/Prabhjot-Sethi/core/values"
 
@@ -123,9 +124,16 @@ func locateRootTenant() {
 		},
 	}
 
-	err = userTbl.Locate(context.Background(), uEntry.Key, uEntry)
+	_, err = userTbl.Find(context.Background(), uEntry.Key)
 	if err != nil {
-		log.Panicf("failed to locate root tenant user entry: %s", err)
+		if !errors.IsNotFound(err) {
+			log.Panicf("failed to find root tenant user entry: %s", err)
+		}
+		// User not found, insert the user entry
+		err = userTbl.Locate(context.Background(), uEntry.Key, uEntry)
+		if err != nil {
+			log.Panicf("failed to locate root tenant user entry: %s", err)
+		}
 	}
 }
 
