@@ -24,9 +24,25 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 service MyAccount {
   // get my account info
   rpc GetMyInfo(MyInfoGetReq) returns (MyInfoGetResp) {
-    option (google.api.http) = {                                                              
-      get: "/api/myaccount/v1/info"                                                           
-    };                                                                                        
+    option (google.api.http) = {
+      get: "/api/myaccount/v1/info"
+    };
+  }
+
+  // get all my active sessions
+  rpc GetMySessions(MySessionsGetReq) returns (MySessionsGetResp) {
+    option (google.api.http) = {
+      get: "/api/myaccount/v1/sessions"
+    };
+  }
+
+  // logout my active session(/s), if a specific session id is
+  // not provided, it will logout all sessions except the current one
+  rpc LogoutMySessions(MySessionsLogoutReq) returns (MySessionsLogoutResp) {
+    option (google.api.http) = {
+      post: "/api/myaccount/v1/logout-sessions"
+      body: "*"
+    };
   }
 
   // create a new api key for api access
@@ -58,8 +74,8 @@ service MyAccount {
     option (google.api.http) = {
       delete: "/api/myaccount/v1/api-key/{id}"
     };
-  }   
-    
+  }
+
   // list all available api keys for the user
   rpc ListApiKeys(ApiKeysListReq) returns (ApiKeysListResp) {
     option (google.api.http) = {
@@ -83,6 +99,35 @@ message MyInfoGetResp {
 
   // email of the user
   string email = 4;
+}
+
+// my session information
+message MySessionInfo {
+  // session id
+  string sessionId = 1;
+
+  // start time
+  int64 started = 2;
+
+  // last access time
+  int64 lastAccess = 3;
+
+  // incoming client ip
+  string ip = 4;
+}
+
+// my sessions get response
+message MySessionsGetResp {
+  repeated MySessionInfo items = 1;
+}
+
+// logout session request
+message MySessionsLogoutReq {
+  string sessionId = 1;
+}
+
+// session logout empty response
+message MySessionsLogoutResp {
 }
 
 message ApiKeyCreateReq {
@@ -193,4 +238,8 @@ message ApiKeyListEntry {
 
 message ApiKeysListResp {
   repeated ApiKeyListEntry items = 1;
+}
+
+// my sessions get req
+message MySessionsGetReq {
 }

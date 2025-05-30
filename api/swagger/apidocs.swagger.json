@@ -609,6 +609,62 @@
           "MyAccount"
         ]
       }
+    },
+    "/api/myaccount/v1/logout-sessions": {
+      "post": {
+        "summary": "logout my active session(/s), if a specific session id is\nnot provided, it will logout all sessions except the current one",
+        "operationId": "MyAccount_LogoutMySessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMySessionsLogoutResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiMySessionsLogoutReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/sessions": {
+      "get": {
+        "summary": "get all my active sessions",
+        "operationId": "MyAccount_GetMySessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMySessionsGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyAccount"
+        ]
+      }
     }
   },
   "definitions": {
@@ -785,6 +841,56 @@
           "title": "email of the user"
         }
       }
+    },
+    "apiMySessionInfo": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "title": "session id"
+        },
+        "started": {
+          "type": "string",
+          "format": "int64",
+          "title": "start time"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access time"
+        },
+        "ip": {
+          "type": "string",
+          "title": "incoming client ip"
+        }
+      },
+      "title": "my session information"
+    },
+    "apiMySessionsGetResp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiMySessionInfo"
+          }
+        }
+      },
+      "title": "my sessions get response"
+    },
+    "apiMySessionsLogoutReq": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        }
+      },
+      "title": "logout session request"
+    },
+    "apiMySessionsLogoutResp": {
+      "type": "object",
+      "title": "session logout empty response"
     },
     "apiUserCreateResp": {
       "type": "object",
