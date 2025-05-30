@@ -7,11 +7,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-core-stack/auth/hash"
 
 	common "github.com/Prabhjot-Sethi/core/auth"
 	"github.com/Prabhjot-Sethi/core/errors"
+	"github.com/Prabhjot-Sethi/core/utils"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
@@ -22,10 +24,13 @@ type gateway struct {
 	server    http.Handler
 	validator hash.Validator
 	apiKeys   *table.ApiKeyTable
+	userTbl   *table.UserTable
 }
 
 func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error) {
 	var authInfo *common.AuthInfo
+	var user *table.UserEntry
+	var err error
 	keyId := s.validator.GetKeyId(r)
 	// check if an API key is used
 	if keyId != "" {
@@ -46,21 +51,86 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 		if err != nil {
 			return nil, errors.Wrapf(errors.Unauthorized, "Invalid Signature")
 		}
-		// TODO(prabhjot) check if user is disabled
 		authInfo = &common.AuthInfo{
 			Realm:    entry.UserInfo.Tenant,
 			UserName: entry.UserInfo.Username,
 		}
+
+		uKey := &table.UserKey{
+			Tenant:   authInfo.Realm,
+			Username: authInfo.UserName,
+		}
+		user, err = s.userTbl.Find(r.Context(), uKey)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				return nil, errors.Wrapf(errors.Unauthorized, "User %s not found in tenant %s", authInfo.UserName, authInfo.Realm)
+			}
+			log.Printf("Failed to find user %s in tenant %s: %s", authInfo.UserName, authInfo.Realm, err)
+			return nil, errors.Wrapf(errors.Unknown, "Something went wrong while processing request: %s", err)
+		}
+
 	} else {
 		var err error
 		authInfo, err = auth.AuthenticateRequest(r, "")
 		if err != nil {
 			return nil, errors.Wrapf(errors.Unauthorized, "failed to authenticate incoming request: %s", err)
 		}
+
+		uKey := &table.UserKey{
+			Tenant:   authInfo.Realm,
+			Username: authInfo.UserName,
+		}
+		now := time.Now().Unix()
+		user, err = s.userTbl.Find(r.Context(), uKey)
+		if err != nil {
+			if !errors.IsNotFound(err) {
+				log.Printf("Failed to find user %s in tenant %s: %s", authInfo.UserName, authInfo.Realm, err)
+				return nil, errors.Wrapf(errors.Unknown, "Something went wrong while processing request: %s", err)
+			}
+			// locate a new user entry, to handle SSO created users
+			update := &table.UserEntry{
+				Key: &table.UserKey{
+					Tenant:   authInfo.Realm,
+					Username: authInfo.UserName,
+				},
+				Created: now,
+				Updated: now,
+				Info: &table.UserInfo{
+					Email:     authInfo.Email,
+					FirstName: authInfo.FirstName,
+					LastName:  authInfo.LastName,
+				},
+			}
+			err := s.userTbl.Locate(r.Context(), update.Key, update)
+			if err != nil {
+				log.Printf("Failed to locate user %s in tenant %s: %s", authInfo.UserName, authInfo.Realm, err)
+				return nil, errors.Wrapf(errors.Unknown, "Something went wrong while processing request: %s", err)
+			}
+			user = update
+		}
+
+		// trigger an update to lastAccess timestamp
+		if user.LastAccess == 0 || (user.LastAccess+60) <= now {
+			update := &table.UserEntry{
+				Key: &table.UserKey{
+					Tenant:   authInfo.Realm,
+					Username: authInfo.UserName,
+				},
+				LastAccess: now,
+			}
+			err = s.userTbl.Update(r.Context(), update.Key, update)
+			if err != nil {
+				log.Printf("Failed to update last access for user %s in tenant %s: %s", authInfo.UserName, authInfo.Realm, err)
+			}
+		}
+	}
+
+	if utils.PBool(user.Disabled) {
+		return nil, errors.Wrapf(errors.Unauthorized, "User %s is disabled in tenant %s", authInfo.UserName, authInfo.Realm)
 	}
 
 	// Add Auth info for the backend server
-	err := common.SetAuthInfoHeader(r, authInfo)
+	err = common.SetAuthInfoHeader(r, authInfo)
 	if err != nil {
 		return nil, errors.Wrapf(errors.Unauthorized, "Failed to process auth information: %s", err)
 	}
@@ -83,9 +153,15 @@ func New(insecure http.Handler) http.Handler {
 	if err != nil {
 		log.Panicf("unable to get api keys table: %s", err)
 	}
+
+	userTbl, err := table.GetUserTable()
+	if err != nil {
+		log.Panicf("unable to get user table: %s", err)
+	}
 	return &gateway{
 		server:    insecure,
 		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
 		apiKeys:   apiKeys,
+		userTbl:   userTbl,
 	}
 }
