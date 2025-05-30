@@ -1040,6 +1040,318 @@ func (*UserDisableResp) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{14}
 }
 
+// list active sessions request
+type UserSessionsListReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under consideration
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// user name to filter for
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	// offset to start from
+	Offset int32 `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	// limit
+	Limit         int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserSessionsListReq) Reset() {
+	*x = UserSessionsListReq{}
+	mi := &file_user_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserSessionsListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserSessionsListReq) ProtoMessage() {}
+
+func (x *UserSessionsListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserSessionsListReq.ProtoReflect.Descriptor instead.
+func (*UserSessionsListReq) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *UserSessionsListReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+func (x *UserSessionsListReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserSessionsListReq) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *UserSessionsListReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// user session information
+type UserSessionInfo struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// user name
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	// session id
+	SessionId string `protobuf:"bytes,2,opt,name=sessionId,proto3" json:"sessionId,omitempty"`
+	// start time
+	Started int64 `protobuf:"varint,3,opt,name=started,proto3" json:"started,omitempty"`
+	// last access time
+	LastAccess int64 `protobuf:"varint,4,opt,name=lastAccess,proto3" json:"lastAccess,omitempty"`
+	// incoming client ip
+	Ip            string `protobuf:"bytes,5,opt,name=ip,proto3" json:"ip,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserSessionInfo) Reset() {
+	*x = UserSessionInfo{}
+	mi := &file_user_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserSessionInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserSessionInfo) ProtoMessage() {}
+
+func (x *UserSessionInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserSessionInfo.ProtoReflect.Descriptor instead.
+func (*UserSessionInfo) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *UserSessionInfo) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserSessionInfo) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *UserSessionInfo) GetStarted() int64 {
+	if x != nil {
+		return x.Started
+	}
+	return 0
+}
+
+func (x *UserSessionInfo) GetLastAccess() int64 {
+	if x != nil {
+		return x.LastAccess
+	}
+	return 0
+}
+
+func (x *UserSessionInfo) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+// response of list active sessions
+type UserSessionsListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// total number of active sessions
+	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	// list of active sessions
+	Items         []*UserSessionInfo `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserSessionsListResp) Reset() {
+	*x = UserSessionsListResp{}
+	mi := &file_user_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserSessionsListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserSessionsListResp) ProtoMessage() {}
+
+func (x *UserSessionsListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserSessionsListResp.ProtoReflect.Descriptor instead.
+func (*UserSessionsListResp) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *UserSessionsListResp) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *UserSessionsListResp) GetItems() []*UserSessionInfo {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+// user session logout request
+type UserSessionLogoutReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under consideration
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// user to be logged out
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	// specific session id if any needs to be logged out
+	// optional, if not specified all sessions are logged out
+	SessionId     string `protobuf:"bytes,3,opt,name=sessionId,proto3" json:"sessionId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserSessionLogoutReq) Reset() {
+	*x = UserSessionLogoutReq{}
+	mi := &file_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserSessionLogoutReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserSessionLogoutReq) ProtoMessage() {}
+
+func (x *UserSessionLogoutReq) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserSessionLogoutReq.ProtoReflect.Descriptor instead.
+func (*UserSessionLogoutReq) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UserSessionLogoutReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+func (x *UserSessionLogoutReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserSessionLogoutReq) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+// user session logout response
+type UserSessionLogoutResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserSessionLogoutResp) Reset() {
+	*x = UserSessionLogoutResp{}
+	mi := &file_user_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserSessionLogoutResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserSessionLogoutResp) ProtoMessage() {}
+
+func (x *UserSessionLogoutResp) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserSessionLogoutResp.ProtoReflect.Descriptor instead.
+func (*UserSessionLogoutResp) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{19}
+}
+
 var File_user_proto protoreflect.FileDescriptor
 
 const file_user_proto_rawDesc = "" +
@@ -1116,7 +1428,28 @@ const file_user_proto_rawDesc = "" +
 	"\x0eUserDisableReq\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\"\x11\n" +
-	"\x0fUserDisableResp2\xf4\x05\n" +
+	"\x0fUserDisableResp\"w\n" +
+	"\x13UserSessionsListReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\"\x95\x01\n" +
+	"\x0fUserSessionInfo\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
+	"\tsessionId\x18\x02 \x01(\tR\tsessionId\x12\x18\n" +
+	"\astarted\x18\x03 \x01(\x03R\astarted\x12\x1e\n" +
+	"\n" +
+	"lastAccess\x18\x04 \x01(\x03R\n" +
+	"lastAccess\x12\x0e\n" +
+	"\x02ip\x18\x05 \x01(\tR\x02ip\"X\n" +
+	"\x14UserSessionsListResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\x12*\n" +
+	"\x05items\x18\x02 \x03(\v2\x14.api.UserSessionInfoR\x05items\"h\n" +
+	"\x14UserSessionLogoutReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
+	"\tsessionId\x18\x03 \x01(\tR\tsessionId\"\x17\n" +
+	"\x15UserSessionLogoutResp2\xf9\a\n" +
 	"\x04User\x12]\n" +
 	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\"*\x82\xd3\xe4\x93\x02$\x12\"/api/auth/v1/tenant/{tenant}/users\x12c\n" +
 	"\n" +
@@ -1128,7 +1461,9 @@ const file_user_proto_rawDesc = "" +
 	"\n" +
 	"UpdateUser\x12\x12.api.UserUpdateReq\x1a\x13.api.UserUpdateResp\"4\x82\xd3\xe4\x93\x02.\x1a,/api/auth/v1/tenant/{tenant}/user/{username}\x12k\n" +
 	"\n" +
-	"DeleteUser\x12\x12.api.UserDeleteReq\x1a\x13.api.UserDeleteResp\"4\x82\xd3\xe4\x93\x02.*,/api/auth/v1/tenant/{tenant}/user/{username}B\x99\x01\x92Aj\x12%\n" +
+	"DeleteUser\x12\x12.api.UserDeleteReq\x1a\x13.api.UserDeleteResp\"4\x82\xd3\xe4\x93\x02.*,/api/auth/v1/tenant/{tenant}/user/{username}\x12v\n" +
+	"\x10ListUserSessions\x12\x18.api.UserSessionsListReq\x1a\x19.api.UserSessionsListResp\"-\x82\xd3\xe4\x93\x02'\x12%/api/auth/v1/tenant/{tenant}/sessions\x12\x8a\x01\n" +
+	"\x11LogoutUserSession\x12\x19.api.UserSessionLogoutReq\x1a\x1a.api.UserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logoutB\x99\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
 	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
 
@@ -1144,45 +1479,55 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_user_proto_goTypes = []any{
-	(*UsersListReq)(nil),    // 0: api.UsersListReq
-	(*UserListEntry)(nil),   // 1: api.UserListEntry
-	(*UsersListResp)(nil),   // 2: api.UsersListResp
-	(*UserCreateReq)(nil),   // 3: api.UserCreateReq
-	(*UserCreateResp)(nil),  // 4: api.UserCreateResp
-	(*UserDeleteReq)(nil),   // 5: api.UserDeleteReq
-	(*UserDeleteResp)(nil),  // 6: api.UserDeleteResp
-	(*UserGetReq)(nil),      // 7: api.UserGetReq
-	(*UserGetResp)(nil),     // 8: api.UserGetResp
-	(*UserUpdateReq)(nil),   // 9: api.UserUpdateReq
-	(*UserUpdateResp)(nil),  // 10: api.UserUpdateResp
-	(*UserEnableReq)(nil),   // 11: api.UserEnableReq
-	(*UserEnableResp)(nil),  // 12: api.UserEnableResp
-	(*UserDisableReq)(nil),  // 13: api.UserDisableReq
-	(*UserDisableResp)(nil), // 14: api.UserDisableResp
+	(*UsersListReq)(nil),          // 0: api.UsersListReq
+	(*UserListEntry)(nil),         // 1: api.UserListEntry
+	(*UsersListResp)(nil),         // 2: api.UsersListResp
+	(*UserCreateReq)(nil),         // 3: api.UserCreateReq
+	(*UserCreateResp)(nil),        // 4: api.UserCreateResp
+	(*UserDeleteReq)(nil),         // 5: api.UserDeleteReq
+	(*UserDeleteResp)(nil),        // 6: api.UserDeleteResp
+	(*UserGetReq)(nil),            // 7: api.UserGetReq
+	(*UserGetResp)(nil),           // 8: api.UserGetResp
+	(*UserUpdateReq)(nil),         // 9: api.UserUpdateReq
+	(*UserUpdateResp)(nil),        // 10: api.UserUpdateResp
+	(*UserEnableReq)(nil),         // 11: api.UserEnableReq
+	(*UserEnableResp)(nil),        // 12: api.UserEnableResp
+	(*UserDisableReq)(nil),        // 13: api.UserDisableReq
+	(*UserDisableResp)(nil),       // 14: api.UserDisableResp
+	(*UserSessionsListReq)(nil),   // 15: api.UserSessionsListReq
+	(*UserSessionInfo)(nil),       // 16: api.UserSessionInfo
+	(*UserSessionsListResp)(nil),  // 17: api.UserSessionsListResp
+	(*UserSessionLogoutReq)(nil),  // 18: api.UserSessionLogoutReq
+	(*UserSessionLogoutResp)(nil), // 19: api.UserSessionLogoutResp
 }
 var file_user_proto_depIdxs = []int32{
 	1,  // 0: api.UsersListResp.items:type_name -> api.UserListEntry
-	0,  // 1: api.User.GetUsers:input_type -> api.UsersListReq
-	3,  // 2: api.User.CreateUser:input_type -> api.UserCreateReq
-	7,  // 3: api.User.GetUser:input_type -> api.UserGetReq
-	11, // 4: api.User.EnableUser:input_type -> api.UserEnableReq
-	13, // 5: api.User.DisableUser:input_type -> api.UserDisableReq
-	9,  // 6: api.User.UpdateUser:input_type -> api.UserUpdateReq
-	5,  // 7: api.User.DeleteUser:input_type -> api.UserDeleteReq
-	2,  // 8: api.User.GetUsers:output_type -> api.UsersListResp
-	4,  // 9: api.User.CreateUser:output_type -> api.UserCreateResp
-	8,  // 10: api.User.GetUser:output_type -> api.UserGetResp
-	12, // 11: api.User.EnableUser:output_type -> api.UserEnableResp
-	14, // 12: api.User.DisableUser:output_type -> api.UserDisableResp
-	10, // 13: api.User.UpdateUser:output_type -> api.UserUpdateResp
-	6,  // 14: api.User.DeleteUser:output_type -> api.UserDeleteResp
-	8,  // [8:15] is the sub-list for method output_type
-	1,  // [1:8] is the sub-list for method input_type
-	1,  // [1:1] is the sub-list for extension type_name
-	1,  // [1:1] is the sub-list for extension extendee
-	0,  // [0:1] is the sub-list for field type_name
+	16, // 1: api.UserSessionsListResp.items:type_name -> api.UserSessionInfo
+	0,  // 2: api.User.GetUsers:input_type -> api.UsersListReq
+	3,  // 3: api.User.CreateUser:input_type -> api.UserCreateReq
+	7,  // 4: api.User.GetUser:input_type -> api.UserGetReq
+	11, // 5: api.User.EnableUser:input_type -> api.UserEnableReq
+	13, // 6: api.User.DisableUser:input_type -> api.UserDisableReq
+	9,  // 7: api.User.UpdateUser:input_type -> api.UserUpdateReq
+	5,  // 8: api.User.DeleteUser:input_type -> api.UserDeleteReq
+	15, // 9: api.User.ListUserSessions:input_type -> api.UserSessionsListReq
+	18, // 10: api.User.LogoutUserSession:input_type -> api.UserSessionLogoutReq
+	2,  // 11: api.User.GetUsers:output_type -> api.UsersListResp
+	4,  // 12: api.User.CreateUser:output_type -> api.UserCreateResp
+	8,  // 13: api.User.GetUser:output_type -> api.UserGetResp
+	12, // 14: api.User.EnableUser:output_type -> api.UserEnableResp
+	14, // 15: api.User.DisableUser:output_type -> api.UserDisableResp
+	10, // 16: api.User.UpdateUser:output_type -> api.UserUpdateResp
+	6,  // 17: api.User.DeleteUser:output_type -> api.UserDeleteResp
+	17, // 18: api.User.ListUserSessions:output_type -> api.UserSessionsListResp
+	19, // 19: api.User.LogoutUserSession:output_type -> api.UserSessionLogoutResp
+	11, // [11:20] is the sub-list for method output_type
+	2,  // [2:11] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -1196,7 +1541,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

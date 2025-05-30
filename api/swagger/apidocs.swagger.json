@@ -19,6 +19,61 @@
     "application/json"
   ],
   "paths": {
+    "/api/auth/v1/tenant/{tenant}/sessions": {
+      "get": {
+        "summary": "List Active sessions, filter by user if provided",
+        "operationId": "User_ListUserSessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserSessionsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user name to filter for",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset to start from",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
     "/api/auth/v1/tenant/{tenant}/user": {
       "post": {
         "summary": "Create a new user for the given tenant",
@@ -271,6 +326,53 @@
             "in": "path",
             "required": true,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{tenant}/user/{username}/logout": {
+      "post": {
+        "summary": "logout user from specific session or all sessions",
+        "operationId": "User_LogoutUserSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserSessionLogoutResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user to be logged out",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserLogoutUserSessionBody"
+            }
           }
         ],
         "tags": [
@@ -540,6 +642,16 @@
       },
       "title": "user create request message"
     },
+    "UserLogoutUserSessionBody": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "title": "specific session id if any needs to be logged out\noptional, if not specified all sessions are logged out"
+        }
+      },
+      "title": "user session logout request"
+    },
     "apiApiKeyCreateReq": {
       "type": "object",
       "properties": {
@@ -775,6 +887,57 @@
         }
       },
       "title": "user information for the list entry"
+    },
+    "apiUserSessionInfo": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "user name"
+        },
+        "sessionId": {
+          "type": "string",
+          "title": "session id"
+        },
+        "started": {
+          "type": "string",
+          "format": "int64",
+          "title": "start time"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access time"
+        },
+        "ip": {
+          "type": "string",
+          "title": "incoming client ip"
+        }
+      },
+      "title": "user session information"
+    },
+    "apiUserSessionLogoutResp": {
+      "type": "object",
+      "title": "user session logout response"
+    },
+    "apiUserSessionsListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "total number of active sessions"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiUserSessionInfo"
+          },
+          "title": "list of active sessions"
+        }
+      },
+      "title": "response of list active sessions"
     },
     "apiUserUpdateResp": {
       "type": "object",

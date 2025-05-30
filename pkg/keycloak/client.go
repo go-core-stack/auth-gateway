@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/tls"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -183,4 +184,27 @@ func (c *Client) Logout(ctx context.Context) error {
 	c.token = nil
 
 	return nil
+}
+
+func (c *Client) getAdminRealmURL(basePath, realm string, path ...string) string {
+	path = append([]string{basePath, "admin", "realms", realm}, path...)
+	return strings.Join(path, "/")
+}
+
+// sessionCount Contains count of number of session in domain
+type sessionCount struct {
+	Count int `json:"count,omitempty"`
+}
+
+// GetClientUserSessions returns user sessions associated with the client
+func (c *Client) GetClientUserSessionsCount(ctx context.Context, token, realm, idOfClient string) (int, error) {
+	var result sessionCount
+	resp, err := c.GetRequestWithBearerAuth(ctx, token).
+		SetResult(&result).
+		Get(c.getAdminRealmURL(c.url, realm, "clients", idOfClient, "session-count"))
+	if resp == nil || resp.IsError() || err != nil {
+		return -1, err
+	}
+
+	return result.Count, nil
 }

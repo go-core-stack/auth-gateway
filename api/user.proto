@@ -72,6 +72,21 @@ service User {
       delete: "/api/auth/v1/tenant/{tenant}/user/{username}"
     };
   }
+
+  // List Active sessions, filter by user if provided
+  rpc ListUserSessions(UserSessionsListReq) returns (UserSessionsListResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/tenant/{tenant}/sessions"
+    };
+  }
+
+  // logout user from specific session or all sessions
+  rpc LogoutUserSession(UserSessionLogoutReq) returns (UserSessionLogoutResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/tenant/{tenant}/user/{username}/logout"
+      body: "*"
+    };
+  }
 }
 
 // Request List of users in a tenant
@@ -273,4 +288,63 @@ message UserDisableReq {
 
 // disable user request response
 message UserDisableResp {
+}
+
+// list active sessions request
+message UserSessionsListReq {
+  // tenant under consideration
+  string tenant = 1;
+
+  // user name to filter for
+  string username = 2;
+
+  // offset to start from
+  int32 offset = 3;
+
+  // limit
+  int32 limit = 4;
+}
+
+// user session information
+message UserSessionInfo {
+  // user name
+  string username = 1;
+
+  // session id
+  string sessionId = 2;
+
+  // start time
+  int64 started = 3;
+
+  // last access time
+  int64 lastAccess = 4;
+
+  // incoming client ip
+  string ip = 5;
+}
+
+// response of list active sessions
+message UserSessionsListResp {
+  // total number of active sessions
+  int32 count = 1;
+
+  // list of active sessions
+  repeated UserSessionInfo items = 2;
+}
+
+// user session logout request
+message UserSessionLogoutReq {
+  // tenant under consideration
+  string tenant = 1;
+
+  // user to be logged out
+  string username = 2;
+
+  // specific session id if any needs to be logged out
+  // optional, if not specified all sessions are logged out
+  string sessionId = 3;
+}
+
+// user session logout response
+message UserSessionLogoutResp {
 }
