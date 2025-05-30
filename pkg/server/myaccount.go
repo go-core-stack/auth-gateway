@@ -62,8 +62,10 @@ func (s *MyAccountServer) GetMyInfo(ctx context.Context, req *api.MyInfoGetReq) 
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 	return &api.MyInfoGetResp{
-		Username: authInfo.UserName, // Use username from auth info
-		FullName: authInfo.FullName, // Use full name from auth info
+		Username:  authInfo.UserName,  // Use username from auth info
+		FirstName: authInfo.FirstName, // Use full name from auth info
+		LastName:  authInfo.LastName,  // Use last name from auth info
+		Email:     authInfo.Email,     // Use email from auth info
 	}, nil
 }
 

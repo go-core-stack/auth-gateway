@@ -772,9 +772,17 @@
           "type": "string",
           "title": "username which is used for login"
         },
-        "fullName": {
+        "firstName": {
           "type": "string",
-          "title": "full user name"
+          "title": "first name of the user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of the user"
+        },
+        "email": {
+          "type": "string",
+          "title": "email of the user"
         }
       }
     },

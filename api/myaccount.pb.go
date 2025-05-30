@@ -118,8 +118,12 @@ type MyInfoGetResp struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// username which is used for login
 	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	// full user name
-	FullName      string `protobuf:"bytes,2,opt,name=fullName,proto3" json:"fullName,omitempty"`
+	// first name of the user
+	FirstName string `protobuf:"bytes,2,opt,name=firstName,proto3" json:"firstName,omitempty"`
+	// last name of the user
+	LastName string `protobuf:"bytes,3,opt,name=lastName,proto3" json:"lastName,omitempty"`
+	// email of the user
+	Email         string `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -161,9 +165,23 @@ func (x *MyInfoGetResp) GetUsername() string {
 	return ""
 }
 
-func (x *MyInfoGetResp) GetFullName() string {
+func (x *MyInfoGetResp) GetFirstName() string {
 	if x != nil {
-		return x.FullName
+		return x.FirstName
+	}
+	return ""
+}
+
+func (x *MyInfoGetResp) GetLastName() string {
+	if x != nil {
+		return x.LastName
+	}
+	return ""
+}
+
+func (x *MyInfoGetResp) GetEmail() string {
+	if x != nil {
+		return x.Email
 	}
 	return ""
 }
@@ -787,10 +805,12 @@ var File_myaccount_proto protoreflect.FileDescriptor
 const file_myaccount_proto_rawDesc = "" +
 	"\n" +
 	"\x0fmyaccount.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x0e\n" +
-	"\fMyInfoGetReq\"G\n" +
+	"\fMyInfoGetReq\"{\n" +
 	"\rMyInfoGetResp\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bfullName\x18\x02 \x01(\tR\bfullName\"A\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
+	"\tfirstName\x18\x02 \x01(\tR\tfirstName\x12\x1a\n" +
+	"\blastName\x18\x03 \x01(\tR\blastName\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\"A\n" +
 	"\x0fApiKeyCreateReq\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bvalidity\x18\x02 \x01(\x03R\bvalidity\"<\n" +
