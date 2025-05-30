@@ -6,6 +6,7 @@ package server
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Nerzal/gocloak/v13"
@@ -276,6 +277,151 @@ func (s *UserApiServer) DeleteUser(ctx context.Context, req *api.UserDeleteReq) 
 	}
 
 	return &api.UserDeleteResp{}, nil
+}
+
+func (s *UserApiServer) sessionsToApi(session *gocloak.UserSessionRepresentation) *api.UserSessionInfo {
+	if session == nil {
+		return nil
+	}
+
+	username := ""
+	if session.Username != nil {
+		username = *session.Username
+	}
+
+	sessionId := ""
+	if session.ID != nil {
+		sessionId = *session.ID
+	}
+
+	startTime := int64(0)
+	if session.Start != nil {
+		startTime = *session.Start
+	}
+
+	lastAccess := int64(0)
+	if session.LastAccess != nil {
+		lastAccess = *session.LastAccess
+	}
+
+	ipAddress := ""
+	if session.IPAddress != nil {
+		ipAddress = *session.IPAddress
+	}
+
+	return &api.UserSessionInfo{
+		Username:   username,
+		SessionId:  sessionId,
+		Started:    startTime,
+		LastAccess: lastAccess,
+		Ip:         ipAddress,
+	}
+}
+func (s *UserApiServer) ListUserSessions(ctx context.Context, req *api.UserSessionsListReq) (*api.UserSessionsListResp, error) {
+	_, err := s.getTenant(ctx, req.Tenant)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &api.UserSessionsListResp{}
+
+	token, _ := s.client.GetAccessToken()
+	var sessions []*gocloak.UserSessionRepresentation
+	if req.Username != "" {
+		params := gocloak.GetUsersParams{
+			Username: gocloak.StringP(req.Username),
+		}
+		users, err := s.client.GetUsers(ctx, token, req.Tenant, params)
+		if err != nil || len(users) == 0 {
+			log.Printf("failed to fetch users: %v, got error: %s", req, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+		// validate case-insensitive match for username
+		if *users[0].Username != strings.ToLower(req.Username) {
+			log.Printf("failed to find user: %v", req)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+		sessions, err = s.client.GetUserSessions(ctx, token, req.Tenant, *users[0].ID)
+		if err != nil {
+			log.Printf("failed to get sessions: %v, got error: %s", req, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+		resp.Count = int32(len(sessions))
+	} else {
+		clientsParams := gocloak.GetClientsParams{
+			ClientID: gocloak.StringP("controller"),
+		}
+		clients, err := s.client.GetClients(ctx, token, req.Tenant, clientsParams)
+		if err != nil {
+			log.Printf("failed to clients for: %v, got error: %s", req, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+
+		clientID := *clients[0].ID
+		count, err := s.client.GetClientUserSessionsCount(ctx, token, req.Tenant, clientID)
+		if err != nil {
+			log.Printf("failed to fetch user session count for %v, got error: %s", req, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+
+		params := gocloak.GetClientUserSessionsParams{
+			First: gocloak.IntP(int(req.Offset)),
+			Max:   gocloak.IntP(int(req.Limit)),
+		}
+
+		if req.Limit == 0 {
+			// if limit is not specified mark max equal to the total count available
+			params.Max = gocloak.IntP(count)
+		}
+
+		sessions, err = s.client.GetClientUserSessions(ctx, token, req.Tenant, clientID, params)
+		if err != nil {
+			log.Printf("failed to fetch user sessions for %v, got error: %s", req, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+
+		resp.Count = int32(count)
+	}
+
+	for _, session := range sessions {
+		if session != nil {
+			resp.Items = append(resp.Items, s.sessionsToApi(session))
+		}
+	}
+
+	return resp, nil
+}
+
+func (s *UserApiServer) LogoutUserSession(ctx context.Context, req *api.UserSessionLogoutReq) (*api.UserSessionLogoutResp, error) {
+	params := gocloak.GetUsersParams{
+		Username: gocloak.StringP(req.Username),
+	}
+	token, _ := s.client.GetAccessToken()
+	users, err := s.client.GetUsers(ctx, token, req.Tenant, params)
+	if err != nil || len(users) == 0 {
+		log.Printf("failed to fetch users: %v, got error: %s", req, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	// validate exact match for username
+	if *users[0].Username != req.Username {
+		log.Printf("failed to find user: %v, got error: %s", req, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	if req.SessionId == "" {
+		err = s.client.LogoutAllSessions(ctx, token, req.Tenant, *users[0].ID)
+		if err != nil {
+			log.Printf("failed to close all sessions of user: %s, got error: %s", req.Username, err)
+			return nil, status.Errorf(codes.Internal, "failed to logout user sessions %s", err.Error())
+		}
+	} else {
+		err = s.client.LogoutUserSession(ctx, token, req.Tenant, req.SessionId)
+		if err != nil {
+			log.Printf("failed to close specified session of user: %v, got error %s", req, err)
+			return nil, status.Errorf(codes.Internal, "failed to logout user session %s", err.Error())
+		}
+	}
+
+	return &api.UserSessionLogoutResp{}, nil
 }
 
 func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client) *UserApiServer {
