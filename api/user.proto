@@ -38,6 +38,34 @@ service User {
     };
   }
 
+  // Get an existing user for the given tenant
+  rpc GetUser(UserGetReq) returns (UserGetResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/tenant/{tenant}/user/{username}"
+    };
+  }
+
+  // Enable an existing disabled user for the given tenant
+  rpc EnableUser(UserEnableReq) returns (UserEnableResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/tenant/{tenant}/user/{username}/enable"
+    };
+  }
+
+  // Disable an existing enabled user for the given tenant
+  rpc DisableUser(UserDisableReq) returns (UserDisableResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/tenant/{tenant}/user/{username}/disable"
+    };
+  }
+
+  // Update an existing user for the given tenant
+  rpc UpdateUser(UserUpdateReq) returns (UserUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/auth/v1/tenant/{tenant}/user/{username}"
+    };
+  }
+
   // Delete an existing user for the given tenant
   rpc DeleteUser(UserDeleteReq) returns (UserDeleteResp) {
     option (google.api.http) = {
@@ -50,13 +78,13 @@ service User {
 message UsersListReq {
   // tenant under which the user list is requested
   string tenant = 1;
-  
+
   // offset from where to start the list of users
-  int32 offset = 2; 
-  
+  int32 offset = 2;
+
   // limit the response to specified count
   int32 limit = 3;
-      
+
   // prefix match to consider
   string search = 4;
 }
@@ -65,16 +93,16 @@ message UsersListReq {
 message UserListEntry {
   // username or user id
   string username = 1;
-  
+
   // user email
   string email = 2;
-    
+
   // first name of user
   string firstName = 3;
-    
+
   // last name of user
   string lastName = 4;
-  
+
   // is user enabled
   bool enabled = 5;
 
@@ -89,7 +117,7 @@ message UserListEntry {
 message UsersListResp {
   // number of users in the tenant
   int32 count = 1;
-  
+
   // items - list of users
   repeated UserListEntry items = 2;
 }
@@ -122,16 +150,16 @@ message UserCreateReq {
 message UserCreateResp {
   // username or user id
   string username = 1;
-  
+
   // user email
   string email = 2;
-    
+
   // first name of user
   string firstName = 3;
-    
+
   // last name of user
   string lastName = 4;
-  
+
   // is user enabled
   bool enabled = 5;
 }
@@ -147,4 +175,102 @@ message UserDeleteReq {
 
 // response to the user delete message
 message UserDeleteResp {
+}
+
+// get user request message
+message UserGetReq {
+  // tenant under which this action needs to be taken
+  string tenant = 1;
+
+  // user id which needs to be deleted
+  string username = 2;
+}
+
+// get user response
+message UserGetResp {
+  // username or user id
+  string username = 1;
+
+  // user email
+  string email = 2;
+
+  // first name of user
+  string firstName = 3;
+
+  // last name of user
+  string lastName = 4;
+
+  // is user enabled
+  bool enabled = 5;
+
+  // created since
+  int64 creationTimestamp = 6;
+
+  // last access by the user
+  int64 lastAccess = 7;
+}
+
+// user update request message
+message UserUpdateReq {
+  // tenant under which this user will be created
+  string tenant = 1;
+
+  // user ID
+  string username = 2;
+
+  // email address of the user
+  string email = 3;
+
+  // first name of the user
+  string firstname = 4;
+
+  // last name of the user
+  string lastname = 5;
+
+  // if the user needs to be created disabled
+  bool disabled = 6;
+}
+
+// response to user update request
+message UserUpdateResp {
+  // username or user id
+  string username = 1;
+
+  // user email
+  string email = 2;
+
+  // first name of user
+  string firstName = 3;
+
+  // last name of user
+  string lastName = 4;
+
+  // is user enabled
+  bool enabled = 5;
+}
+
+// enable user request
+message UserEnableReq {
+  // tenant under consideration
+  string tenant = 1;
+
+  // user that needs to be enabled
+  string username = 2;
+}
+
+// enable user request response
+message UserEnableResp {
+}
+
+// disable user request
+message UserDisableReq {
+  // tenant under consideration
+  string tenant = 1;
+
+  // user that needs to be disabled
+  string username = 2;
+}
+
+// disable user request response
+message UserDisableResp {
 }

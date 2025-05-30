@@ -106,6 +106,11 @@ func (s *UserApiServer) CreateUser(ctx context.Context, req *api.UserCreateReq) 
 		Updated:  now,
 		Disabled: gocloak.BoolP(req.Disabled),
 	}
+	if req.Password != "" {
+		uEntry.Password = &table.UserTempPassword{
+			Value: req.Password,
+		}
+	}
 	err = s.userTbl.Insert(ctx, uEntry.Key, uEntry)
 	if err != nil {
 		if !errors.IsAlreadyExists(err) {
@@ -119,6 +124,127 @@ func (s *UserApiServer) CreateUser(ctx context.Context, req *api.UserCreateReq) 
 		FirstName: req.Firstname,
 		LastName:  req.Lastname,
 		Enabled:   !req.Disabled,
+	}
+	return resp, nil
+}
+
+func (s *UserApiServer) GetUser(ctx context.Context, req *api.UserGetReq) (*api.UserGetResp, error) {
+	uKey := &table.UserKey{
+		Tenant:   req.Tenant,
+		Username: req.Username,
+	}
+	uEntry, err := s.userTbl.Find(ctx, uKey)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "User %s not found in tenant %s", req.Username, req.Tenant)
+		}
+		log.Printf("failed to find user entry: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	resp := &api.UserGetResp{
+		Username:          uEntry.Key.Username,
+		Email:             uEntry.Info.Email,
+		FirstName:         uEntry.Info.FirstName,
+		LastName:          uEntry.Info.LastName,
+		Enabled:           !utils.PBool(uEntry.Disabled),
+		CreationTimestamp: uEntry.Created,
+		LastAccess:        uEntry.LastAccess,
+	}
+	return resp, nil
+}
+
+func (s *UserApiServer) EnableUser(ctx context.Context, req *api.UserEnableReq) (*api.UserEnableResp, error) {
+	tEntry, err := s.getTenant(ctx, req.Tenant)
+	if err != nil {
+		return nil, err
+	}
+
+	if tEntry.Config.DefaultAdmin.UserID == req.Username {
+		return nil, status.Errorf(codes.PermissionDenied, "Default Tenant Admin cannot be enabled/disabled")
+	}
+
+	update := &table.UserEntry{
+		Key: &table.UserKey{
+			Tenant:   req.Tenant,
+			Username: req.Username,
+		},
+		Updated:  time.Now().Unix(),
+		Disabled: gocloak.BoolP(false),
+	}
+	err = s.userTbl.Update(ctx, update.Key, update)
+	if err != nil {
+		log.Printf("failed to update user entry: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	return &api.UserEnableResp{}, nil
+}
+
+func (s *UserApiServer) DisableUser(ctx context.Context, req *api.UserDisableReq) (*api.UserDisableResp, error) {
+	tEntry, err := s.getTenant(ctx, req.Tenant)
+	if err != nil {
+		return nil, err
+	}
+
+	if tEntry.Config.DefaultAdmin.UserID == req.Username {
+		return nil, status.Errorf(codes.PermissionDenied, "Default Tenant Admin cannot be enabled/disabled")
+	}
+
+	update := &table.UserEntry{
+		Key: &table.UserKey{
+			Tenant:   req.Tenant,
+			Username: req.Username,
+		},
+		Updated:  time.Now().Unix(),
+		Disabled: gocloak.BoolP(true),
+	}
+	err = s.userTbl.Update(ctx, update.Key, update)
+	if err != nil {
+		log.Printf("failed to update user entry: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	return &api.UserDisableResp{}, nil
+}
+
+func (s *UserApiServer) UpdateUser(ctx context.Context, req *api.UserUpdateReq) (*api.UserUpdateResp, error) {
+	tEntry, err := s.getTenant(ctx, req.Tenant)
+	if err != nil {
+		return nil, err
+	}
+
+	if tEntry.Config.DefaultAdmin.UserID == req.Username {
+		return nil, status.Errorf(codes.PermissionDenied, "Default Tenant Admin cannot be updated")
+	}
+
+	update := &table.UserEntry{
+		Key: &table.UserKey{
+			Tenant:   req.Tenant,
+			Username: req.Username,
+		},
+		Info: &table.UserInfo{
+			FirstName: req.Firstname,
+			LastName:  req.Lastname,
+			Email:     req.Email,
+		},
+		Updated:  time.Now().Unix(),
+		Disabled: utils.BoolP(req.Disabled),
+	}
+	err = s.userTbl.Update(ctx, update.Key, update)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "User %s not found in tenant %s", req.Username, req.Tenant)
+		}
+		log.Printf("failed to update user entry: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	resp := &api.UserUpdateResp{
+		Username:  update.Key.Username,
+		Email:     update.Info.Email,
+		FirstName: update.Info.FirstName,
+		LastName:  update.Info.LastName,
 	}
 	return resp, nil
 }
