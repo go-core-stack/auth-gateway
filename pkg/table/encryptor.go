@@ -6,7 +6,7 @@ package table
 import (
 	"log"
 
-	"github.com/Prabhjot-Sethi/core/utils"
+	"github.com/go-core-stack/core/utils"
 )
 
 var encryptor utils.IOEncryptor

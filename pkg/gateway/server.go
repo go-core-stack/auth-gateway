@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-core-stack/auth/hash"
 
-	common "github.com/Prabhjot-Sethi/core/auth"
-	"github.com/Prabhjot-Sethi/core/errors"
-	"github.com/Prabhjot-Sethi/core/utils"
+	common "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/utils"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"

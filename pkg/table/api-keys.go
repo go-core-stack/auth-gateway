@@ -6,9 +6,9 @@ package table
 import (
 	"context"
 
-	"github.com/Prabhjot-Sethi/core/db"
-	"github.com/Prabhjot-Sethi/core/errors"
-	"github.com/Prabhjot-Sethi/core/table"
+	"github.com/go-core-stack/core/db"
+	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/table"
 	"go.mongodb.org/mongo-driver/bson"
 )
 

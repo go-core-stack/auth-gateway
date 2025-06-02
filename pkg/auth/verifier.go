@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	common "github.com/Prabhjot-Sethi/core/auth"
-	"github.com/Prabhjot-Sethi/core/errors"
+	common "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/core/errors"
 )
 
 // returns realm information from the token, without performing

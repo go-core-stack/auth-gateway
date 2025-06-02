@@ -21,11 +21,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	common "github.com/Prabhjot-Sethi/core/auth"
-	"github.com/Prabhjot-Sethi/core/db"
-	"github.com/Prabhjot-Sethi/core/errors"
-	"github.com/Prabhjot-Sethi/core/sync"
-	"github.com/Prabhjot-Sethi/core/values"
+	common "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/core/db"
+	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/sync"
+	"github.com/go-core-stack/core/values"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/api"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"

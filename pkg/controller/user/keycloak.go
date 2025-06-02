@@ -11,9 +11,9 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
-	"github.com/Prabhjot-Sethi/core/errors"
-	"github.com/Prabhjot-Sethi/core/reconciler"
-	"github.com/Prabhjot-Sethi/core/utils"
+	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/reconciler"
+	"github.com/go-core-stack/core/utils"
 )
 
 // User reconciler Controller responsible for managing Keycloak
