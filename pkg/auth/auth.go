@@ -12,9 +12,10 @@ import (
 
 	"github.com/coreos/go-oidc/v3/oidc"
 
+	common "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/core/errors"
+
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
-	common "github.com/Prabhjot-Sethi/core/auth"
-	"github.com/Prabhjot-Sethi/core/errors"
 )
 
 // internal structure of auth Verifier

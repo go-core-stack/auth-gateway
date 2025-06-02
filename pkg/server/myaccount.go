@@ -15,9 +15,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/Prabhjot-Sethi/core/auth"
-	"github.com/Prabhjot-Sethi/core/errors"
-	"github.com/Prabhjot-Sethi/core/utils"
+	auth "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/utils"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/api"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"

@@ -13,7 +13,7 @@ import (
 
 	"github.com/Nerzal/gocloak/v13"
 
-	"github.com/Prabhjot-Sethi/core/errors"
+	"github.com/go-core-stack/core/errors"
 )
 
 const (

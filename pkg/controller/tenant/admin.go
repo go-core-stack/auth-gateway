@@ -11,8 +11,8 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
-	"github.com/Prabhjot-Sethi/core/errors"
-	"github.com/Prabhjot-Sethi/core/reconciler"
+	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/reconciler"
 )
 
 // Tenant Admin Controller responsible for managing Keycloak
