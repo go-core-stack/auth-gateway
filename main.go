@@ -147,7 +147,7 @@ func getSwaggerHandler() http.Handler {
 	return http.FileServer(http.FS(subFS))
 }
 
-func startGRPCServers() *model.GrpcServerContext {
+func createGRPCServerContext() *model.GrpcServerContext {
 	var opts = []grpc.ServerOption{}
 	// Ensure adding an interceptor to process the auth Headers
 	// Validating its existence in common place and storing its
@@ -158,14 +158,6 @@ func startGRPCServers() *model.GrpcServerContext {
 		Server: grpc.NewServer(opts...),
 	}
 
-	go func() {
-		lis, err := net.Listen("tcp", GrpcPort)
-		if err != nil {
-			log.Panicf("failed to start GRPC Server")
-		}
-		log.Panic(serverCtx.Server.Serve(lis))
-	}()
-
 	// Create a server mux with incoming header matcher ensuring,
 	// processing of custom headers
 	serverCtx.Mux = runtime.NewServeMux(runtime.WithIncomingHeaderMatcher(func(key string) (string, bool) {
@@ -174,6 +166,27 @@ func startGRPCServers() *model.GrpcServerContext {
 		}
 		return key, false
 	}))
+
+	var err error
+	serverCtx.Conn, err = grpc.NewClient(GrpcPort,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Panicf("failed to get grpc client handle: %s", err)
+	}
+
+	return serverCtx
+}
+
+func startServerContext(serverCtx *model.GrpcServerContext) {
+	go func() {
+		lis, err := net.Listen("tcp", GrpcPort)
+		if err != nil {
+			log.Panicf("failed to start GRPC Server")
+		}
+		log.Panic(serverCtx.Server.Serve(lis))
+	}()
+
 	oa := getSwaggerHandler()
 	gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") {
@@ -191,16 +204,6 @@ func startGRPCServers() *model.GrpcServerContext {
 		}
 		log.Panic(http.Serve(lis, gateway.New(gwHandler)))
 	}()
-
-	var err error
-	serverCtx.Conn, err = grpc.NewClient(GrpcPort,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		log.Panicf("failed to get grpc client handle: %s", err)
-	}
-
-	return serverCtx
 }
 
 func main() {
@@ -318,8 +321,8 @@ func main() {
 		log.Panicf("failed to create user controller: %s", err)
 	}
 
-	// start GRPC Servers
-	serverCtx := startGRPCServers()
+	// create GRPC Server context
+	serverCtx := createGRPCServerContext()
 
 	// Setup as new user server
 	_ = server.NewUserServer(serverCtx, client)
@@ -327,6 +330,9 @@ func main() {
 	// setup myaccount server
 	_ = server.NewMyAccountServer(serverCtx, client)
 
+	// once all the servers are added to the list
+	// start server
+	startServerContext(serverCtx)
 	log.Println("Initialization of Auth Gateway completed")
 
 	sigc := make(chan os.Signal, 1)
