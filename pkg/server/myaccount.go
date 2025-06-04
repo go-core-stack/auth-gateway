@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	auth "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/utils"
 
@@ -414,7 +415,7 @@ func (s *MyAccountServer) ListApiKeys(ctx context.Context, req *api.ApiKeysListR
 // Returns:
 //
 //	*MyAccountServer - the registered server instance
-func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client) *MyAccountServer {
+func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *MyAccountServer {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("failed to get API key table: %s", err)
@@ -427,6 +428,23 @@ func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client) *
 	err = api.RegisterMyAccountHandler(context.Background(), ctx.Mux, ctx.Conn)
 	if err != nil {
 		log.Panicf("failed to register handler: %s", err)
+	}
+	tbl, err := route.GetRouteTable()
+	if err != nil {
+		log.Panicf("failed to get route table: %s", err)
+	}
+	for _, r := range api.RoutesMyAccount {
+		key := &route.Key{
+			Url:    r.Url,
+			Method: r.Method,
+		}
+		entry := &route.Route{
+			Key:      key,
+			Endpoint: ep,
+		}
+		if err := tbl.Locate(context.Background(), key, entry); err != nil {
+			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)
+		}
 	}
 	return srv
 }

@@ -22,6 +22,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	common "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/db"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/sync"
@@ -54,8 +55,13 @@ const (
 	// service name this process will be hosting
 	serviceName = "auth-gateway"
 
+	// Port serving Auth Gateway
+	GatewayPort = ":8090"
+
 	// API Port for the server
-	APIPort = ":8090"
+	APIPort = ":8095"
+
+	APIEndpoint = "http://localhost" + APIPort
 
 	// GRPC Port for the server
 	GrpcPort = ":8091"
@@ -202,7 +208,15 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 		if err != nil {
 			log.Panicf("failed to start GRPC Gateway Server: %s", err)
 		}
-		log.Panic(http.Serve(lis, gateway.New(gwHandler)))
+		log.Panic(http.Serve(lis, gwHandler))
+	}()
+
+	go func() {
+		lis, err := net.Listen("tcp", GatewayPort)
+		if err != nil {
+			log.Panicf("failed to start Auth Gateway Server: %s", err)
+		}
+		log.Panic(http.Serve(lis, gateway.New()))
 	}()
 }
 
@@ -276,6 +290,12 @@ func main() {
 		log.Panicf("failed to locate API Key table: %s", err)
 	}
 
+	// locate the service routes table
+	_, err = route.LocateRouteTable(client)
+	if err != nil {
+		log.Panicf("failed to locate service route table: %s", err)
+	}
+
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()
@@ -325,10 +345,10 @@ func main() {
 	serverCtx := createGRPCServerContext()
 
 	// Setup as new user server
-	_ = server.NewUserServer(serverCtx, client)
+	_ = server.NewUserServer(serverCtx, client, APIEndpoint)
 
 	// setup myaccount server
-	_ = server.NewMyAccountServer(serverCtx, client)
+	_ = server.NewMyAccountServer(serverCtx, client, APIEndpoint)
 
 	// once all the servers are added to the list
 	// start server
