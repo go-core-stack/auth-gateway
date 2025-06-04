@@ -4,16 +4,21 @@
 package gateway
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"sync"
 	"time"
 
-	"github.com/go-core-stack/auth/hash"
-
 	common "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/auth/hash"
+	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/reconciler"
 	"github.com/go-core-stack/core/utils"
+	"golang.org/x/net/http2"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
@@ -21,10 +26,31 @@ import (
 
 type gateway struct {
 	http.Handler
-	server    http.Handler
 	validator hash.Validator
 	apiKeys   *table.ApiKeyTable
 	userTbl   *table.UserTable
+	routes    *route.RouteTable
+	proxyV1   *httputil.ReverseProxy
+	proxyV2   *httputil.ReverseProxy
+}
+
+type gatewayReconciler struct {
+	reconciler.Controller
+	mu sync.Mutex
+	gw *gateway
+}
+
+func (r *gatewayReconciler) Reconcile(k any) (*reconciler.Result, error) {
+	ok := r.mu.TryLock()
+	if !ok {
+		return &reconciler.Result{}, nil
+	}
+	go func() {
+		time.Sleep(30 * time.Second)
+		r.mu.Unlock()
+		populateRoutes(r.gw.routes)
+	}()
+	return &reconciler.Result{}, nil
 }
 
 func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error) {
@@ -164,12 +190,41 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Authentication failed: %s", err), http.StatusUnauthorized)
 		return
 	}
-	s.server.ServeHTTP(w, r)
+
+	match, err := matchRoute(r.Method, r.URL.Path)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), http.StatusNotFound)
+		return
+	}
+	r.URL.Scheme = match.scheme
+	r.URL.Host = match.host
+	// Set the Host header to match the URL host
+	// This is important for the reverse proxy to work correctly
+	// especially for HTTP/2 where the Host header is mandatory
+	// and should match the authority of the request.
+	// This is also important for HTTP/1.1 where the Host header
+	// is used to determine the target host for the request.
+	// This is required for the reverse proxy to work correctly
+	// and to ensure that the backend server receives the correct
+	// Host header.
+	r.Host = r.URL.Host
+
+	// support for HTTP/2 as well as HTTP/1.1
+	if r.ProtoMajor == 2 {
+		s.proxyV2.ServeHTTP(w, r)
+	} else {
+		s.proxyV1.ServeHTTP(w, r)
+	}
+}
+
+func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
+	log.Println("Auth gateway proxy received error", err)
+	http.Error(w, "Service temporarily unavailable, please try after sometime", http.StatusServiceUnavailable)
 }
 
 // Create a new Auth Gateway server, wrapped around
 // locally hosted insecure server
-func New(insecure http.Handler) http.Handler {
+func New() http.Handler {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("unable to get api keys table: %s", err)
@@ -179,10 +234,50 @@ func New(insecure http.Handler) http.Handler {
 	if err != nil {
 		log.Panicf("unable to get user table: %s", err)
 	}
-	return &gateway{
-		server:    insecure,
+
+	routes, err := route.GetRouteTable()
+	if err != nil {
+		log.Panicf("unable to get route table: %s", err)
+	}
+
+	director := func(req *http.Request) {
+		// we don't use director we will handle request modification
+		// of our own
+	}
+
+	// Transport for HTTP/1.1
+	tr1 := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	// Transport for HTTP/2
+	tr2 := &http2.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	gateway := &gateway{
 		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
 		apiKeys:   apiKeys,
 		userTbl:   userTbl,
+		routes:    routes,
+		proxyV1: &httputil.ReverseProxy{
+			Director:     director,
+			Transport:    tr1,
+			ErrorHandler: gatewayErrorHandler,
+		},
+		proxyV2: &httputil.ReverseProxy{
+			Director:     director,
+			Transport:    tr2,
+			ErrorHandler: gatewayErrorHandler,
+		},
 	}
+
+	r := &gatewayReconciler{
+		gw: gateway,
+	}
+
+	err = routes.Register("GatewayController", r)
+	if err != nil {
+		log.Panicf("Failed to register GatewayController: %s", err)
+	}
+	return gateway
 }

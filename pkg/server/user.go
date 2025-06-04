@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	auth "github.com/go-core-stack/auth/context"
+	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/utils"
 
@@ -424,7 +425,7 @@ func (s *UserApiServer) LogoutUserSession(ctx context.Context, req *api.UserSess
 	return &api.UserSessionLogoutResp{}, nil
 }
 
-func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client) *UserApiServer {
+func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *UserApiServer {
 	tbl, err := table.GetTenantTable()
 	if err != nil {
 		log.Panicf("failed to get tenant table: %s", err)
@@ -442,6 +443,23 @@ func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client) *UserA
 	err = api.RegisterUserHandler(context.Background(), ctx.Mux, ctx.Conn)
 	if err != nil {
 		log.Panicf("failed to register handler: %s", err)
+	}
+	routeTbl, err := route.GetRouteTable()
+	if err != nil {
+		log.Panicf("failed to get route table: %s", err)
+	}
+	for _, r := range api.RoutesUser {
+		key := &route.Key{
+			Url:    r.Url,
+			Method: r.Method,
+		}
+		entry := &route.Route{
+			Key:      key,
+			Endpoint: ep,
+		}
+		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {
+			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)
+		}
 	}
 	return srv
 }
