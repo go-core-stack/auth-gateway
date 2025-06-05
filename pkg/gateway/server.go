@@ -185,17 +185,33 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 }
 
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	_, err := s.AuthenticateRequest(r)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Authentication failed: %s", err), http.StatusUnauthorized)
-		return
-	}
-
 	match, err := matchRoute(r.Method, r.URL.Path)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), http.StatusNotFound)
 		return
 	}
+
+	if match.isPublic {
+		// even for public route ensure that we have auth info
+		// set in the request header, so that backend server
+		// can process the request correctly.
+		// This is important for public routes that are used
+		// ensuring uniform handling of gRPC gateway based
+		// request processing, as it allows bypassing used gRPC
+		// interceptors
+		err = common.SetAuthInfoHeader(r, &common.AuthInfo{})
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Something went wrong: %s", err), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		_, err = s.AuthenticateRequest(r)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Authentication failed: %s", err), http.StatusUnauthorized)
+			return
+		}
+	}
+
 	r.URL.Scheme = match.scheme
 	r.URL.Host = match.host
 	// Set the Host header to match the URL host
