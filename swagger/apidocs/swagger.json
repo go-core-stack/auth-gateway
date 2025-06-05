@@ -1,0 +1,1133 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Auth Gateway API Specification",
+    "version": "1.0"
+  },
+  "tags": [
+    {
+      "name": "User"
+    },
+    {
+      "name": "MyAccount"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/auth/v1/tenant/{tenant}/sessions": {
+      "get": {
+        "summary": "List Active sessions, filter by user if provided",
+        "operationId": "User_ListUserSessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserSessionsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user name to filter for",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset to start from",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{tenant}/user": {
+      "post": {
+        "summary": "Create a new user for the given tenant",
+        "operationId": "User_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under which this user will be created",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserCreateUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{tenant}/user/{username}": {
+      "get": {
+        "summary": "Get an existing user for the given tenant",
+        "operationId": "User_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under which this action needs to be taken",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user id which needs to be deleted",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      },
+      "delete": {
+        "summary": "Delete an existing user for the given tenant",
+        "operationId": "User_DeleteUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under which this action needs to be taken",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user id which needs to be deleted",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      },
+      "put": {
+        "summary": "Update an existing user for the given tenant",
+        "operationId": "User_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserUpdateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under which this user will be created",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "description": "email address of the user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "firstname",
+            "description": "first name of the user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "lastname",
+            "description": "last name of the user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "disabled",
+            "description": "if the user needs to be created disabled",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{tenant}/user/{username}/disable": {
+      "post": {
+        "summary": "Disable an existing enabled user for the given tenant",
+        "operationId": "User_DisableUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserDisableResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user that needs to be disabled",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{tenant}/user/{username}/enable": {
+      "post": {
+        "summary": "Enable an existing disabled user for the given tenant",
+        "operationId": "User_EnableUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserEnableResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user that needs to be enabled",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{tenant}/user/{username}/logout": {
+      "post": {
+        "summary": "logout user from specific session or all sessions",
+        "operationId": "User_LogoutUserSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserSessionLogoutResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "user to be logged out",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserLogoutUserSessionBody"
+            }
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{tenant}/users": {
+      "get": {
+        "summary": "Get List of existing users in a tenant",
+        "operationId": "User_GetUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUsersListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant under which the user list is requested",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset from where to start the list of users",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the response to specified count",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "search",
+            "description": "prefix match to consider",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-key": {
+      "post": {
+        "summary": "create a new api key for api access",
+        "operationId": "MyAccount_CreateApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-key/{id}": {
+      "delete": {
+        "summary": "delete an existing api key",
+        "operationId": "MyAccount_DeleteApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "key id that needs to be deleted",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-key/{id}/disable": {
+      "post": {
+        "summary": "disabling an existing enabled api key, not action is performed\nif the key is already disabled",
+        "operationId": "MyAccount_DisableApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyDisableResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "key id that needs to be disabled",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-key/{id}/enable": {
+      "post": {
+        "summary": "enabling an existing disabled api key, not action is performed\nif the key is already enabled",
+        "operationId": "MyAccount_EnableApiKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeyEnableResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "key id that needs to be enabled",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/api-keys": {
+      "get": {
+        "summary": "list all available api keys for the user",
+        "operationId": "MyAccount_ListApiKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiApiKeysListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/info": {
+      "get": {
+        "summary": "get my account info",
+        "operationId": "MyAccount_GetMyInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMyInfoGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/logout-sessions": {
+      "post": {
+        "summary": "logout my active session(/s), if a specific session id is\nnot provided, it will logout all sessions except the current one",
+        "operationId": "MyAccount_LogoutMySessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMySessionsLogoutResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiMySessionsLogoutReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/sessions": {
+      "get": {
+        "summary": "get all my active sessions",
+        "operationId": "MyAccount_GetMySessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMySessionsGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "UserCreateUserBody": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "user ID"
+        },
+        "email": {
+          "type": "string",
+          "title": "email address of the user"
+        },
+        "firstname": {
+          "type": "string",
+          "title": "first name of the user"
+        },
+        "lastname": {
+          "type": "string",
+          "title": "last name of the user"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "if the user needs to be created disabled"
+        },
+        "password": {
+          "type": "string",
+          "title": "temporary first login password to be set for the user"
+        }
+      },
+      "title": "user create request message"
+    },
+    "UserLogoutUserSessionBody": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "title": "specific session id if any needs to be logged out\noptional, if not specified all sessions are logged out"
+        }
+      },
+      "title": "user session logout request"
+    },
+    "apiApiKeyCreateReq": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "key id will be allocated by virtue of key creation\nuser is expected to provide an optional name for\nease of reference, it is recommended to be unique\nbut not validated or ensured to be unique"
+        },
+        "validity": {
+          "type": "string",
+          "format": "int64",
+          "title": "validity of the api key, tenure in seconds for\nwhich this api key is being created\nwhen not set or 0 it means key with no expiry"
+        }
+      }
+    },
+    "apiApiKeyCreateResp": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name of the api key provided by the creator"
+        },
+        "id": {
+          "type": "string",
+          "title": "ID of the access key that will be used by the\nclient and server to identify ApiKey in use"
+        },
+        "status": {
+          "$ref": "#/definitions/apiApiKeyDefStatus",
+          "title": "current status of the Api Key"
+        },
+        "lastUsed": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key was used last time"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key was created"
+        },
+        "expireAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key will expire"
+        },
+        "secret": {
+          "type": "string",
+          "title": "Secret to be used in conjunction with key id\nfor authentication of client using the api key\nbut typically the auth mechanism used will not\nexpect to share this secret ever on the wire\nafter it is being created, neither on APIs nor\nfor authentication"
+        }
+      }
+    },
+    "apiApiKeyDefStatus": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Expired",
+        "Disabled"
+      ],
+      "default": "Active",
+      "title": "- Active: ApiKey is active\n - Expired: ApiKey has expired\n - Disabled: ApiKey is disabled"
+    },
+    "apiApiKeyDeleteResp": {
+      "type": "object"
+    },
+    "apiApiKeyDisableResp": {
+      "type": "object"
+    },
+    "apiApiKeyEnableResp": {
+      "type": "object"
+    },
+    "apiApiKeyListEntry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name of the api key provided by the creator"
+        },
+        "id": {
+          "type": "string",
+          "title": "ID of the access key that will be used by the\nclient and server to identify ApiKey in use"
+        },
+        "status": {
+          "$ref": "#/definitions/apiApiKeyDefStatus",
+          "title": "current status of the Api Key"
+        },
+        "lastUsed": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key was used last time"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key was created"
+        },
+        "expireAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "timestamp when the api key will expire"
+        }
+      }
+    },
+    "apiApiKeysListResp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiApiKeyListEntry"
+          }
+        }
+      }
+    },
+    "apiMyInfoGetResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username which is used for login"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of the user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of the user"
+        },
+        "email": {
+          "type": "string",
+          "title": "email of the user"
+        }
+      }
+    },
+    "apiMySessionInfo": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "title": "session id"
+        },
+        "started": {
+          "type": "string",
+          "format": "int64",
+          "title": "start time"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access time"
+        },
+        "ip": {
+          "type": "string",
+          "title": "incoming client ip"
+        }
+      },
+      "title": "my session information"
+    },
+    "apiMySessionsGetResp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiMySessionInfo"
+          }
+        }
+      },
+      "title": "my sessions get response"
+    },
+    "apiMySessionsLogoutReq": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        }
+      },
+      "title": "logout session request"
+    },
+    "apiMySessionsLogoutResp": {
+      "type": "object",
+      "title": "session logout empty response"
+    },
+    "apiUserCreateResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        }
+      },
+      "title": "response to user create request"
+    },
+    "apiUserDeleteResp": {
+      "type": "object",
+      "title": "response to the user delete message"
+    },
+    "apiUserDisableResp": {
+      "type": "object",
+      "title": "disable user request response"
+    },
+    "apiUserEnableResp": {
+      "type": "object",
+      "title": "enable user request response"
+    },
+    "apiUserGetResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        },
+        "creationTimestamp": {
+          "type": "string",
+          "format": "int64",
+          "title": "created since"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access by the user"
+        }
+      },
+      "title": "get user response"
+    },
+    "apiUserListEntry": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        },
+        "creationTimestamp": {
+          "type": "string",
+          "format": "int64",
+          "title": "created since"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access by the user"
+        }
+      },
+      "title": "user information for the list entry"
+    },
+    "apiUserSessionInfo": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "user name"
+        },
+        "sessionId": {
+          "type": "string",
+          "title": "session id"
+        },
+        "started": {
+          "type": "string",
+          "format": "int64",
+          "title": "start time"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access time"
+        },
+        "ip": {
+          "type": "string",
+          "title": "incoming client ip"
+        }
+      },
+      "title": "user session information"
+    },
+    "apiUserSessionLogoutResp": {
+      "type": "object",
+      "title": "user session logout response"
+    },
+    "apiUserSessionsListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "total number of active sessions"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiUserSessionInfo"
+          },
+          "title": "list of active sessions"
+        }
+      },
+      "title": "response of list active sessions"
+    },
+    "apiUserUpdateResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        }
+      },
+      "title": "response to user update request"
+    },
+    "apiUsersListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "number of users in the tenant"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiUserListEntry"
+          },
+          "title": "items - list of users"
+        }
+      },
+      "title": "Response to the list of users in a tenant"
+    },
+    "googlerpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    }
+  },
+  "externalDocs": {
+    "description": "Auth Gateway API Specification - sample descriptive information"
+  }
+}

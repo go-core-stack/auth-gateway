@@ -17,7 +17,8 @@ type MongoDB struct {
 
 // Base config struct
 type BaseConfig struct {
-	ConfigDB *MongoDB `yaml:"configDB,omitempty"`
+	ConfigDB   *MongoDB `yaml:"configDB,omitempty"`
+	SwaggerDir string   `yaml:"swaggerDir,omitempty"`
 }
 
 // get Config database information, if the struct
@@ -32,6 +33,19 @@ func (c *BaseConfig) GetConfigDB() *MongoDB {
 		Host: "localhost",
 		Port: "27017",
 	}
+}
+
+func (c *BaseConfig) GetSwaggerDir() string {
+	if c.SwaggerDir != "" {
+		return c.SwaggerDir
+	}
+
+	_, err := os.Stat("/opt/swagger/apidocs/swagger.json")
+	if err == nil {
+		return "/opt/swagger"
+	}
+
+	return "./swagger"
 }
 
 // Parse YAML Config file from the provided config file path

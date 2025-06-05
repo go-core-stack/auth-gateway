@@ -184,7 +184,7 @@ func createGRPCServerContext() *model.GrpcServerContext {
 	return serverCtx
 }
 
-func startServerContext(serverCtx *model.GrpcServerContext) {
+func startServerContext(serverCtx *model.GrpcServerContext, gwSwagger string) {
 	go func() {
 		lis, err := net.Listen("tcp", GrpcPort)
 		if err != nil {
@@ -193,17 +193,16 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 		log.Panic(serverCtx.Server.Serve(lis))
 	}()
 
-	oa := getSwaggerHandler()
-	gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api/") {
-			// all APIs are handled via GRPC gateway
-			serverCtx.Mux.ServeHTTP(w, r)
-		} else {
-			oa.ServeHTTP(w, r)
-		}
-	})
-
 	go func() {
+		oa := getSwaggerHandler()
+		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/api/") {
+				// all APIs are handled via GRPC gateway
+				serverCtx.Mux.ServeHTTP(w, r)
+			} else {
+				oa.ServeHTTP(w, r)
+			}
+		})
 		lis, err := net.Listen("tcp", APIPort)
 		if err != nil {
 			log.Panicf("failed to start GRPC Gateway Server: %s", err)
@@ -212,11 +211,21 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 	}()
 
 	go func() {
+		gw := gateway.New()
+		oa := http.FileServer(http.Dir(gwSwagger))
+		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/apidocs/") {
+				oa.ServeHTTP(w, r)
+			} else {
+				// all APIs are handled via GRPC gateway
+				gw.ServeHTTP(w, r)
+			}
+		})
 		lis, err := net.Listen("tcp", GatewayPort)
 		if err != nil {
 			log.Panicf("failed to start Auth Gateway Server: %s", err)
 		}
-		log.Panic(http.Serve(lis, gateway.New()))
+		log.Panic(http.Serve(lis, gwHandler))
 	}()
 }
 
@@ -352,7 +361,7 @@ func main() {
 
 	// once all the servers are added to the list
 	// start server
-	startServerContext(serverCtx)
+	startServerContext(serverCtx, conf.GetSwaggerDir())
 	log.Println("Initialization of Auth Gateway completed")
 
 	sigc := make(chan os.Signal, 1)
