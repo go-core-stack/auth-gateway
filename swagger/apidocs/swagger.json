@@ -10,6 +10,9 @@
     },
     {
       "name": "MyAccount"
+    },
+    {
+      "name": "Registration"
     }
   ],
   "consumes": [
@@ -665,6 +668,39 @@
           "MyAccount"
         ]
       }
+    },
+    "/api/register/v1/otp": {
+      "post": {
+        "summary": "Public API for someone to request OTP on email for registration, verifying email",
+        "operationId": "Registration_GetRegisterOtp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiRegisterOtpResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiRegisterOtpReq"
+            }
+          }
+        ],
+        "tags": [
+          "Registration"
+        ]
+      }
     }
   },
   "definitions": {
@@ -891,6 +927,27 @@
     "apiMySessionsLogoutResp": {
       "type": "object",
       "title": "session logout empty response"
+    },
+    "apiRegisterOtpReq": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "email of the user registering"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of the user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of the user"
+        }
+      },
+      "title": "register OTP request message\nFirst Name, Last Name and email are mandatory for sending OTP\nand it has to match while submitting registeration request"
+    },
+    "apiRegisterOtpResp": {
+      "type": "object"
     },
     "apiUserCreateResp": {
       "type": "object",

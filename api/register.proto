@@ -1,0 +1,39 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+// These annotations are used when generating the OpenAPI file.
+
+service Registration {
+  // Public API for someone to request OTP on email for registration, verifying email
+  rpc GetRegisterOtp(RegisterOtpReq) returns (RegisterOtpResp) {
+    option (google.api.http) = {
+      post: "/api/register/v1/otp"
+      body: "*"
+    };
+  }
+}
+
+// register OTP request message
+// First Name, Last Name and email are mandatory for sending OTP
+// and it has to match while submitting registeration request
+message RegisterOtpReq {
+  // email of the user registering
+  string email = 1;
+
+  // first name of the user
+  string firstName = 2;
+
+  // last name of the user
+  string lastName = 3;
+}
+
+message RegisterOtpResp {
+}

@@ -359,6 +359,9 @@ func main() {
 	// setup myaccount server
 	_ = server.NewMyAccountServer(serverCtx, client, APIEndpoint)
 
+	// setup registeration server
+	_ = server.NewRegistrationServer(serverCtx, APIEndpoint)
+
 	// once all the servers are added to the list
 	// start server
 	startServerContext(serverCtx, conf.GetSwaggerDir())
