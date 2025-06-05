@@ -12,12 +12,14 @@ import (
 
 	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/utils"
 	"github.com/go-core-stack/patricia"
 )
 
 type routeData struct {
-	scheme string
-	host   string
+	scheme   string
+	host     string
+	isPublic bool
 }
 
 type routeNodes map[route.MethodType]routeData
@@ -38,15 +40,17 @@ func populateRoutes(routes *route.RouteTable) {
 		if !ok {
 			node = &routeNodes{
 				r.Key.Method: {
-					scheme: ep.Scheme,
-					host:   ep.Host,
+					scheme:   ep.Scheme,
+					host:     ep.Host,
+					isPublic: utils.PBool(r.IsPublic),
 				},
 			}
 			nRoutes.Insert(r.Key.Url, node)
 		} else {
 			(*node)[r.Key.Method] = routeData{
-				scheme: ep.Scheme,
-				host:   ep.Host,
+				scheme:   ep.Scheme,
+				host:     ep.Host,
+				isPublic: utils.PBool(r.IsPublic),
 			}
 		}
 	}
