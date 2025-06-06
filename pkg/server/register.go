@@ -5,20 +5,87 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"math/rand"
+	"os"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/go-core-stack/auth/route"
+	"github.com/go-core-stack/core/errors"
+	"github.com/go-core-stack/core/utils"
+	"github.com/go-core-stack/core/utils/smtp"
 
 	"github.com/Prabhjot-Sethi/auth-gateway/api"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
-	"github.com/go-core-stack/auth/route"
-	"github.com/go-core-stack/core/utils"
 )
 
 type RegistrationServer struct {
 	api.UnimplementedRegistrationServer
+	smtpClient *smtp.Client
+}
+
+func (s *RegistrationServer) initSmtpClient() {
+	config := smtp.Config{}
+
+	var ok bool
+	config.Host, ok = os.LookupEnv("SMTP_HOST")
+	if !ok {
+		return
+	}
+
+	config.Port, ok = os.LookupEnv("SMTP_PORT")
+	if !ok {
+		return
+	}
+
+	config.Sender, ok = os.LookupEnv("SMTP_SENDER")
+	if !ok {
+		return
+	}
+
+	config.Password, ok = os.LookupEnv("SMTP_PASSWORD")
+	if !ok {
+		return
+	}
+
+	config.SenderName, _ = os.LookupEnv("SMTP_SENDER_NAME")
+	config.ReplyTo, _ = os.LookupEnv("SMTP_REPLY_TO")
+
+	s.smtpClient = smtp.New(config)
+}
+
+func (s *RegistrationServer) sendMessage(m *smtp.Message) error {
+	if s.smtpClient == nil {
+		return errors.Wrapf(errors.InvalidArgument, "Smtp Config doesn't exists")
+	}
+
+	return s.smtpClient.Send(m)
 }
 
 func (s *RegistrationServer) GetRegisterOtp(ctx context.Context, req *api.RegisterOtpReq) (*api.RegisterOtpResp, error) {
-	log.Printf("got register OTP request: %v", req)
+	if req.Email == "" || req.FirstName == "" || req.LastName == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "missing mandatory parametes")
+	}
+	// Generate a random number between 0 and 999999
+	otp := rand.Intn(1000000)
+
+	content := fmt.Sprintf("Hi %s %s\n\tWelcome to the registration process, please use following OTP to validate your email\n\t\t%06d", req.FirstName, req.LastName, otp)
+	m := &smtp.Message{
+		Receivers: []string{req.Email},
+		Subject:   "One Time Password for Registration Process",
+		Body:      content,
+	}
+	err := s.sendMessage(m)
+	if err != nil {
+		log.Printf("failed to send OTP on the email provided: %s", err)
+		if errors.IsInvalidArgument(err) {
+			return nil, status.Errorf(codes.Unavailable, "Service not available")
+		}
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
 	return &api.RegisterOtpResp{}, nil
 }
 
@@ -47,5 +114,6 @@ func NewRegistrationServer(ctx *model.GrpcServerContext, ep string) *Registratio
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)
 		}
 	}
+	srv.initSmtpClient()
 	return srv
 }
