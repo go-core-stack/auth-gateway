@@ -31,6 +31,7 @@ import (
 	"github.com/Prabhjot-Sethi/auth-gateway/api"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/request"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/tenant"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/user"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/gateway"
@@ -354,6 +355,12 @@ func main() {
 	_, err = user.NewUserController(client)
 	if err != nil {
 		log.Panicf("failed to create user controller: %s", err)
+	}
+
+	// start email verification cleanup controller
+	_, err = request.NewEmailVerificationCleanupController()
+	if err != nil {
+		log.Panicf("failed to create email verification cleanup controller: %s", err)
 	}
 
 	// create GRPC Server context
