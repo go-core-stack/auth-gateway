@@ -305,6 +305,12 @@ func main() {
 		log.Panicf("failed to locate service route table: %s", err)
 	}
 
+	// locate email verification table
+	_, err = table.LocateEmailVerificationTable(client)
+	if err != nil {
+		log.Panicf("failed to locate email verification table: %s", err)
+	}
+
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()
