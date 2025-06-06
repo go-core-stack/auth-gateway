@@ -17,4 +17,7 @@ const (
 
 	// users collection name
 	UserCollectionName = "users"
+
+	// email verification collection name
+	EmailVerificationCollectionName = "verify-emails"
 )
