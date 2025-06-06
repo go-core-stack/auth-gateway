@@ -1,0 +1,38 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+service MyTenant {
+  // get my tenant password policy
+  rpc GetPasswordPolicy(PasswordPolicyGetReq) returns (PasswordPolicyGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/tenant/{tenant}/password-policy"
+    };
+  }
+
+  // set my tenant password policy
+  rpc SetPasswordPolicy(PasswordPolicySetReq) returns (PasswordPolicySetResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/tenant/{tenant}/password-policy"
+      body: "*"
+    };
+  }
+}
+
+// Password policy get request
+message PasswordPolicyGetReq {
+  // tenant under consideration
+  string tenant = 1;
+}
+
+// Password policy get response
+message PasswordPolicyGetResp {
+}
