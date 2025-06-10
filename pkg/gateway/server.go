@@ -46,7 +46,7 @@ func (r *gatewayReconciler) Reconcile(k any) (*reconciler.Result, error) {
 		return &reconciler.Result{}, nil
 	}
 	go func() {
-		time.Sleep(30 * time.Second)
+		time.Sleep(10 * time.Second)
 		r.mu.Unlock()
 		populateRoutes(r.gw.routes)
 	}()
@@ -205,10 +205,26 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		_, err = s.AuthenticateRequest(r)
+		authInfo, err := s.AuthenticateRequest(r)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Authentication failed: %s", err), http.StatusUnauthorized)
 			return
+		}
+		if !match.isUserSpecific {
+			// perform RBAC / PBAC and scope validations
+			// TODO(prabhjot) currently only allow admin role
+			isAdmin := false
+			for _, role := range authInfo.Roles {
+				if role == "admin" {
+					isAdmin = true
+					break
+				}
+			}
+			log.Printf("got roles: %v", authInfo)
+			if !isAdmin {
+				http.Error(w, "Access Denied", http.StatusForbidden)
+				return
+			}
 		}
 	}
 

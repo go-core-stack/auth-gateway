@@ -17,9 +17,10 @@ import (
 )
 
 type routeData struct {
-	scheme   string
-	host     string
-	isPublic bool
+	scheme         string
+	host           string
+	isPublic       bool
+	isUserSpecific bool
 }
 
 type routeNodes map[route.MethodType]routeData
@@ -40,17 +41,19 @@ func populateRoutes(routes *route.RouteTable) {
 		if !ok {
 			node = &routeNodes{
 				r.Key.Method: {
-					scheme:   ep.Scheme,
-					host:     ep.Host,
-					isPublic: utils.PBool(r.IsPublic),
+					scheme:         ep.Scheme,
+					host:           ep.Host,
+					isPublic:       utils.PBool(r.IsPublic),
+					isUserSpecific: utils.PBool(r.IsUserSpecific),
 				},
 			}
 			nRoutes.Insert(r.Key.Url, node)
 		} else {
 			(*node)[r.Key.Method] = routeData{
-				scheme:   ep.Scheme,
-				host:     ep.Host,
-				isPublic: utils.PBool(r.IsPublic),
+				scheme:         ep.Scheme,
+				host:           ep.Host,
+				isPublic:       utils.PBool(r.IsPublic),
+				isUserSpecific: utils.PBool(r.IsUserSpecific),
 			}
 		}
 	}
