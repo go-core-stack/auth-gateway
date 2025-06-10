@@ -24,6 +24,13 @@ type authVerifier struct {
 	verifier *oidc.IDTokenVerifier
 }
 
+type localAuthInfo struct {
+	common.AuthInfo `json:",inline"`
+	RealmAccess     struct {
+		Roles []string `json:"roles,omitempty"`
+	} `json:"realm_access,omitempty"`
+}
+
 // verify the bearer auth token and return claims
 func (v *authVerifier) decode(tokenStr string) (*common.AuthInfo, error) {
 	token, err := v.verifier.Verify(context.Background(), tokenStr)
@@ -31,13 +38,15 @@ func (v *authVerifier) decode(tokenStr string) (*common.AuthInfo, error) {
 		return nil, errors.Wrapf(errors.Unauthorized, "Failed to verify the provided token: %s", err)
 	}
 
-	info := &common.AuthInfo{}
+	info := &localAuthInfo{}
 	err = token.Claims(info)
 	if err != nil {
 		return nil, errors.Wrapf(errors.Unauthorized, "Failed to decode token Claims: %s", err)
 	}
 
-	return info, nil
+	info.Roles = info.RealmAccess.Roles
+
+	return &(info.AuthInfo), nil
 }
 
 type authManager struct {
