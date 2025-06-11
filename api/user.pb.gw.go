@@ -35,23 +35,14 @@ var (
 	_ = metadata.Join
 )
 
-var filter_User_GetUsers_0 = &utilities.DoubleArray{Encoding: map[string]int{"tenant": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_User_GetUsers_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_User_GetUsers_0(ctx context.Context, marshaler runtime.Marshaler, client UserClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UsersListReq
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	io.Copy(io.Discard, req.Body)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -66,16 +57,7 @@ func local_request_User_GetUsers_0(ctx context.Context, marshaler runtime.Marsha
 	var (
 		protoReq UsersListReq
 		metadata runtime.ServerMetadata
-		err      error
 	)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -90,18 +72,9 @@ func request_User_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler,
 	var (
 		protoReq UserCreateReq
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
 	}
 	msg, err := client.CreateUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -111,18 +84,9 @@ func local_request_User_CreateUser_0(ctx context.Context, marshaler runtime.Mars
 	var (
 		protoReq UserCreateReq
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
 	}
 	msg, err := server.CreateUser(ctx, &protoReq)
 	return msg, metadata, err
@@ -135,15 +99,7 @@ func request_User_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, cl
 		err      error
 	)
 	io.Copy(io.Discard, req.Body)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -161,15 +117,7 @@ func local_request_User_GetUser_0(ctx context.Context, marshaler runtime.Marshal
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -188,15 +136,7 @@ func request_User_EnableUser_0(ctx context.Context, marshaler runtime.Marshaler,
 		err      error
 	)
 	io.Copy(io.Discard, req.Body)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -214,15 +154,7 @@ func local_request_User_EnableUser_0(ctx context.Context, marshaler runtime.Mars
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -241,15 +173,7 @@ func request_User_DisableUser_0(ctx context.Context, marshaler runtime.Marshaler
 		err      error
 	)
 	io.Copy(io.Discard, req.Body)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -267,15 +191,7 @@ func local_request_User_DisableUser_0(ctx context.Context, marshaler runtime.Mar
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -287,7 +203,7 @@ func local_request_User_DisableUser_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-var filter_User_UpdateUser_0 = &utilities.DoubleArray{Encoding: map[string]int{"tenant": 0, "username": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var filter_User_UpdateUser_0 = &utilities.DoubleArray{Encoding: map[string]int{"username": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_User_UpdateUser_0(ctx context.Context, marshaler runtime.Marshaler, client UserClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -296,15 +212,7 @@ func request_User_UpdateUser_0(ctx context.Context, marshaler runtime.Marshaler,
 		err      error
 	)
 	io.Copy(io.Discard, req.Body)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -328,15 +236,7 @@ func local_request_User_UpdateUser_0(ctx context.Context, marshaler runtime.Mars
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -361,15 +261,7 @@ func request_User_DeleteUser_0(ctx context.Context, marshaler runtime.Marshaler,
 		err      error
 	)
 	io.Copy(io.Discard, req.Body)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -387,15 +279,7 @@ func local_request_User_DeleteUser_0(ctx context.Context, marshaler runtime.Mars
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -407,23 +291,14 @@ func local_request_User_DeleteUser_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-var filter_User_ListUserSessions_0 = &utilities.DoubleArray{Encoding: map[string]int{"tenant": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_User_ListUserSessions_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_User_ListUserSessions_0(ctx context.Context, marshaler runtime.Marshaler, client UserClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq UserSessionsListReq
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	io.Copy(io.Discard, req.Body)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -438,16 +313,7 @@ func local_request_User_ListUserSessions_0(ctx context.Context, marshaler runtim
 	var (
 		protoReq UserSessionsListReq
 		metadata runtime.ServerMetadata
-		err      error
 	)
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -467,15 +333,7 @@ func request_User_LogoutUserSession_0(ctx context.Context, marshaler runtime.Mar
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -496,15 +354,7 @@ func local_request_User_LogoutUserSession_0(ctx context.Context, marshaler runti
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["tenant"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tenant")
-	}
-	protoReq.Tenant, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tenant", err)
-	}
-	val, ok = pathParams["username"]
+	val, ok := pathParams["username"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "username")
 	}
@@ -528,7 +378,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/GetUsers", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/users"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/GetUsers", runtime.WithHTTPPathPattern("/api/mytenant/v1/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -548,7 +398,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/CreateUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/CreateUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -568,7 +418,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/GetUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/GetUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -588,7 +438,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/EnableUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}/enable"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/EnableUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}/enable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -608,7 +458,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/DisableUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}/disable"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/DisableUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}/disable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -628,7 +478,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/UpdateUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/UpdateUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -648,7 +498,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/DeleteUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/DeleteUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -668,7 +518,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/ListUserSessions", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/sessions"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/ListUserSessions", runtime.WithHTTPPathPattern("/api/mytenant/v1/sessions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -688,7 +538,7 @@ func RegisterUserHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/LogoutUserSession", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}/logout"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.User/LogoutUserSession", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}/logout"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -746,7 +596,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/GetUsers", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/users"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/GetUsers", runtime.WithHTTPPathPattern("/api/mytenant/v1/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -763,7 +613,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/CreateUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/CreateUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -780,7 +630,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/GetUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/GetUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -797,7 +647,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/EnableUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}/enable"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/EnableUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}/enable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -814,7 +664,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/DisableUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}/disable"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/DisableUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}/disable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -831,7 +681,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/UpdateUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/UpdateUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -848,7 +698,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/DeleteUser", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/DeleteUser", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -865,7 +715,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/ListUserSessions", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/sessions"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/ListUserSessions", runtime.WithHTTPPathPattern("/api/mytenant/v1/sessions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -882,7 +732,7 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/LogoutUserSession", runtime.WithHTTPPathPattern("/api/auth/v1/tenant/{tenant}/user/{username}/logout"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.User/LogoutUserSession", runtime.WithHTTPPathPattern("/api/mytenant/v1/user/{username}/logout"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -899,15 +749,15 @@ func RegisterUserHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 }
 
 var (
-	pattern_User_GetUsers_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "tenant", "users"}, ""))
-	pattern_User_CreateUser_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "tenant", "user"}, ""))
-	pattern_User_GetUser_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "tenant", "user", "username"}, ""))
-	pattern_User_EnableUser_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"api", "auth", "v1", "tenant", "user", "username", "enable"}, ""))
-	pattern_User_DisableUser_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"api", "auth", "v1", "tenant", "user", "username", "disable"}, ""))
-	pattern_User_UpdateUser_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "tenant", "user", "username"}, ""))
-	pattern_User_DeleteUser_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "tenant", "user", "username"}, ""))
-	pattern_User_ListUserSessions_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "tenant", "sessions"}, ""))
-	pattern_User_LogoutUserSession_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6}, []string{"api", "auth", "v1", "tenant", "user", "username", "logout"}, ""))
+	pattern_User_GetUsers_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "mytenant", "v1", "users"}, ""))
+	pattern_User_CreateUser_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "mytenant", "v1", "user"}, ""))
+	pattern_User_GetUser_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "mytenant", "v1", "user", "username"}, ""))
+	pattern_User_EnableUser_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"api", "mytenant", "v1", "user", "username", "enable"}, ""))
+	pattern_User_DisableUser_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"api", "mytenant", "v1", "user", "username", "disable"}, ""))
+	pattern_User_UpdateUser_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "mytenant", "v1", "user", "username"}, ""))
+	pattern_User_DeleteUser_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "mytenant", "v1", "user", "username"}, ""))
+	pattern_User_ListUserSessions_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "mytenant", "v1", "sessions"}, ""))
+	pattern_User_LogoutUserSession_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"api", "mytenant", "v1", "user", "username", "logout"}, ""))
 )
 
 var (

@@ -10,7 +10,6 @@
 package api
 
 import (
-	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -29,14 +28,12 @@ const (
 // Request List of users in a tenant
 type UsersListReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under which the user list is requested
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// offset from where to start the list of users
-	Offset int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Offset int32 `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
 	// limit the response to specified count
-	Limit int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	// prefix match to consider
-	Search        string `protobuf:"bytes,4,opt,name=search,proto3" json:"search,omitempty"`
+	Search        string `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -69,13 +66,6 @@ func (x *UsersListReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UsersListReq.ProtoReflect.Descriptor instead.
 func (*UsersListReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *UsersListReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UsersListReq) GetOffset() int32 {
@@ -257,20 +247,18 @@ func (x *UsersListResp) GetItems() []*UserListEntry {
 // user create request message
 type UserCreateReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under which this user will be created
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user ID
-	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	// email address of the user
-	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	// first name of the user
-	Firstname string `protobuf:"bytes,4,opt,name=firstname,proto3" json:"firstname,omitempty"`
+	Firstname string `protobuf:"bytes,3,opt,name=firstname,proto3" json:"firstname,omitempty"`
 	// last name of the user
-	Lastname string `protobuf:"bytes,5,opt,name=lastname,proto3" json:"lastname,omitempty"`
+	Lastname string `protobuf:"bytes,4,opt,name=lastname,proto3" json:"lastname,omitempty"`
 	// if the user needs to be created disabled
-	Disabled bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	Disabled bool `protobuf:"varint,5,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// temporary first login password to be set for the user
-	Password      string `protobuf:"bytes,7,opt,name=password,proto3" json:"password,omitempty"`
+	Password      string `protobuf:"bytes,6,opt,name=password,proto3" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -303,13 +291,6 @@ func (x *UserCreateReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserCreateReq.ProtoReflect.Descriptor instead.
 func (*UserCreateReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *UserCreateReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UserCreateReq) GetUsername() string {
@@ -439,10 +420,8 @@ func (x *UserCreateResp) GetEnabled() bool {
 // delete user request message
 type UserDeleteReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under which this action needs to be taken
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user id which needs to be deleted
-	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -475,13 +454,6 @@ func (x *UserDeleteReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserDeleteReq.ProtoReflect.Descriptor instead.
 func (*UserDeleteReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *UserDeleteReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UserDeleteReq) GetUsername() string {
@@ -531,10 +503,8 @@ func (*UserDeleteResp) Descriptor() ([]byte, []int) {
 // get user request message
 type UserGetReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under which this action needs to be taken
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user id which needs to be deleted
-	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -567,13 +537,6 @@ func (x *UserGetReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserGetReq.ProtoReflect.Descriptor instead.
 func (*UserGetReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *UserGetReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UserGetReq) GetUsername() string {
@@ -686,18 +649,16 @@ func (x *UserGetResp) GetLastAccess() int64 {
 // user update request message
 type UserUpdateReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under which this user will be created
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user ID
-	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	// email address of the user
-	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	// first name of the user
-	Firstname string `protobuf:"bytes,4,opt,name=firstname,proto3" json:"firstname,omitempty"`
+	Firstname string `protobuf:"bytes,3,opt,name=firstname,proto3" json:"firstname,omitempty"`
 	// last name of the user
-	Lastname string `protobuf:"bytes,5,opt,name=lastname,proto3" json:"lastname,omitempty"`
+	Lastname string `protobuf:"bytes,4,opt,name=lastname,proto3" json:"lastname,omitempty"`
 	// if the user needs to be created disabled
-	Disabled      bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	Disabled      bool `protobuf:"varint,5,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -730,13 +691,6 @@ func (x *UserUpdateReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserUpdateReq.ProtoReflect.Descriptor instead.
 func (*UserUpdateReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *UserUpdateReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UserUpdateReq) GetUsername() string {
@@ -859,10 +813,8 @@ func (x *UserUpdateResp) GetEnabled() bool {
 // enable user request
 type UserEnableReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under consideration
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user that needs to be enabled
-	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -895,13 +847,6 @@ func (x *UserEnableReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserEnableReq.ProtoReflect.Descriptor instead.
 func (*UserEnableReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *UserEnableReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UserEnableReq) GetUsername() string {
@@ -951,10 +896,8 @@ func (*UserEnableResp) Descriptor() ([]byte, []int) {
 // disable user request
 type UserDisableReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under consideration
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user that needs to be disabled
-	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -987,13 +930,6 @@ func (x *UserDisableReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserDisableReq.ProtoReflect.Descriptor instead.
 func (*UserDisableReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *UserDisableReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UserDisableReq) GetUsername() string {
@@ -1043,14 +979,12 @@ func (*UserDisableResp) Descriptor() ([]byte, []int) {
 // list active sessions request
 type UserSessionsListReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under consideration
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user name to filter for
-	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	// offset to start from
-	Offset int32 `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	Offset int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
 	// limit
-	Limit         int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit         int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1083,13 +1017,6 @@ func (x *UserSessionsListReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserSessionsListReq.ProtoReflect.Descriptor instead.
 func (*UserSessionsListReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *UserSessionsListReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UserSessionsListReq) GetUsername() string {
@@ -1253,13 +1180,11 @@ func (x *UserSessionsListResp) GetItems() []*UserSessionInfo {
 // user session logout request
 type UserSessionLogoutReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// tenant under consideration
-	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user to be logged out
-	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	// specific session id if any needs to be logged out
 	// optional, if not specified all sessions are logged out
-	SessionId     string `protobuf:"bytes,3,opt,name=sessionId,proto3" json:"sessionId,omitempty"`
+	SessionId     string `protobuf:"bytes,2,opt,name=sessionId,proto3" json:"sessionId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1292,13 +1217,6 @@ func (x *UserSessionLogoutReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UserSessionLogoutReq.ProtoReflect.Descriptor instead.
 func (*UserSessionLogoutReq) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *UserSessionLogoutReq) GetTenant() string {
-	if x != nil {
-		return x.Tenant
-	}
-	return ""
 }
 
 func (x *UserSessionLogoutReq) GetUsername() string {
@@ -1357,12 +1275,11 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"l\n" +
+	"user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\"T\n" +
 	"\fUsersListReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
-	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06search\x18\x04 \x01(\tR\x06search\"\xe3\x01\n" +
+	"\x06offset\x18\x01 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06search\x18\x03 \x01(\tR\x06search\"\xe3\x01\n" +
 	"\rUserListEntry\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
@@ -1375,29 +1292,26 @@ const file_user_proto_rawDesc = "" +
 	"lastAccess\"O\n" +
 	"\rUsersListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12(\n" +
-	"\x05items\x18\x02 \x03(\v2\x12.api.UserListEntryR\x05items\"\xcb\x01\n" +
-	"\rUserCreateReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1c\n" +
-	"\tfirstname\x18\x04 \x01(\tR\tfirstname\x12\x1a\n" +
-	"\blastname\x18\x05 \x01(\tR\blastname\x12\x1a\n" +
-	"\bdisabled\x18\x06 \x01(\bR\bdisabled\x12\x1a\n" +
-	"\bpassword\x18\a \x01(\tR\bpassword\"\x96\x01\n" +
+	"\x05items\x18\x02 \x03(\v2\x12.api.UserListEntryR\x05items\"\xb3\x01\n" +
+	"\rUserCreateReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
+	"\tfirstname\x18\x03 \x01(\tR\tfirstname\x12\x1a\n" +
+	"\blastname\x18\x04 \x01(\tR\blastname\x12\x1a\n" +
+	"\bdisabled\x18\x05 \x01(\bR\bdisabled\x12\x1a\n" +
+	"\bpassword\x18\x06 \x01(\tR\bpassword\"\x96\x01\n" +
 	"\x0eUserCreateResp\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
 	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x04 \x01(\tR\blastName\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\"C\n" +
-	"\rUserDeleteReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\"\x10\n" +
-	"\x0eUserDeleteResp\"@\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"+\n" +
+	"\rUserDeleteReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"\x10\n" +
+	"\x0eUserDeleteResp\"(\n" +
 	"\n" +
-	"UserGetReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\"\xe1\x01\n" +
+	"UserGetReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"\xe1\x01\n" +
 	"\vUserGetResp\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
@@ -1407,33 +1321,29 @@ const file_user_proto_rawDesc = "" +
 	"\x11creationTimestamp\x18\x06 \x01(\x03R\x11creationTimestamp\x12\x1e\n" +
 	"\n" +
 	"lastAccess\x18\a \x01(\x03R\n" +
-	"lastAccess\"\xaf\x01\n" +
-	"\rUserUpdateReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1c\n" +
-	"\tfirstname\x18\x04 \x01(\tR\tfirstname\x12\x1a\n" +
-	"\blastname\x18\x05 \x01(\tR\blastname\x12\x1a\n" +
-	"\bdisabled\x18\x06 \x01(\bR\bdisabled\"\x96\x01\n" +
+	"lastAccess\"\x97\x01\n" +
+	"\rUserUpdateReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
+	"\tfirstname\x18\x03 \x01(\tR\tfirstname\x12\x1a\n" +
+	"\blastname\x18\x04 \x01(\tR\blastname\x12\x1a\n" +
+	"\bdisabled\x18\x05 \x01(\bR\bdisabled\"\x96\x01\n" +
 	"\x0eUserUpdateResp\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
 	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x04 \x01(\tR\blastName\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\"C\n" +
-	"\rUserEnableReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\"\x10\n" +
-	"\x0eUserEnableResp\"D\n" +
-	"\x0eUserDisableReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\"\x11\n" +
-	"\x0fUserDisableResp\"w\n" +
-	"\x13UserSessionsListReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x16\n" +
-	"\x06offset\x18\x03 \x01(\x05R\x06offset\x12\x14\n" +
-	"\x05limit\x18\x04 \x01(\x05R\x05limit\"\x95\x01\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"+\n" +
+	"\rUserEnableReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"\x10\n" +
+	"\x0eUserEnableResp\",\n" +
+	"\x0eUserDisableReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"\x11\n" +
+	"\x0fUserDisableResp\"_\n" +
+	"\x13UserSessionsListReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"\x95\x01\n" +
 	"\x0fUserSessionInfo\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
 	"\tsessionId\x18\x02 \x01(\tR\tsessionId\x12\x18\n" +
@@ -1444,28 +1354,25 @@ const file_user_proto_rawDesc = "" +
 	"\x02ip\x18\x05 \x01(\tR\x02ip\"X\n" +
 	"\x14UserSessionsListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12*\n" +
-	"\x05items\x18\x02 \x03(\v2\x14.api.UserSessionInfoR\x05items\"h\n" +
-	"\x14UserSessionLogoutReq\x12\x16\n" +
-	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
-	"\tsessionId\x18\x03 \x01(\tR\tsessionId\"\x17\n" +
-	"\x15UserSessionLogoutResp2\xf9\a\n" +
-	"\x04User\x12]\n" +
-	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\"*\x82\xd3\xe4\x93\x02$\x12\"/api/auth/v1/tenant/{tenant}/users\x12c\n" +
+	"\x05items\x18\x02 \x03(\v2\x14.api.UserSessionInfoR\x05items\"P\n" +
+	"\x14UserSessionLogoutReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
+	"\tsessionId\x18\x02 \x01(\tR\tsessionId\"\x17\n" +
+	"\x15UserSessionLogoutResp2\x8c\a\n" +
+	"\x04User\x12Q\n" +
+	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/mytenant/v1/users\x12W\n" +
 	"\n" +
-	"CreateUser\x12\x12.api.UserCreateReq\x1a\x13.api.UserCreateResp\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/auth/v1/tenant/{tenant}/user\x12b\n" +
-	"\aGetUser\x12\x0f.api.UserGetReq\x1a\x10.api.UserGetResp\"4\x82\xd3\xe4\x93\x02.\x12,/api/auth/v1/tenant/{tenant}/user/{username}\x12r\n" +
+	"CreateUser\x12\x12.api.UserCreateReq\x1a\x13.api.UserCreateResp\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/mytenant/v1/user\x12V\n" +
+	"\aGetUser\x12\x0f.api.UserGetReq\x1a\x10.api.UserGetResp\"(\x82\xd3\xe4\x93\x02\"\x12 /api/mytenant/v1/user/{username}\x12f\n" +
 	"\n" +
-	"EnableUser\x12\x12.api.UserEnableReq\x1a\x13.api.UserEnableResp\";\x82\xd3\xe4\x93\x025\"3/api/auth/v1/tenant/{tenant}/user/{username}/enable\x12v\n" +
-	"\vDisableUser\x12\x13.api.UserDisableReq\x1a\x14.api.UserDisableResp\"<\x82\xd3\xe4\x93\x026\"4/api/auth/v1/tenant/{tenant}/user/{username}/disable\x12k\n" +
+	"EnableUser\x12\x12.api.UserEnableReq\x1a\x13.api.UserEnableResp\"/\x82\xd3\xe4\x93\x02)\"'/api/mytenant/v1/user/{username}/enable\x12j\n" +
+	"\vDisableUser\x12\x13.api.UserDisableReq\x1a\x14.api.UserDisableResp\"0\x82\xd3\xe4\x93\x02*\"(/api/mytenant/v1/user/{username}/disable\x12_\n" +
 	"\n" +
-	"UpdateUser\x12\x12.api.UserUpdateReq\x1a\x13.api.UserUpdateResp\"4\x82\xd3\xe4\x93\x02.\x1a,/api/auth/v1/tenant/{tenant}/user/{username}\x12k\n" +
+	"UpdateUser\x12\x12.api.UserUpdateReq\x1a\x13.api.UserUpdateResp\"(\x82\xd3\xe4\x93\x02\"\x1a /api/mytenant/v1/user/{username}\x12_\n" +
 	"\n" +
-	"DeleteUser\x12\x12.api.UserDeleteReq\x1a\x13.api.UserDeleteResp\"4\x82\xd3\xe4\x93\x02.*,/api/auth/v1/tenant/{tenant}/user/{username}\x12v\n" +
-	"\x10ListUserSessions\x12\x18.api.UserSessionsListReq\x1a\x19.api.UserSessionsListResp\"-\x82\xd3\xe4\x93\x02'\x12%/api/auth/v1/tenant/{tenant}/sessions\x12\x8a\x01\n" +
-	"\x11LogoutUserSession\x12\x19.api.UserSessionLogoutReq\x1a\x1a.api.UserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logoutB\x99\x01\x92Aj\x12%\n" +
-	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
-	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"DeleteUser\x12\x12.api.UserDeleteReq\x1a\x13.api.UserDeleteResp\"(\x82\xd3\xe4\x93\x02\"* /api/mytenant/v1/user/{username}\x12j\n" +
+	"\x10ListUserSessions\x12\x18.api.UserSessionsListReq\x1a\x19.api.UserSessionsListResp\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/mytenant/v1/sessions\x12~\n" +
+	"\x11LogoutUserSession\x12\x19.api.UserSessionLogoutReq\x1a\x1a.api.UserSessionLogoutResp\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logoutB,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once

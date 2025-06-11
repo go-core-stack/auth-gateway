@@ -37,7 +37,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Service provided to manage users
+// Service provided to manage users in Tenants
 type TenantUserClient interface {
 	// Get List of existing users in a tenant
 	GetUsers(ctx context.Context, in *TenantUsersListReq, opts ...grpc.CallOption) (*TenantUsersListResp, error)
@@ -161,7 +161,7 @@ func (c *tenantUserClient) LogoutUserSession(ctx context.Context, in *TenantUser
 // All implementations must embed UnimplementedTenantUserServer
 // for forward compatibility.
 //
-// Service provided to manage users
+// Service provided to manage users in Tenants
 type TenantUserServer interface {
 	// Get List of existing users in a tenant
 	GetUsers(context.Context, *TenantUsersListReq) (*TenantUsersListResp, error)

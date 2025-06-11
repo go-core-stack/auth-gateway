@@ -9,22 +9,22 @@ var RoutesTenantUser = []*model.Route{}
 
 func init() {
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/users", "GET"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/users", "GET"))
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/user", "POST"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user", "POST"))
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/user/{username}", "GET"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "GET"))
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/user/{username}/enable", "POST"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/enable", "POST"))
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/user/{username}/disable", "POST"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/disable", "POST"))
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/user/{username}", "PUT"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "PUT"))
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/user/{username}", "DELETE"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "DELETE"))
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/sessions", "GET"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/sessions", "GET"))
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/mytenant/v1/user/{username}/logout", "POST"))
+	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/logout", "POST"))
 
 }
