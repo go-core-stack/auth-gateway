@@ -369,6 +369,9 @@ func main() {
 	// Setup as new user server
 	_ = server.NewUserServer(serverCtx, client, APIEndpoint)
 
+	// Setup new tenant user server
+	_ = server.NewTenantUserServer(serverCtx, client, APIEndpoint)
+
 	// setup myaccount server
 	_ = server.NewMyAccountServer(serverCtx, client, APIEndpoint)
 

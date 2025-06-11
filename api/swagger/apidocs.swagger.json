@@ -6,13 +6,16 @@
   },
   "tags": [
     {
-      "name": "User"
-    },
-    {
       "name": "MyAccount"
     },
     {
       "name": "Registration"
+    },
+    {
+      "name": "TenantUser"
+    },
+    {
+      "name": "User"
     }
   ],
   "consumes": [
@@ -108,7 +111,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserCreateUserBody"
+              "$ref": "#/definitions/apiUserCreateUserBody"
             }
           }
         ],
@@ -374,7 +377,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UserLogoutUserSessionBody"
+              "$ref": "#/definitions/apiUserLogoutUserSessionBody"
             }
           }
         ],
@@ -669,6 +672,359 @@
         ]
       }
     },
+    "/api/mytenant/v1/sessions": {
+      "get": {
+        "summary": "List Active sessions, filter by user if provided",
+        "operationId": "TenantUser_ListUserSessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserSessionsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "description": "user name to filter for",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset to start from",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      }
+    },
+    "/api/mytenant/v1/user": {
+      "post": {
+        "summary": "Create a new user for the given tenant",
+        "operationId": "TenantUser_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      }
+    },
+    "/api/mytenant/v1/user/{username}": {
+      "get": {
+        "summary": "Get an existing user for the given tenant",
+        "operationId": "TenantUser_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "description": "user id which needs to be deleted",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      },
+      "delete": {
+        "summary": "Delete an existing user for the given tenant",
+        "operationId": "TenantUser_DeleteUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "description": "user id which needs to be deleted",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      },
+      "put": {
+        "summary": "Update an existing user for the given tenant",
+        "operationId": "TenantUser_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserUpdateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "description": "user ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "description": "email address of the user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "firstname",
+            "description": "first name of the user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "lastname",
+            "description": "last name of the user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "disabled",
+            "description": "if the user needs to be created disabled",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      }
+    },
+    "/api/mytenant/v1/user/{username}/disable": {
+      "post": {
+        "summary": "Disable an existing enabled user for the given tenant",
+        "operationId": "TenantUser_DisableUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserDisableResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "description": "user that needs to be disabled",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      }
+    },
+    "/api/mytenant/v1/user/{username}/enable": {
+      "post": {
+        "summary": "Enable an existing disabled user for the given tenant",
+        "operationId": "TenantUser_EnableUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserEnableResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "description": "user that needs to be enabled",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      }
+    },
+    "/api/mytenant/v1/user/{username}/logout": {
+      "post": {
+        "summary": "logout user from specific session or all sessions",
+        "operationId": "TenantUser_LogoutUserSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserSessionLogoutResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "description": "user to be logged out",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserLogoutUserSessionBody"
+            }
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      }
+    },
+    "/api/mytenant/v1/users": {
+      "get": {
+        "summary": "Get List of existing users in a tenant",
+        "operationId": "TenantUser_GetUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUsersListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "offset",
+            "description": "offset from where to start the list of users",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the response to specified count",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "search",
+            "description": "prefix match to consider",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      }
+    },
     "/api/register/v1/otp": {
       "post": {
         "summary": "Public API for someone to request OTP on email for registration, verifying email",
@@ -704,46 +1060,6 @@
     }
   },
   "definitions": {
-    "UserCreateUserBody": {
-      "type": "object",
-      "properties": {
-        "username": {
-          "type": "string",
-          "title": "user ID"
-        },
-        "email": {
-          "type": "string",
-          "title": "email address of the user"
-        },
-        "firstname": {
-          "type": "string",
-          "title": "first name of the user"
-        },
-        "lastname": {
-          "type": "string",
-          "title": "last name of the user"
-        },
-        "disabled": {
-          "type": "boolean",
-          "title": "if the user needs to be created disabled"
-        },
-        "password": {
-          "type": "string",
-          "title": "temporary first login password to be set for the user"
-        }
-      },
-      "title": "user create request message"
-    },
-    "UserLogoutUserSessionBody": {
-      "type": "object",
-      "properties": {
-        "sessionId": {
-          "type": "string",
-          "title": "specific session id if any needs to be logged out\noptional, if not specified all sessions are logged out"
-        }
-      },
-      "title": "user session logout request"
-    },
     "apiApiKeyCreateReq": {
       "type": "object",
       "properties": {
@@ -949,6 +1265,252 @@
     "apiRegisterOtpResp": {
       "type": "object"
     },
+    "apiTenantUserCreateReq": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "user ID"
+        },
+        "email": {
+          "type": "string",
+          "title": "email address of the user"
+        },
+        "firstname": {
+          "type": "string",
+          "title": "first name of the user"
+        },
+        "lastname": {
+          "type": "string",
+          "title": "last name of the user"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "if the user needs to be created disabled"
+        },
+        "password": {
+          "type": "string",
+          "title": "temporary first login password to be set for the user"
+        }
+      },
+      "title": "user create request message"
+    },
+    "apiTenantUserCreateResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        }
+      },
+      "title": "response to user create request"
+    },
+    "apiTenantUserDeleteResp": {
+      "type": "object",
+      "title": "response to the user delete message"
+    },
+    "apiTenantUserDisableResp": {
+      "type": "object",
+      "title": "disable user request response"
+    },
+    "apiTenantUserEnableResp": {
+      "type": "object",
+      "title": "enable user request response"
+    },
+    "apiTenantUserGetResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        },
+        "creationTimestamp": {
+          "type": "string",
+          "format": "int64",
+          "title": "created since"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access by the user"
+        }
+      },
+      "title": "get user response"
+    },
+    "apiTenantUserListEntry": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        },
+        "creationTimestamp": {
+          "type": "string",
+          "format": "int64",
+          "title": "created since"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access by the user"
+        }
+      },
+      "title": "user information for the list entry"
+    },
+    "apiTenantUserLogoutUserSessionBody": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "title": "specific session id if any needs to be logged out\noptional, if not specified all sessions are logged out"
+        }
+      },
+      "title": "user session logout request"
+    },
+    "apiTenantUserSessionInfo": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "user name"
+        },
+        "sessionId": {
+          "type": "string",
+          "title": "session id"
+        },
+        "started": {
+          "type": "string",
+          "format": "int64",
+          "title": "start time"
+        },
+        "lastAccess": {
+          "type": "string",
+          "format": "int64",
+          "title": "last access time"
+        },
+        "ip": {
+          "type": "string",
+          "title": "incoming client ip"
+        }
+      },
+      "title": "user session information"
+    },
+    "apiTenantUserSessionLogoutResp": {
+      "type": "object",
+      "title": "user session logout response"
+    },
+    "apiTenantUserSessionsListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "total number of active sessions"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiTenantUserSessionInfo"
+          },
+          "title": "list of active sessions"
+        }
+      },
+      "title": "response of list active sessions"
+    },
+    "apiTenantUserUpdateResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        }
+      },
+      "title": "response to user update request"
+    },
+    "apiTenantUsersListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "number of users in the tenant"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiTenantUserListEntry"
+          },
+          "title": "items - list of users"
+        }
+      },
+      "title": "Response to the list of users in a tenant"
+    },
     "apiUserCreateResp": {
       "type": "object",
       "properties": {
@@ -974,6 +1536,36 @@
         }
       },
       "title": "response to user create request"
+    },
+    "apiUserCreateUserBody": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "user ID"
+        },
+        "email": {
+          "type": "string",
+          "title": "email address of the user"
+        },
+        "firstname": {
+          "type": "string",
+          "title": "first name of the user"
+        },
+        "lastname": {
+          "type": "string",
+          "title": "last name of the user"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "if the user needs to be created disabled"
+        },
+        "password": {
+          "type": "string",
+          "title": "temporary first login password to be set for the user"
+        }
+      },
+      "title": "user create request message"
     },
     "apiUserDeleteResp": {
       "type": "object",
@@ -1058,6 +1650,16 @@
         }
       },
       "title": "user information for the list entry"
+    },
+    "apiUserLogoutUserSessionBody": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "title": "specific session id if any needs to be logged out\noptional, if not specified all sessions are logged out"
+        }
+      },
+      "title": "user session logout request"
     },
     "apiUserSessionInfo": {
       "type": "object",
