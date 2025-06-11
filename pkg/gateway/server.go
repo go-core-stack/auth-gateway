@@ -220,7 +220,6 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 			}
-			log.Printf("got roles: %v", authInfo)
 			if !isAdmin {
 				http.Error(w, "Access Denied", http.StatusForbidden)
 				return
