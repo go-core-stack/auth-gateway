@@ -20,6 +20,7 @@ type routeData struct {
 	scheme         string
 	host           string
 	isPublic       bool
+	isRoot         bool
 	isUserSpecific bool
 }
 
@@ -44,6 +45,7 @@ func populateRoutes(routes *route.RouteTable) {
 					scheme:         ep.Scheme,
 					host:           ep.Host,
 					isPublic:       utils.PBool(r.IsPublic),
+					isRoot:         utils.PBool(r.IsRoot),
 					isUserSpecific: utils.PBool(r.IsUserSpecific),
 				},
 			}
@@ -53,6 +55,7 @@ func populateRoutes(routes *route.RouteTable) {
 				scheme:         ep.Scheme,
 				host:           ep.Host,
 				isPublic:       utils.PBool(r.IsPublic),
+				isRoot:         utils.PBool(r.IsRoot),
 				isUserSpecific: utils.PBool(r.IsUserSpecific),
 			}
 		}
