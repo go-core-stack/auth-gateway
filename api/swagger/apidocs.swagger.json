@@ -28,12 +28,12 @@
     "/api/auth/v1/tenant/{tenant}/sessions": {
       "get": {
         "summary": "List Active sessions, filter by user if provided",
-        "operationId": "User_ListUserSessions",
+        "operationId": "TenantUser_ListUserSessions",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUserSessionsListResp"
+              "$ref": "#/definitions/apiTenantUserSessionsListResp"
             }
           },
           "default": {
@@ -76,19 +76,19 @@
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       }
     },
     "/api/auth/v1/tenant/{tenant}/user": {
       "post": {
         "summary": "Create a new user for the given tenant",
-        "operationId": "User_CreateUser",
+        "operationId": "TenantUser_CreateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUserCreateResp"
+              "$ref": "#/definitions/apiTenantUserCreateResp"
             }
           },
           "default": {
@@ -111,24 +111,24 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiUserCreateUserBody"
+              "$ref": "#/definitions/apiTenantUserCreateUserBody"
             }
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       }
     },
     "/api/auth/v1/tenant/{tenant}/user/{username}": {
       "get": {
         "summary": "Get an existing user for the given tenant",
-        "operationId": "User_GetUser",
+        "operationId": "TenantUser_GetUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUserGetResp"
+              "$ref": "#/definitions/apiTenantUserGetResp"
             }
           },
           "default": {
@@ -155,17 +155,17 @@
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       },
       "delete": {
         "summary": "Delete an existing user for the given tenant",
-        "operationId": "User_DeleteUser",
+        "operationId": "TenantUser_DeleteUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUserDeleteResp"
+              "$ref": "#/definitions/apiTenantUserDeleteResp"
             }
           },
           "default": {
@@ -192,17 +192,17 @@
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       },
       "put": {
         "summary": "Update an existing user for the given tenant",
-        "operationId": "User_UpdateUser",
+        "operationId": "TenantUser_UpdateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUserUpdateResp"
+              "$ref": "#/definitions/apiTenantUserUpdateResp"
             }
           },
           "default": {
@@ -257,19 +257,19 @@
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       }
     },
     "/api/auth/v1/tenant/{tenant}/user/{username}/disable": {
       "post": {
         "summary": "Disable an existing enabled user for the given tenant",
-        "operationId": "User_DisableUser",
+        "operationId": "TenantUser_DisableUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUserDisableResp"
+              "$ref": "#/definitions/apiTenantUserDisableResp"
             }
           },
           "default": {
@@ -296,19 +296,19 @@
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       }
     },
     "/api/auth/v1/tenant/{tenant}/user/{username}/enable": {
       "post": {
         "summary": "Enable an existing disabled user for the given tenant",
-        "operationId": "User_EnableUser",
+        "operationId": "TenantUser_EnableUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUserEnableResp"
+              "$ref": "#/definitions/apiTenantUserEnableResp"
             }
           },
           "default": {
@@ -335,19 +335,19 @@
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       }
     },
     "/api/auth/v1/tenant/{tenant}/user/{username}/logout": {
       "post": {
         "summary": "logout user from specific session or all sessions",
-        "operationId": "User_LogoutUserSession",
+        "operationId": "TenantUser_LogoutUserSession",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUserSessionLogoutResp"
+              "$ref": "#/definitions/apiTenantUserSessionLogoutResp"
             }
           },
           "default": {
@@ -377,24 +377,24 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiUserLogoutUserSessionBody"
+              "$ref": "#/definitions/apiTenantUserLogoutUserSessionBody"
             }
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       }
     },
     "/api/auth/v1/tenant/{tenant}/users": {
       "get": {
         "summary": "Get List of existing users in a tenant",
-        "operationId": "User_GetUsers",
+        "operationId": "TenantUser_GetUsers",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiUsersListResp"
+              "$ref": "#/definitions/apiTenantUsersListResp"
             }
           },
           "default": {
@@ -437,7 +437,7 @@
           }
         ],
         "tags": [
-          "User"
+          "TenantUser"
         ]
       }
     },
@@ -675,12 +675,12 @@
     "/api/mytenant/v1/sessions": {
       "get": {
         "summary": "List Active sessions, filter by user if provided",
-        "operationId": "TenantUser_ListUserSessions",
+        "operationId": "User_ListUserSessions",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUserSessionsListResp"
+              "$ref": "#/definitions/apiUserSessionsListResp"
             }
           },
           "default": {
@@ -716,19 +716,19 @@
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       }
     },
     "/api/mytenant/v1/user": {
       "post": {
         "summary": "Create a new user for the given tenant",
-        "operationId": "TenantUser_CreateUser",
+        "operationId": "User_CreateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUserCreateResp"
+              "$ref": "#/definitions/apiUserCreateResp"
             }
           },
           "default": {
@@ -744,24 +744,24 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiTenantUserCreateReq"
+              "$ref": "#/definitions/apiUserCreateReq"
             }
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       }
     },
     "/api/mytenant/v1/user/{username}": {
       "get": {
         "summary": "Get an existing user for the given tenant",
-        "operationId": "TenantUser_GetUser",
+        "operationId": "User_GetUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUserGetResp"
+              "$ref": "#/definitions/apiUserGetResp"
             }
           },
           "default": {
@@ -781,17 +781,17 @@
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       },
       "delete": {
         "summary": "Delete an existing user for the given tenant",
-        "operationId": "TenantUser_DeleteUser",
+        "operationId": "User_DeleteUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUserDeleteResp"
+              "$ref": "#/definitions/apiUserDeleteResp"
             }
           },
           "default": {
@@ -811,17 +811,17 @@
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       },
       "put": {
         "summary": "Update an existing user for the given tenant",
-        "operationId": "TenantUser_UpdateUser",
+        "operationId": "User_UpdateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUserUpdateResp"
+              "$ref": "#/definitions/apiUserUpdateResp"
             }
           },
           "default": {
@@ -869,19 +869,19 @@
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       }
     },
     "/api/mytenant/v1/user/{username}/disable": {
       "post": {
         "summary": "Disable an existing enabled user for the given tenant",
-        "operationId": "TenantUser_DisableUser",
+        "operationId": "User_DisableUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUserDisableResp"
+              "$ref": "#/definitions/apiUserDisableResp"
             }
           },
           "default": {
@@ -901,19 +901,19 @@
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       }
     },
     "/api/mytenant/v1/user/{username}/enable": {
       "post": {
         "summary": "Enable an existing disabled user for the given tenant",
-        "operationId": "TenantUser_EnableUser",
+        "operationId": "User_EnableUser",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUserEnableResp"
+              "$ref": "#/definitions/apiUserEnableResp"
             }
           },
           "default": {
@@ -933,19 +933,19 @@
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       }
     },
     "/api/mytenant/v1/user/{username}/logout": {
       "post": {
         "summary": "logout user from specific session or all sessions",
-        "operationId": "TenantUser_LogoutUserSession",
+        "operationId": "User_LogoutUserSession",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUserSessionLogoutResp"
+              "$ref": "#/definitions/apiUserSessionLogoutResp"
             }
           },
           "default": {
@@ -968,24 +968,24 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiTenantUserLogoutUserSessionBody"
+              "$ref": "#/definitions/apiUserLogoutUserSessionBody"
             }
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       }
     },
     "/api/mytenant/v1/users": {
       "get": {
         "summary": "Get List of existing users in a tenant",
-        "operationId": "TenantUser_GetUsers",
+        "operationId": "User_GetUsers",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiTenantUsersListResp"
+              "$ref": "#/definitions/apiUsersListResp"
             }
           },
           "default": {
@@ -1021,7 +1021,7 @@
           }
         ],
         "tags": [
-          "TenantUser"
+          "User"
         ]
       }
     },
@@ -1265,7 +1265,33 @@
     "apiRegisterOtpResp": {
       "type": "object"
     },
-    "apiTenantUserCreateReq": {
+    "apiTenantUserCreateResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        }
+      },
+      "title": "response to user create request"
+    },
+    "apiTenantUserCreateUserBody": {
       "type": "object",
       "properties": {
         "username": {
@@ -1294,32 +1320,6 @@
         }
       },
       "title": "user create request message"
-    },
-    "apiTenantUserCreateResp": {
-      "type": "object",
-      "properties": {
-        "username": {
-          "type": "string",
-          "title": "username or user id"
-        },
-        "email": {
-          "type": "string",
-          "title": "user email"
-        },
-        "firstName": {
-          "type": "string",
-          "title": "first name of user"
-        },
-        "lastName": {
-          "type": "string",
-          "title": "last name of user"
-        },
-        "enabled": {
-          "type": "boolean",
-          "title": "is user enabled"
-        }
-      },
-      "title": "response to user create request"
     },
     "apiTenantUserDeleteResp": {
       "type": "object",
@@ -1511,33 +1511,7 @@
       },
       "title": "Response to the list of users in a tenant"
     },
-    "apiUserCreateResp": {
-      "type": "object",
-      "properties": {
-        "username": {
-          "type": "string",
-          "title": "username or user id"
-        },
-        "email": {
-          "type": "string",
-          "title": "user email"
-        },
-        "firstName": {
-          "type": "string",
-          "title": "first name of user"
-        },
-        "lastName": {
-          "type": "string",
-          "title": "last name of user"
-        },
-        "enabled": {
-          "type": "boolean",
-          "title": "is user enabled"
-        }
-      },
-      "title": "response to user create request"
-    },
-    "apiUserCreateUserBody": {
+    "apiUserCreateReq": {
       "type": "object",
       "properties": {
         "username": {
@@ -1566,6 +1540,32 @@
         }
       },
       "title": "user create request message"
+    },
+    "apiUserCreateResp": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username or user id"
+        },
+        "email": {
+          "type": "string",
+          "title": "user email"
+        },
+        "firstName": {
+          "type": "string",
+          "title": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "title": "last name of user"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "is user enabled"
+        }
+      },
+      "title": "response to user create request"
     },
     "apiUserDeleteResp": {
       "type": "object",

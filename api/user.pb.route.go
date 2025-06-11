@@ -9,22 +9,22 @@ var RoutesUser = []*model.Route{}
 
 func init() {
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/users", "GET"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/users", "GET"))
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user", "POST"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/user", "POST"))
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "GET"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/user/{username}", "GET"))
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/enable", "POST"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/user/{username}/enable", "POST"))
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/disable", "POST"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/user/{username}/disable", "POST"))
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "PUT"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/user/{username}", "PUT"))
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "DELETE"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/user/{username}", "DELETE"))
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/sessions", "GET"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/sessions", "GET"))
 
-	RoutesUser = append(RoutesUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/logout", "POST"))
+	RoutesUser = append(RoutesUser, model.NewRoute("/api/mytenant/v1/user/{username}/logout", "POST"))
 
 }

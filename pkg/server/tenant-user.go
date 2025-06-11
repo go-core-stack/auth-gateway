@@ -52,15 +52,14 @@ func (s *TenantUserApiServer) getTenant(ctx context.Context, name string) (*tabl
 }
 
 func (s *TenantUserApiServer) GetUsers(ctx context.Context, req *api.TenantUsersListReq) (*api.TenantUsersListResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
+	_, err := auth.GetAuthInfoFromContext(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
 	}
-	tenant := info.Realm
 
-	count, err := s.userTbl.CountByTenant(ctx, tenant)
+	count, err := s.userTbl.CountByTenant(ctx, req.Tenant)
 	if err != nil {
-		log.Printf("failed to count users for tenant %s: %s", tenant, err)
+		log.Printf("failed to count users for tenant %s: %s", req.Tenant, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
 	resp := &api.TenantUsersListResp{
@@ -68,9 +67,9 @@ func (s *TenantUserApiServer) GetUsers(ctx context.Context, req *api.TenantUsers
 		Items: []*api.TenantUserListEntry{},
 	}
 
-	users, err := s.userTbl.GetByTenant(ctx, tenant, int64(req.Offset), int64(req.Limit))
+	users, err := s.userTbl.GetByTenant(ctx, req.Tenant, int64(req.Offset), int64(req.Limit))
 	if err != nil && !errors.IsNotFound(err) {
-		log.Printf("failed to fetch users for tenant %s: %s", tenant, err)
+		log.Printf("failed to fetch users for tenant %s: %s", req.Tenant, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
 	for _, user := range users {
@@ -90,19 +89,14 @@ func (s *TenantUserApiServer) GetUsers(ctx context.Context, req *api.TenantUsers
 }
 
 func (s *TenantUserApiServer) CreateUser(ctx context.Context, req *api.TenantUserCreateReq) (*api.TenantUserCreateResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
-	}
-	tenant := info.Realm
-	_, err = s.getTenant(ctx, tenant)
+	_, err := s.getTenant(ctx, req.Tenant)
 	if err != nil {
 		return nil, err
 	}
 	now := time.Now().Unix()
 	uEntry := &table.UserEntry{
 		Key: &table.UserKey{
-			Tenant:   tenant,
+			Tenant:   req.Tenant,
 			Username: req.Username,
 		},
 		Info: &table.UserInfo{
@@ -137,19 +131,14 @@ func (s *TenantUserApiServer) CreateUser(ctx context.Context, req *api.TenantUse
 }
 
 func (s *TenantUserApiServer) GetUser(ctx context.Context, req *api.TenantUserGetReq) (*api.TenantUserGetResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
-	}
-	tenant := info.Realm
 	uKey := &table.UserKey{
-		Tenant:   tenant,
+		Tenant:   req.Tenant,
 		Username: req.Username,
 	}
 	uEntry, err := s.userTbl.Find(ctx, uKey)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			return nil, status.Errorf(codes.NotFound, "User %s not found", req.Username)
+			return nil, status.Errorf(codes.NotFound, "User %s not found in tenant %s", req.Username, req.Tenant)
 		}
 		log.Printf("failed to find user entry: %s", err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
@@ -168,12 +157,7 @@ func (s *TenantUserApiServer) GetUser(ctx context.Context, req *api.TenantUserGe
 }
 
 func (s *TenantUserApiServer) EnableUser(ctx context.Context, req *api.TenantUserEnableReq) (*api.TenantUserEnableResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
-	}
-	tenant := info.Realm
-	tEntry, err := s.getTenant(ctx, tenant)
+	tEntry, err := s.getTenant(ctx, req.Tenant)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +168,7 @@ func (s *TenantUserApiServer) EnableUser(ctx context.Context, req *api.TenantUse
 
 	update := &table.UserEntry{
 		Key: &table.UserKey{
-			Tenant:   tenant,
+			Tenant:   req.Tenant,
 			Username: req.Username,
 		},
 		Updated:  time.Now().Unix(),
@@ -200,12 +184,7 @@ func (s *TenantUserApiServer) EnableUser(ctx context.Context, req *api.TenantUse
 }
 
 func (s *TenantUserApiServer) DisableUser(ctx context.Context, req *api.TenantUserDisableReq) (*api.TenantUserDisableResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
-	}
-	tenant := info.Realm
-	tEntry, err := s.getTenant(ctx, tenant)
+	tEntry, err := s.getTenant(ctx, req.Tenant)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +195,7 @@ func (s *TenantUserApiServer) DisableUser(ctx context.Context, req *api.TenantUs
 
 	update := &table.UserEntry{
 		Key: &table.UserKey{
-			Tenant:   tenant,
+			Tenant:   req.Tenant,
 			Username: req.Username,
 		},
 		Updated:  time.Now().Unix(),
@@ -232,12 +211,7 @@ func (s *TenantUserApiServer) DisableUser(ctx context.Context, req *api.TenantUs
 }
 
 func (s *TenantUserApiServer) UpdateUser(ctx context.Context, req *api.TenantUserUpdateReq) (*api.TenantUserUpdateResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
-	}
-	tenant := info.Realm
-	tEntry, err := s.getTenant(ctx, tenant)
+	tEntry, err := s.getTenant(ctx, req.Tenant)
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +222,7 @@ func (s *TenantUserApiServer) UpdateUser(ctx context.Context, req *api.TenantUse
 
 	update := &table.UserEntry{
 		Key: &table.UserKey{
-			Tenant:   tenant,
+			Tenant:   req.Tenant,
 			Username: req.Username,
 		},
 		Info: &table.UserInfo{
@@ -262,7 +236,7 @@ func (s *TenantUserApiServer) UpdateUser(ctx context.Context, req *api.TenantUse
 	err = s.userTbl.Update(ctx, update.Key, update)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			return nil, status.Errorf(codes.NotFound, "User %s not found in tenant %s", req.Username, tenant)
+			return nil, status.Errorf(codes.NotFound, "User %s not found in tenant %s", req.Username, req.Tenant)
 		}
 		log.Printf("failed to update user entry: %s", err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
@@ -278,12 +252,7 @@ func (s *TenantUserApiServer) UpdateUser(ctx context.Context, req *api.TenantUse
 }
 
 func (s *TenantUserApiServer) DeleteUser(ctx context.Context, req *api.TenantUserDeleteReq) (*api.TenantUserDeleteResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
-	}
-	tenant := info.Realm
-	tEntry, err := s.getTenant(ctx, tenant)
+	tEntry, err := s.getTenant(ctx, req.Tenant)
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +264,7 @@ func (s *TenantUserApiServer) DeleteUser(ctx context.Context, req *api.TenantUse
 	now := time.Now().Unix()
 	uEntry := &table.UserEntry{
 		Key: &table.UserKey{
-			Tenant:   tenant,
+			Tenant:   req.Tenant,
 			Username: req.Username,
 		},
 		Updated: now,
@@ -350,12 +319,7 @@ func (s *TenantUserApiServer) sessionsToApi(session *gocloak.UserSessionRepresen
 	}
 }
 func (s *TenantUserApiServer) ListUserSessions(ctx context.Context, req *api.TenantUserSessionsListReq) (*api.TenantUserSessionsListResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
-	}
-	tenant := info.Realm
-	_, err = s.getTenant(ctx, tenant)
+	_, err := s.getTenant(ctx, req.Tenant)
 	if err != nil {
 		return nil, err
 	}
@@ -368,7 +332,7 @@ func (s *TenantUserApiServer) ListUserSessions(ctx context.Context, req *api.Ten
 		params := gocloak.GetUsersParams{
 			Username: gocloak.StringP(req.Username),
 		}
-		users, err := s.client.GetUsers(ctx, token, tenant, params)
+		users, err := s.client.GetUsers(ctx, token, req.Tenant, params)
 		if err != nil || len(users) == 0 {
 			log.Printf("failed to fetch users: %v, got error: %s", req, err)
 			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
@@ -378,7 +342,7 @@ func (s *TenantUserApiServer) ListUserSessions(ctx context.Context, req *api.Ten
 			log.Printf("failed to find user: %v", req)
 			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 		}
-		sessions, err = s.client.GetUserSessions(ctx, token, tenant, *users[0].ID)
+		sessions, err = s.client.GetUserSessions(ctx, token, req.Tenant, *users[0].ID)
 		if err != nil {
 			log.Printf("failed to get sessions: %v, got error: %s", req, err)
 			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
@@ -388,14 +352,14 @@ func (s *TenantUserApiServer) ListUserSessions(ctx context.Context, req *api.Ten
 		clientsParams := gocloak.GetClientsParams{
 			ClientID: gocloak.StringP("controller"),
 		}
-		clients, err := s.client.GetClients(ctx, token, tenant, clientsParams)
+		clients, err := s.client.GetClients(ctx, token, req.Tenant, clientsParams)
 		if err != nil {
 			log.Printf("failed to clients for: %v, got error: %s", req, err)
 			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 		}
 
 		clientID := *clients[0].ID
-		count, err := s.client.GetClientUserSessionsCount(ctx, token, tenant, clientID)
+		count, err := s.client.GetClientUserSessionsCount(ctx, token, req.Tenant, clientID)
 		if err != nil {
 			log.Printf("failed to fetch user session count for %v, got error: %s", req, err)
 			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
@@ -411,7 +375,7 @@ func (s *TenantUserApiServer) ListUserSessions(ctx context.Context, req *api.Ten
 			params.Max = gocloak.IntP(count)
 		}
 
-		sessions, err = s.client.GetClientUserSessions(ctx, token, tenant, clientID, params)
+		sessions, err = s.client.GetClientUserSessions(ctx, token, req.Tenant, clientID, params)
 		if err != nil {
 			log.Printf("failed to fetch user sessions for %v, got error: %s", req, err)
 			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
@@ -430,16 +394,11 @@ func (s *TenantUserApiServer) ListUserSessions(ctx context.Context, req *api.Ten
 }
 
 func (s *TenantUserApiServer) LogoutUserSession(ctx context.Context, req *api.TenantUserSessionLogoutReq) (*api.TenantUserSessionLogoutResp, error) {
-	info, err := auth.GetAuthInfoFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
-	}
-	tenant := info.Realm
 	params := gocloak.GetUsersParams{
 		Username: gocloak.StringP(req.Username),
 	}
 	token, _ := s.client.GetAccessToken()
-	users, err := s.client.GetUsers(ctx, token, tenant, params)
+	users, err := s.client.GetUsers(ctx, token, req.Tenant, params)
 	if err != nil || len(users) == 0 {
 		log.Printf("failed to fetch users: %v, got error: %s", req, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
@@ -450,13 +409,13 @@ func (s *TenantUserApiServer) LogoutUserSession(ctx context.Context, req *api.Te
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
 	if req.SessionId == "" {
-		err = s.client.LogoutAllSessions(ctx, token, tenant, *users[0].ID)
+		err = s.client.LogoutAllSessions(ctx, token, req.Tenant, *users[0].ID)
 		if err != nil {
 			log.Printf("failed to close all sessions of user: %s, got error: %s", req.Username, err)
 			return nil, status.Errorf(codes.Internal, "failed to logout user sessions %s", err.Error())
 		}
 	} else {
-		err = s.client.LogoutUserSession(ctx, token, tenant, req.SessionId)
+		err = s.client.LogoutUserSession(ctx, token, req.Tenant, req.SessionId)
 		if err != nil {
 			log.Printf("failed to close specified session of user: %v, got error %s", req, err)
 			return nil, status.Errorf(codes.Internal, "failed to logout user session %s", err.Error())
@@ -497,6 +456,7 @@ func NewTenantUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, 
 		entry := &route.Route{
 			Key:      key,
 			Endpoint: ep,
+			IsRoot:   utils.BoolP(true), // these routes are only meant for root tenancy
 		}
 		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)

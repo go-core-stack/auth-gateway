@@ -10,6 +10,7 @@
 package api
 
 import (
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -28,12 +29,14 @@ const (
 // Request List of users in a tenant
 type TenantUsersListReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under which the user list is requested
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// offset from where to start the list of users
-	Offset int32 `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
+	Offset int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
 	// limit the response to specified count
-	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	// prefix match to consider
-	Search        string `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
+	Search        string `protobuf:"bytes,4,opt,name=search,proto3" json:"search,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -66,6 +69,13 @@ func (x *TenantUsersListReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUsersListReq.ProtoReflect.Descriptor instead.
 func (*TenantUsersListReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *TenantUsersListReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUsersListReq) GetOffset() int32 {
@@ -247,18 +257,20 @@ func (x *TenantUsersListResp) GetItems() []*TenantUserListEntry {
 // user create request message
 type TenantUserCreateReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under which this user will be created
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user ID
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	// email address of the user
-	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	// first name of the user
-	Firstname string `protobuf:"bytes,3,opt,name=firstname,proto3" json:"firstname,omitempty"`
+	Firstname string `protobuf:"bytes,4,opt,name=firstname,proto3" json:"firstname,omitempty"`
 	// last name of the user
-	Lastname string `protobuf:"bytes,4,opt,name=lastname,proto3" json:"lastname,omitempty"`
+	Lastname string `protobuf:"bytes,5,opt,name=lastname,proto3" json:"lastname,omitempty"`
 	// if the user needs to be created disabled
-	Disabled bool `protobuf:"varint,5,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	Disabled bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// temporary first login password to be set for the user
-	Password      string `protobuf:"bytes,6,opt,name=password,proto3" json:"password,omitempty"`
+	Password      string `protobuf:"bytes,7,opt,name=password,proto3" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -291,6 +303,13 @@ func (x *TenantUserCreateReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUserCreateReq.ProtoReflect.Descriptor instead.
 func (*TenantUserCreateReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TenantUserCreateReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUserCreateReq) GetUsername() string {
@@ -420,8 +439,10 @@ func (x *TenantUserCreateResp) GetEnabled() bool {
 // delete user request message
 type TenantUserDeleteReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under which this action needs to be taken
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user id which needs to be deleted
-	Username      string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -454,6 +475,13 @@ func (x *TenantUserDeleteReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUserDeleteReq.ProtoReflect.Descriptor instead.
 func (*TenantUserDeleteReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *TenantUserDeleteReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUserDeleteReq) GetUsername() string {
@@ -503,8 +531,10 @@ func (*TenantUserDeleteResp) Descriptor() ([]byte, []int) {
 // get user request message
 type TenantUserGetReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under which this action needs to be taken
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user id which needs to be deleted
-	Username      string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -537,6 +567,13 @@ func (x *TenantUserGetReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUserGetReq.ProtoReflect.Descriptor instead.
 func (*TenantUserGetReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *TenantUserGetReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUserGetReq) GetUsername() string {
@@ -649,16 +686,18 @@ func (x *TenantUserGetResp) GetLastAccess() int64 {
 // user update request message
 type TenantUserUpdateReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under which this user will be created
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user ID
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	// email address of the user
-	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	// first name of the user
-	Firstname string `protobuf:"bytes,3,opt,name=firstname,proto3" json:"firstname,omitempty"`
+	Firstname string `protobuf:"bytes,4,opt,name=firstname,proto3" json:"firstname,omitempty"`
 	// last name of the user
-	Lastname string `protobuf:"bytes,4,opt,name=lastname,proto3" json:"lastname,omitempty"`
+	Lastname string `protobuf:"bytes,5,opt,name=lastname,proto3" json:"lastname,omitempty"`
 	// if the user needs to be created disabled
-	Disabled      bool `protobuf:"varint,5,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	Disabled      bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -691,6 +730,13 @@ func (x *TenantUserUpdateReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUserUpdateReq.ProtoReflect.Descriptor instead.
 func (*TenantUserUpdateReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *TenantUserUpdateReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUserUpdateReq) GetUsername() string {
@@ -813,8 +859,10 @@ func (x *TenantUserUpdateResp) GetEnabled() bool {
 // enable user request
 type TenantUserEnableReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under consideration
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user that needs to be enabled
-	Username      string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -847,6 +895,13 @@ func (x *TenantUserEnableReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUserEnableReq.ProtoReflect.Descriptor instead.
 func (*TenantUserEnableReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *TenantUserEnableReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUserEnableReq) GetUsername() string {
@@ -896,8 +951,10 @@ func (*TenantUserEnableResp) Descriptor() ([]byte, []int) {
 // disable user request
 type TenantUserDisableReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under consideration
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user that needs to be disabled
-	Username      string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -930,6 +987,13 @@ func (x *TenantUserDisableReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUserDisableReq.ProtoReflect.Descriptor instead.
 func (*TenantUserDisableReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *TenantUserDisableReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUserDisableReq) GetUsername() string {
@@ -979,12 +1043,14 @@ func (*TenantUserDisableResp) Descriptor() ([]byte, []int) {
 // list active sessions request
 type TenantUserSessionsListReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under consideration
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user name to filter for
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	// offset to start from
-	Offset int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Offset int32 `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
 	// limit
-	Limit         int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit         int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1017,6 +1083,13 @@ func (x *TenantUserSessionsListReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUserSessionsListReq.ProtoReflect.Descriptor instead.
 func (*TenantUserSessionsListReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *TenantUserSessionsListReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUserSessionsListReq) GetUsername() string {
@@ -1180,11 +1253,13 @@ func (x *TenantUserSessionsListResp) GetItems() []*TenantUserSessionInfo {
 // user session logout request
 type TenantUserSessionLogoutReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant under consideration
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
 	// user to be logged out
-	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	// specific session id if any needs to be logged out
 	// optional, if not specified all sessions are logged out
-	SessionId     string `protobuf:"bytes,2,opt,name=sessionId,proto3" json:"sessionId,omitempty"`
+	SessionId     string `protobuf:"bytes,3,opt,name=sessionId,proto3" json:"sessionId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1217,6 +1292,13 @@ func (x *TenantUserSessionLogoutReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantUserSessionLogoutReq.ProtoReflect.Descriptor instead.
 func (*TenantUserSessionLogoutReq) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *TenantUserSessionLogoutReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
 }
 
 func (x *TenantUserSessionLogoutReq) GetUsername() string {
@@ -1274,11 +1356,12 @@ var File_tenant_user_proto protoreflect.FileDescriptor
 
 const file_tenant_user_proto_rawDesc = "" +
 	"\n" +
-	"\x11tenant-user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\"Z\n" +
+	"\x11tenant-user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"r\n" +
 	"\x12TenantUsersListReq\x12\x16\n" +
-	"\x06offset\x18\x01 \x01(\x05R\x06offset\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06search\x18\x03 \x01(\tR\x06search\"\xe9\x01\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06search\x18\x04 \x01(\tR\x06search\"\xe9\x01\n" +
 	"\x13TenantUserListEntry\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
@@ -1291,25 +1374,28 @@ const file_tenant_user_proto_rawDesc = "" +
 	"lastAccess\"[\n" +
 	"\x13TenantUsersListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12.\n" +
-	"\x05items\x18\x02 \x03(\v2\x18.api.TenantUserListEntryR\x05items\"\xb9\x01\n" +
-	"\x13TenantUserCreateReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
-	"\tfirstname\x18\x03 \x01(\tR\tfirstname\x12\x1a\n" +
-	"\blastname\x18\x04 \x01(\tR\blastname\x12\x1a\n" +
-	"\bdisabled\x18\x05 \x01(\bR\bdisabled\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\tR\bpassword\"\x9c\x01\n" +
+	"\x05items\x18\x02 \x03(\v2\x18.api.TenantUserListEntryR\x05items\"\xd1\x01\n" +
+	"\x13TenantUserCreateReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1c\n" +
+	"\tfirstname\x18\x04 \x01(\tR\tfirstname\x12\x1a\n" +
+	"\blastname\x18\x05 \x01(\tR\blastname\x12\x1a\n" +
+	"\bdisabled\x18\x06 \x01(\bR\bdisabled\x12\x1a\n" +
+	"\bpassword\x18\a \x01(\tR\bpassword\"\x9c\x01\n" +
 	"\x14TenantUserCreateResp\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
 	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x04 \x01(\tR\blastName\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\"1\n" +
-	"\x13TenantUserDeleteReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"\x16\n" +
-	"\x14TenantUserDeleteResp\".\n" +
-	"\x10TenantUserGetReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"\xe7\x01\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"I\n" +
+	"\x13TenantUserDeleteReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"\x16\n" +
+	"\x14TenantUserDeleteResp\"F\n" +
+	"\x10TenantUserGetReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"\xe7\x01\n" +
 	"\x11TenantUserGetResp\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
@@ -1319,29 +1405,33 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\x11creationTimestamp\x18\x06 \x01(\x03R\x11creationTimestamp\x12\x1e\n" +
 	"\n" +
 	"lastAccess\x18\a \x01(\x03R\n" +
-	"lastAccess\"\x9d\x01\n" +
-	"\x13TenantUserUpdateReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
-	"\tfirstname\x18\x03 \x01(\tR\tfirstname\x12\x1a\n" +
-	"\blastname\x18\x04 \x01(\tR\blastname\x12\x1a\n" +
-	"\bdisabled\x18\x05 \x01(\bR\bdisabled\"\x9c\x01\n" +
+	"lastAccess\"\xb5\x01\n" +
+	"\x13TenantUserUpdateReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1c\n" +
+	"\tfirstname\x18\x04 \x01(\tR\tfirstname\x12\x1a\n" +
+	"\blastname\x18\x05 \x01(\tR\blastname\x12\x1a\n" +
+	"\bdisabled\x18\x06 \x01(\bR\bdisabled\"\x9c\x01\n" +
 	"\x14TenantUserUpdateResp\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
 	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x04 \x01(\tR\blastName\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\"1\n" +
-	"\x13TenantUserEnableReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"\x16\n" +
-	"\x14TenantUserEnableResp\"2\n" +
-	"\x14TenantUserDisableReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"\x17\n" +
-	"\x15TenantUserDisableResp\"e\n" +
-	"\x19TenantUserSessionsListReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
-	"\x05limit\x18\x03 \x01(\x05R\x05limit\"\x9b\x01\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"I\n" +
+	"\x13TenantUserEnableReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"\x16\n" +
+	"\x14TenantUserEnableResp\"J\n" +
+	"\x14TenantUserDisableReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"\x17\n" +
+	"\x15TenantUserDisableResp\"}\n" +
+	"\x19TenantUserSessionsListReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\"\x9b\x01\n" +
 	"\x15TenantUserSessionInfo\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
 	"\tsessionId\x18\x02 \x01(\tR\tsessionId\x12\x18\n" +
@@ -1352,26 +1442,29 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\x02ip\x18\x05 \x01(\tR\x02ip\"d\n" +
 	"\x1aTenantUserSessionsListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x120\n" +
-	"\x05items\x18\x02 \x03(\v2\x1a.api.TenantUserSessionInfoR\x05items\"V\n" +
-	"\x1aTenantUserSessionLogoutReq\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
-	"\tsessionId\x18\x02 \x01(\tR\tsessionId\"\x1d\n" +
-	"\x1bTenantUserSessionLogoutResp2\xff\a\n" +
+	"\x05items\x18\x02 \x03(\v2\x1a.api.TenantUserSessionInfoR\x05items\"n\n" +
+	"\x1aTenantUserSessionLogoutReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
+	"\tsessionId\x18\x03 \x01(\tR\tsessionId\"\x1d\n" +
+	"\x1bTenantUserSessionLogoutResp2\xed\b\n" +
 	"\n" +
-	"TenantUser\x12]\n" +
-	"\bGetUsers\x12\x17.api.TenantUsersListReq\x1a\x18.api.TenantUsersListResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/mytenant/v1/users\x12c\n" +
+	"TenantUser\x12i\n" +
+	"\bGetUsers\x12\x17.api.TenantUsersListReq\x1a\x18.api.TenantUsersListResp\"*\x82\xd3\xe4\x93\x02$\x12\"/api/auth/v1/tenant/{tenant}/users\x12o\n" +
 	"\n" +
-	"CreateUser\x12\x18.api.TenantUserCreateReq\x1a\x19.api.TenantUserCreateResp\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/mytenant/v1/user\x12b\n" +
-	"\aGetUser\x12\x15.api.TenantUserGetReq\x1a\x16.api.TenantUserGetResp\"(\x82\xd3\xe4\x93\x02\"\x12 /api/mytenant/v1/user/{username}\x12r\n" +
+	"CreateUser\x12\x18.api.TenantUserCreateReq\x1a\x19.api.TenantUserCreateResp\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/auth/v1/tenant/{tenant}/user\x12n\n" +
+	"\aGetUser\x12\x15.api.TenantUserGetReq\x1a\x16.api.TenantUserGetResp\"4\x82\xd3\xe4\x93\x02.\x12,/api/auth/v1/tenant/{tenant}/user/{username}\x12~\n" +
 	"\n" +
-	"EnableUser\x12\x18.api.TenantUserEnableReq\x1a\x19.api.TenantUserEnableResp\"/\x82\xd3\xe4\x93\x02)\"'/api/mytenant/v1/user/{username}/enable\x12v\n" +
-	"\vDisableUser\x12\x19.api.TenantUserDisableReq\x1a\x1a.api.TenantUserDisableResp\"0\x82\xd3\xe4\x93\x02*\"(/api/mytenant/v1/user/{username}/disable\x12k\n" +
+	"EnableUser\x12\x18.api.TenantUserEnableReq\x1a\x19.api.TenantUserEnableResp\";\x82\xd3\xe4\x93\x025\"3/api/auth/v1/tenant/{tenant}/user/{username}/enable\x12\x82\x01\n" +
+	"\vDisableUser\x12\x19.api.TenantUserDisableReq\x1a\x1a.api.TenantUserDisableResp\"<\x82\xd3\xe4\x93\x026\"4/api/auth/v1/tenant/{tenant}/user/{username}/disable\x12w\n" +
 	"\n" +
-	"UpdateUser\x12\x18.api.TenantUserUpdateReq\x1a\x19.api.TenantUserUpdateResp\"(\x82\xd3\xe4\x93\x02\"\x1a /api/mytenant/v1/user/{username}\x12k\n" +
+	"UpdateUser\x12\x18.api.TenantUserUpdateReq\x1a\x19.api.TenantUserUpdateResp\"4\x82\xd3\xe4\x93\x02.\x1a,/api/auth/v1/tenant/{tenant}/user/{username}\x12w\n" +
 	"\n" +
-	"DeleteUser\x12\x18.api.TenantUserDeleteReq\x1a\x19.api.TenantUserDeleteResp\"(\x82\xd3\xe4\x93\x02\"* /api/mytenant/v1/user/{username}\x12v\n" +
-	"\x10ListUserSessions\x12\x1e.api.TenantUserSessionsListReq\x1a\x1f.api.TenantUserSessionsListResp\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/mytenant/v1/sessions\x12\x8a\x01\n" +
-	"\x11LogoutUserSession\x12\x1f.api.TenantUserSessionLogoutReq\x1a .api.TenantUserSessionLogoutResp\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logoutB,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"DeleteUser\x12\x18.api.TenantUserDeleteReq\x1a\x19.api.TenantUserDeleteResp\"4\x82\xd3\xe4\x93\x02.*,/api/auth/v1/tenant/{tenant}/user/{username}\x12\x82\x01\n" +
+	"\x10ListUserSessions\x12\x1e.api.TenantUserSessionsListReq\x1a\x1f.api.TenantUserSessionsListResp\"-\x82\xd3\xe4\x93\x02'\x12%/api/auth/v1/tenant/{tenant}/sessions\x12\x96\x01\n" +
+	"\x11LogoutUserSession\x12\x1f.api.TenantUserSessionLogoutReq\x1a .api.TenantUserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logoutB\x99\x01\x92Aj\x12%\n" +
+	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
+	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
 
 var (
 	file_tenant_user_proto_rawDescOnce sync.Once

@@ -6,22 +6,34 @@ syntax = "proto3";
 package api;
 
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
 
-// Service provided to manage users
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "1.0"
+    title: "Auth Gateway API Specification"
+  }
+  external_docs: {
+    description: "Auth Gateway API Specification - sample descriptive information"
+  }
+};
+
+// Service provided to manage users in Tenants
 service TenantUser {
   // Get List of existing users in a tenant
   rpc GetUsers(TenantUsersListReq) returns (TenantUsersListResp) {
     option (google.api.http) = {
-      get: "/api/mytenant/v1/users"
+      get: "/api/auth/v1/tenant/{tenant}/users"
     };
   }
 
   // Create a new user for the given tenant
   rpc CreateUser(TenantUserCreateReq) returns (TenantUserCreateResp) {
     option (google.api.http) = {
-      post: "/api/mytenant/v1/user"
+      post: "/api/auth/v1/tenant/{tenant}/user"
       body: "*"
     };
   }
@@ -29,49 +41,49 @@ service TenantUser {
   // Get an existing user for the given tenant
   rpc GetUser(TenantUserGetReq) returns (TenantUserGetResp) {
     option (google.api.http) = {
-      get: "/api/mytenant/v1/user/{username}"
+      get: "/api/auth/v1/tenant/{tenant}/user/{username}"
     };
   }
 
   // Enable an existing disabled user for the given tenant
   rpc EnableUser(TenantUserEnableReq) returns (TenantUserEnableResp) {
     option (google.api.http) = {
-      post: "/api/mytenant/v1/user/{username}/enable"
+      post: "/api/auth/v1/tenant/{tenant}/user/{username}/enable"
     };
   }
 
   // Disable an existing enabled user for the given tenant
   rpc DisableUser(TenantUserDisableReq) returns (TenantUserDisableResp) {
     option (google.api.http) = {
-      post: "/api/mytenant/v1/user/{username}/disable"
+      post: "/api/auth/v1/tenant/{tenant}/user/{username}/disable"
     };
   }
 
   // Update an existing user for the given tenant
   rpc UpdateUser(TenantUserUpdateReq) returns (TenantUserUpdateResp) {
     option (google.api.http) = {
-      put: "/api/mytenant/v1/user/{username}"
+      put: "/api/auth/v1/tenant/{tenant}/user/{username}"
     };
   }
 
   // Delete an existing user for the given tenant
   rpc DeleteUser(TenantUserDeleteReq) returns (TenantUserDeleteResp) {
     option (google.api.http) = {
-      delete: "/api/mytenant/v1/user/{username}"
+      delete: "/api/auth/v1/tenant/{tenant}/user/{username}"
     };
   }
 
   // List Active sessions, filter by user if provided
   rpc ListUserSessions(TenantUserSessionsListReq) returns (TenantUserSessionsListResp) {
     option (google.api.http) = {
-      get: "/api/mytenant/v1/sessions"
+      get: "/api/auth/v1/tenant/{tenant}/sessions"
     };
   }
 
   // logout user from specific session or all sessions
   rpc LogoutUserSession(TenantUserSessionLogoutReq) returns (TenantUserSessionLogoutResp) {
     option (google.api.http) = {
-      post: "/api/mytenant/v1/user/{username}/logout"
+      post: "/api/auth/v1/tenant/{tenant}/user/{username}/logout"
       body: "*"
     };
   }
@@ -79,14 +91,17 @@ service TenantUser {
 
 // Request List of users in a tenant
 message TenantUsersListReq {
+  // tenant under which the user list is requested
+  string tenant = 1;
+
   // offset from where to start the list of users
-  int32 offset = 1;
+  int32 offset = 2;
 
   // limit the response to specified count
-  int32 limit = 2;
+  int32 limit = 3;
 
   // prefix match to consider
-  string search = 3;
+  string search = 4;
 }
 
 // user information for the list entry
@@ -124,23 +139,26 @@ message TenantUsersListResp {
 
 // user create request message
 message TenantUserCreateReq {
+  // tenant under which this user will be created
+  string tenant = 1;
+
   // user ID
-  string username = 1;
+  string username = 2;
 
   // email address of the user
-  string email = 2;
+  string email = 3;
 
   // first name of the user
-  string firstname = 3;
+  string firstname = 4;
 
   // last name of the user
-  string lastname = 4;
+  string lastname = 5;
 
   // if the user needs to be created disabled
-  bool disabled = 5;
+  bool disabled = 6;
 
   // temporary first login password to be set for the user
-  string password = 6;
+  string password = 7;
 }
 
 // response to user create request
@@ -163,8 +181,11 @@ message TenantUserCreateResp {
 
 // delete user request message
 message TenantUserDeleteReq {
+  // tenant under which this action needs to be taken
+  string tenant = 1;
+
   // user id which needs to be deleted
-  string username = 1;
+  string username = 2;
 }
 
 // response to the user delete message
@@ -173,8 +194,11 @@ message TenantUserDeleteResp {
 
 // get user request message
 message TenantUserGetReq {
+  // tenant under which this action needs to be taken
+  string tenant = 1;
+
   // user id which needs to be deleted
-  string username = 1;
+  string username = 2;
 }
 
 // get user response
@@ -203,20 +227,23 @@ message TenantUserGetResp {
 
 // user update request message
 message TenantUserUpdateReq {
+  // tenant under which this user will be created
+  string tenant = 1;
+
   // user ID
-  string username = 1;
+  string username = 2;
 
   // email address of the user
-  string email = 2;
+  string email = 3;
 
   // first name of the user
-  string firstname = 3;
+  string firstname = 4;
 
   // last name of the user
-  string lastname = 4;
+  string lastname = 5;
 
   // if the user needs to be created disabled
-  bool disabled = 5;
+  bool disabled = 6;
 }
 
 // response to user update request
@@ -239,8 +266,11 @@ message TenantUserUpdateResp {
 
 // enable user request
 message TenantUserEnableReq {
+  // tenant under consideration
+  string tenant = 1;
+
   // user that needs to be enabled
-  string username = 1;
+  string username = 2;
 }
 
 // enable user request response
@@ -249,8 +279,11 @@ message TenantUserEnableResp {
 
 // disable user request
 message TenantUserDisableReq {
+  // tenant under consideration
+  string tenant = 1;
+
   // user that needs to be disabled
-  string username = 1;
+  string username = 2;
 }
 
 // disable user request response
@@ -259,14 +292,17 @@ message TenantUserDisableResp {
 
 // list active sessions request
 message TenantUserSessionsListReq {
+  // tenant under consideration
+  string tenant = 1;
+
   // user name to filter for
-  string username = 1;
+  string username = 2;
 
   // offset to start from
-  int32 offset = 2;
+  int32 offset = 3;
 
   // limit
-  int32 limit = 3;
+  int32 limit = 4;
 }
 
 // user session information
@@ -298,12 +334,15 @@ message TenantUserSessionsListResp {
 
 // user session logout request
 message TenantUserSessionLogoutReq {
+  // tenant under consideration
+  string tenant = 1;
+
   // user to be logged out
-  string username = 1;
+  string username = 2;
 
   // specific session id if any needs to be logged out
   // optional, if not specified all sessions are logged out
-  string sessionId = 2;
+  string sessionId = 3;
 }
 
 // user session logout response
