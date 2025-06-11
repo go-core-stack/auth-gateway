@@ -1,0 +1,311 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+// Service provided to manage users
+service TenantUser {
+  // Get List of existing users in a tenant
+  rpc GetUsers(TenantUsersListReq) returns (TenantUsersListResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/users"
+    };
+  }
+
+  // Create a new user for the given tenant
+  rpc CreateUser(TenantUserCreateReq) returns (TenantUserCreateResp) {
+    option (google.api.http) = {
+      post: "/api/mytenant/v1/user"
+      body: "*"
+    };
+  }
+
+  // Get an existing user for the given tenant
+  rpc GetUser(TenantUserGetReq) returns (TenantUserGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/user/{username}"
+    };
+  }
+
+  // Enable an existing disabled user for the given tenant
+  rpc EnableUser(TenantUserEnableReq) returns (TenantUserEnableResp) {
+    option (google.api.http) = {
+      post: "/api/mytenant/v1/user/{username}/enable"
+    };
+  }
+
+  // Disable an existing enabled user for the given tenant
+  rpc DisableUser(TenantUserDisableReq) returns (TenantUserDisableResp) {
+    option (google.api.http) = {
+      post: "/api/mytenant/v1/user/{username}/disable"
+    };
+  }
+
+  // Update an existing user for the given tenant
+  rpc UpdateUser(TenantUserUpdateReq) returns (TenantUserUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/user/{username}"
+    };
+  }
+
+  // Delete an existing user for the given tenant
+  rpc DeleteUser(TenantUserDeleteReq) returns (TenantUserDeleteResp) {
+    option (google.api.http) = {
+      delete: "/api/mytenant/v1/user/{username}"
+    };
+  }
+
+  // List Active sessions, filter by user if provided
+  rpc ListUserSessions(TenantUserSessionsListReq) returns (TenantUserSessionsListResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/sessions"
+    };
+  }
+
+  // logout user from specific session or all sessions
+  rpc LogoutUserSession(TenantUserSessionLogoutReq) returns (TenantUserSessionLogoutResp) {
+    option (google.api.http) = {
+      post: "/api/mytenant/v1/user/{username}/logout"
+      body: "*"
+    };
+  }
+}
+
+// Request List of users in a tenant
+message TenantUsersListReq {
+  // offset from where to start the list of users
+  int32 offset = 1;
+
+  // limit the response to specified count
+  int32 limit = 2;
+
+  // prefix match to consider
+  string search = 3;
+}
+
+// user information for the list entry
+message TenantUserListEntry {
+  // username or user id
+  string username = 1;
+
+  // user email
+  string email = 2;
+
+  // first name of user
+  string firstName = 3;
+
+  // last name of user
+  string lastName = 4;
+
+  // is user enabled
+  bool enabled = 5;
+
+  // created since
+  int64 creationTimestamp = 6;
+
+  // last access by the user
+  int64 lastAccess = 7;
+}
+
+// Response to the list of users in a tenant
+message TenantUsersListResp {
+  // number of users in the tenant
+  int32 count = 1;
+
+  // items - list of users
+  repeated TenantUserListEntry items = 2;
+}
+
+// user create request message
+message TenantUserCreateReq {
+  // user ID
+  string username = 1;
+
+  // email address of the user
+  string email = 2;
+
+  // first name of the user
+  string firstname = 3;
+
+  // last name of the user
+  string lastname = 4;
+
+  // if the user needs to be created disabled
+  bool disabled = 5;
+
+  // temporary first login password to be set for the user
+  string password = 6;
+}
+
+// response to user create request
+message TenantUserCreateResp {
+  // username or user id
+  string username = 1;
+
+  // user email
+  string email = 2;
+
+  // first name of user
+  string firstName = 3;
+
+  // last name of user
+  string lastName = 4;
+
+  // is user enabled
+  bool enabled = 5;
+}
+
+// delete user request message
+message TenantUserDeleteReq {
+  // user id which needs to be deleted
+  string username = 1;
+}
+
+// response to the user delete message
+message TenantUserDeleteResp {
+}
+
+// get user request message
+message TenantUserGetReq {
+  // user id which needs to be deleted
+  string username = 1;
+}
+
+// get user response
+message TenantUserGetResp {
+  // username or user id
+  string username = 1;
+
+  // user email
+  string email = 2;
+
+  // first name of user
+  string firstName = 3;
+
+  // last name of user
+  string lastName = 4;
+
+  // is user enabled
+  bool enabled = 5;
+
+  // created since
+  int64 creationTimestamp = 6;
+
+  // last access by the user
+  int64 lastAccess = 7;
+}
+
+// user update request message
+message TenantUserUpdateReq {
+  // user ID
+  string username = 1;
+
+  // email address of the user
+  string email = 2;
+
+  // first name of the user
+  string firstname = 3;
+
+  // last name of the user
+  string lastname = 4;
+
+  // if the user needs to be created disabled
+  bool disabled = 5;
+}
+
+// response to user update request
+message TenantUserUpdateResp {
+  // username or user id
+  string username = 1;
+
+  // user email
+  string email = 2;
+
+  // first name of user
+  string firstName = 3;
+
+  // last name of user
+  string lastName = 4;
+
+  // is user enabled
+  bool enabled = 5;
+}
+
+// enable user request
+message TenantUserEnableReq {
+  // user that needs to be enabled
+  string username = 1;
+}
+
+// enable user request response
+message TenantUserEnableResp {
+}
+
+// disable user request
+message TenantUserDisableReq {
+  // user that needs to be disabled
+  string username = 1;
+}
+
+// disable user request response
+message TenantUserDisableResp {
+}
+
+// list active sessions request
+message TenantUserSessionsListReq {
+  // user name to filter for
+  string username = 1;
+
+  // offset to start from
+  int32 offset = 2;
+
+  // limit
+  int32 limit = 3;
+}
+
+// user session information
+message TenantUserSessionInfo {
+  // user name
+  string username = 1;
+
+  // session id
+  string sessionId = 2;
+
+  // start time
+  int64 started = 3;
+
+  // last access time
+  int64 lastAccess = 4;
+
+  // incoming client ip
+  string ip = 5;
+}
+
+// response of list active sessions
+message TenantUserSessionsListResp {
+  // total number of active sessions
+  int32 count = 1;
+
+  // list of active sessions
+  repeated TenantUserSessionInfo items = 2;
+}
+
+// user session logout request
+message TenantUserSessionLogoutReq {
+  // user to be logged out
+  string username = 1;
+
+  // specific session id if any needs to be logged out
+  // optional, if not specified all sessions are logged out
+  string sessionId = 2;
+}
+
+// user session logout response
+message TenantUserSessionLogoutResp {
+}
