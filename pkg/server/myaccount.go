@@ -222,12 +222,12 @@ func (s *MyAccountServer) CreateApiKey(ctx context.Context, req *api.ApiKeyCreat
 	}
 
 	return &api.ApiKeyCreateResp{
-		Name:       req.Name,
-		Id:         uid,
-		Status:     api.ApiKeyDef_Active,
-		CreateTime: now,
-		ExpireAt:   apiKey.Config.ExpireAt,
-		Secret:     apiKey.Secret.Value,
+		Name:     req.Name,
+		Id:       uid,
+		Status:   api.ApiKeyDef_Active,
+		Created:  now,
+		ExpireAt: apiKey.Config.ExpireAt,
+		Secret:   apiKey.Secret.Value,
 	}, nil
 }
 
@@ -386,10 +386,10 @@ func (s *MyAccountServer) ListApiKeys(ctx context.Context, req *api.ApiKeysListR
 	resp := &api.ApiKeysListResp{}
 	for _, key := range keys {
 		item := &api.ApiKeyListEntry{
-			Id:         key.Key.Id,           // API key ID
-			LastUsed:   key.LastUsed,         // Last used timestamp
-			CreateTime: key.Created,          // Creation timestamp
-			Status:     api.ApiKeyDef_Active, // Default status (active)
+			Id:       key.Key.Id,           // API key ID
+			LastUsed: key.LastUsed,         // Last used timestamp
+			Created:  key.Created,          // Creation timestamp
+			Status:   api.ApiKeyDef_Active, // Default status (active)
 		}
 		if key.Config != nil {
 			item.Name = key.Config.Name         // Use the name from the API key config

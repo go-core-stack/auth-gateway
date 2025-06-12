@@ -493,7 +493,7 @@ type ApiKeyCreateResp struct {
 	// timestamp when the api key was used last time
 	LastUsed int64 `protobuf:"varint,4,opt,name=lastUsed,proto3" json:"lastUsed,omitempty"`
 	// timestamp when the api key was created
-	CreateTime int64 `protobuf:"varint,5,opt,name=createTime,proto3" json:"createTime,omitempty"`
+	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
 	// timestamp when the api key will expire
 	ExpireAt int64 `protobuf:"varint,6,opt,name=expireAt,proto3" json:"expireAt,omitempty"`
 	// Secret to be used in conjunction with key id
@@ -565,9 +565,9 @@ func (x *ApiKeyCreateResp) GetLastUsed() int64 {
 	return 0
 }
 
-func (x *ApiKeyCreateResp) GetCreateTime() int64 {
+func (x *ApiKeyCreateResp) GetCreated() int64 {
 	if x != nil {
-		return x.CreateTime
+		return x.Created
 	}
 	return 0
 }
@@ -877,7 +877,7 @@ type ApiKeyListEntry struct {
 	// timestamp when the api key was used last time
 	LastUsed int64 `protobuf:"varint,4,opt,name=lastUsed,proto3" json:"lastUsed,omitempty"`
 	// timestamp when the api key was created
-	CreateTime int64 `protobuf:"varint,5,opt,name=createTime,proto3" json:"createTime,omitempty"`
+	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
 	// timestamp when the api key will expire
 	ExpireAt      int64 `protobuf:"varint,6,opt,name=expireAt,proto3" json:"expireAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -942,9 +942,9 @@ func (x *ApiKeyListEntry) GetLastUsed() int64 {
 	return 0
 }
 
-func (x *ApiKeyListEntry) GetCreateTime() int64 {
+func (x *ApiKeyListEntry) GetCreated() int64 {
 	if x != nil {
-		return x.CreateTime
+		return x.Created
 	}
 	return 0
 }
@@ -1068,15 +1068,13 @@ const file_myaccount_proto_rawDesc = "" +
 	"\n" +
 	"\x06Active\x10\x00\x12\v\n" +
 	"\aExpired\x10\x01\x12\f\n" +
-	"\bDisabled\x10\x02\"\xd5\x01\n" +
+	"\bDisabled\x10\x02\"\xcf\x01\n" +
 	"\x10ApiKeyCreateResp\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12-\n" +
 	"\x06status\x18\x03 \x01(\x0e2\x15.api.ApiKeyDef.StatusR\x06status\x12\x1a\n" +
-	"\blastUsed\x18\x04 \x01(\x03R\blastUsed\x12\x1e\n" +
-	"\n" +
-	"createTime\x18\x05 \x01(\x03R\n" +
-	"createTime\x12\x1a\n" +
+	"\blastUsed\x18\x04 \x01(\x03R\blastUsed\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1a\n" +
 	"\bexpireAt\x18\x06 \x01(\x03R\bexpireAt\x12\x16\n" +
 	"\x06secret\x18\a \x01(\tR\x06secret\"\"\n" +
 	"\x10ApiKeyDisableReq\x12\x0e\n" +
@@ -1088,15 +1086,13 @@ const file_myaccount_proto_rawDesc = "" +
 	"\x0fApiKeyDeleteReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x12\n" +
 	"\x10ApiKeyDeleteResp\"\x10\n" +
-	"\x0eApiKeysListReq\"\xbc\x01\n" +
+	"\x0eApiKeysListReq\"\xb6\x01\n" +
 	"\x0fApiKeyListEntry\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12-\n" +
 	"\x06status\x18\x03 \x01(\x0e2\x15.api.ApiKeyDef.StatusR\x06status\x12\x1a\n" +
-	"\blastUsed\x18\x04 \x01(\x03R\blastUsed\x12\x1e\n" +
-	"\n" +
-	"createTime\x18\x05 \x01(\x03R\n" +
-	"createTime\x12\x1a\n" +
+	"\blastUsed\x18\x04 \x01(\x03R\blastUsed\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1a\n" +
 	"\bexpireAt\x18\x06 \x01(\x03R\bexpireAt\"=\n" +
 	"\x0fApiKeysListResp\x12*\n" +
 	"\x05items\x18\x01 \x03(\v2\x14.api.ApiKeyListEntryR\x05items\"\x12\n" +

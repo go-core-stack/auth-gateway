@@ -174,7 +174,7 @@ message ApiKeyCreateResp {
   int64 lastUsed = 4;
 
   // timestamp when the api key was created
-  int64 createTime = 5;
+  int64 created = 5;
 
   // timestamp when the api key will expire
   int64 expireAt = 6;
@@ -230,7 +230,7 @@ message ApiKeyListEntry {
   int64 lastUsed = 4;
 
   // timestamp when the api key was created
-  int64 createTime = 5;
+  int64 created = 5;
 
   // timestamp when the api key will expire
   int64 expireAt = 6;

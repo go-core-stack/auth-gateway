@@ -113,7 +113,7 @@ type TenantUserListEntry struct {
 	// is user enabled
 	Enabled bool `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// created since
-	CreationTimestamp int64 `protobuf:"varint,6,opt,name=creationTimestamp,proto3" json:"creationTimestamp,omitempty"`
+	Created int64 `protobuf:"varint,6,opt,name=created,proto3" json:"created,omitempty"`
 	// last access by the user
 	LastAccess    int64 `protobuf:"varint,7,opt,name=lastAccess,proto3" json:"lastAccess,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -185,9 +185,9 @@ func (x *TenantUserListEntry) GetEnabled() bool {
 	return false
 }
 
-func (x *TenantUserListEntry) GetCreationTimestamp() int64 {
+func (x *TenantUserListEntry) GetCreated() int64 {
 	if x != nil {
-		return x.CreationTimestamp
+		return x.Created
 	}
 	return 0
 }
@@ -597,7 +597,7 @@ type TenantUserGetResp struct {
 	// is user enabled
 	Enabled bool `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// created since
-	CreationTimestamp int64 `protobuf:"varint,6,opt,name=creationTimestamp,proto3" json:"creationTimestamp,omitempty"`
+	Created int64 `protobuf:"varint,6,opt,name=created,proto3" json:"created,omitempty"`
 	// last access by the user
 	LastAccess    int64 `protobuf:"varint,7,opt,name=lastAccess,proto3" json:"lastAccess,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -669,9 +669,9 @@ func (x *TenantUserGetResp) GetEnabled() bool {
 	return false
 }
 
-func (x *TenantUserGetResp) GetCreationTimestamp() int64 {
+func (x *TenantUserGetResp) GetCreated() int64 {
 	if x != nil {
-		return x.CreationTimestamp
+		return x.Created
 	}
 	return 0
 }
@@ -1361,14 +1361,14 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x16\n" +
 	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06search\x18\x04 \x01(\tR\x06search\"\xe9\x01\n" +
+	"\x06search\x18\x04 \x01(\tR\x06search\"\xd5\x01\n" +
 	"\x13TenantUserListEntry\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
 	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x04 \x01(\tR\blastName\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\x12,\n" +
-	"\x11creationTimestamp\x18\x06 \x01(\x03R\x11creationTimestamp\x12\x1e\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\x12\x18\n" +
+	"\acreated\x18\x06 \x01(\x03R\acreated\x12\x1e\n" +
 	"\n" +
 	"lastAccess\x18\a \x01(\x03R\n" +
 	"lastAccess\"[\n" +
@@ -1395,14 +1395,14 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\x14TenantUserDeleteResp\"F\n" +
 	"\x10TenantUserGetReq\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername\"\xe7\x01\n" +
+	"\busername\x18\x02 \x01(\tR\busername\"\xd3\x01\n" +
 	"\x11TenantUserGetResp\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1c\n" +
 	"\tfirstName\x18\x03 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x04 \x01(\tR\blastName\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\x12,\n" +
-	"\x11creationTimestamp\x18\x06 \x01(\x03R\x11creationTimestamp\x12\x1e\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\x12\x18\n" +
+	"\acreated\x18\x06 \x01(\x03R\acreated\x12\x1e\n" +
 	"\n" +
 	"lastAccess\x18\a \x01(\x03R\n" +
 	"lastAccess\"\xb5\x01\n" +

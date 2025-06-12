@@ -144,7 +144,7 @@ message UserListEntry {
   bool enabled = 5;
 
   // created since
-  int64 creationTimestamp = 6;
+  int64 created = 6;
 
   // last access by the user
   int64 lastAccess = 7;
@@ -232,7 +232,7 @@ message UserGetResp {
   bool enabled = 5;
 
   // created since
-  int64 creationTimestamp = 6;
+  int64 created = 6;
 
   // last access by the user
   int64 lastAccess = 7;
