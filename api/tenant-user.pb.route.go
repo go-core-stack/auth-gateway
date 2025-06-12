@@ -8,23 +8,41 @@ import "github.com/go-core-stack/auth/model"
 var RoutesTenantUser = []*model.Route{}
 
 func init() {
+	var route *model.Route
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/users", "GET"))
+	// Adding Route information for GetUsers RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/users", "GET")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user", "POST"))
+	// Adding Route information for CreateUser RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user", "POST")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "GET"))
+	// Adding Route information for GetUser RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "GET")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/enable", "POST"))
+	// Adding Route information for EnableUser RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/enable", "POST")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/disable", "POST"))
+	// Adding Route information for DisableUser RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/disable", "POST")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "PUT"))
+	// Adding Route information for UpdateUser RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "PUT")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "DELETE"))
+	// Adding Route information for DeleteUser RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}", "DELETE")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/sessions", "GET"))
+	// Adding Route information for ListUserSessions RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/sessions", "GET")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 
-	RoutesTenantUser = append(RoutesTenantUser, model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/logout", "POST"))
-
+	// Adding Route information for LogoutUserSession RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/logout", "POST")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 }

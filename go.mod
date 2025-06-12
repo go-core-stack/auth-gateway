@@ -3,12 +3,13 @@ module github.com/Prabhjot-Sethi/auth-gateway
 go 1.24
 
 require (
-	github.com/go-core-stack/auth v0.0.0-20250611062606-94d057043efb
+	github.com/go-core-stack/auth v0.0.0-20250612053611-0752a9bf3fee
 	github.com/go-core-stack/core v0.0.0-20250606095702-e6b26bb57621
+	github.com/go-core-stack/grpc-core v0.0.0-20250612052530-de9a8693884f
 	github.com/go-core-stack/patricia v0.0.0-20250603094700-e5a6663f8d2c
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
 	golang.org/x/net v0.37.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250505200425-f936aa4a68b2
+	google.golang.org/genproto/googleapis/api v0.0.0-20250528174236-200df99c418a
 	google.golang.org/grpc v1.72.2
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v2 v2.4.0
@@ -18,14 +19,12 @@ require (
 	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	golang.org/x/oauth2 v0.28.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250428153025-10db94c68c34 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
 )
 
 require (

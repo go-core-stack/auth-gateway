@@ -10,6 +10,7 @@
 package api
 
 import (
+	_ "github.com/go-core-stack/grpc-core/coreapis/api"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1275,7 +1276,7 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\"T\n" +
+	"user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a\x17coreapis/api/role.proto\"T\n" +
 	"\fUsersListReq\x12\x16\n" +
 	"\x06offset\x18\x01 \x01(\x05R\x06offset\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
@@ -1358,21 +1359,30 @@ const file_user_proto_rawDesc = "" +
 	"\x14UserSessionLogoutReq\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
 	"\tsessionId\x18\x02 \x01(\tR\tsessionId\"\x17\n" +
-	"\x15UserSessionLogoutResp2\x8c\a\n" +
-	"\x04User\x12Q\n" +
-	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/mytenant/v1/users\x12W\n" +
+	"\x15UserSessionLogoutResp2\xb2\b\n" +
+	"\x04User\x12a\n" +
+	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\".\x8a\xb5\x18\f\n" +
+	"\x04user\x1a\x04list\x82\xd3\xe4\x93\x02\x18\x12\x16/api/mytenant/v1/users\x12i\n" +
 	"\n" +
-	"CreateUser\x12\x12.api.UserCreateReq\x1a\x13.api.UserCreateResp\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/mytenant/v1/user\x12V\n" +
-	"\aGetUser\x12\x0f.api.UserGetReq\x1a\x10.api.UserGetResp\"(\x82\xd3\xe4\x93\x02\"\x12 /api/mytenant/v1/user/{username}\x12f\n" +
+	"CreateUser\x12\x12.api.UserCreateReq\x1a\x13.api.UserCreateResp\"2\x8a\xb5\x18\x0e\n" +
+	"\x04user\x1a\x06create\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/mytenant/v1/user\x12e\n" +
+	"\aGetUser\x12\x0f.api.UserGetReq\x1a\x10.api.UserGetResp\"7\x8a\xb5\x18\v\n" +
+	"\x04user\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/mytenant/v1/user/{username}\x12x\n" +
 	"\n" +
-	"EnableUser\x12\x12.api.UserEnableReq\x1a\x13.api.UserEnableResp\"/\x82\xd3\xe4\x93\x02)\"'/api/mytenant/v1/user/{username}/enable\x12j\n" +
-	"\vDisableUser\x12\x13.api.UserDisableReq\x1a\x14.api.UserDisableResp\"0\x82\xd3\xe4\x93\x02*\"(/api/mytenant/v1/user/{username}/disable\x12_\n" +
+	"EnableUser\x12\x12.api.UserEnableReq\x1a\x13.api.UserEnableResp\"A\x8a\xb5\x18\x0e\n" +
+	"\x04user\x1a\x06enable\x82\xd3\xe4\x93\x02)\"'/api/mytenant/v1/user/{username}/enable\x12}\n" +
+	"\vDisableUser\x12\x13.api.UserDisableReq\x1a\x14.api.UserDisableResp\"C\x8a\xb5\x18\x0f\n" +
+	"\x04user\x1a\adisable\x82\xd3\xe4\x93\x02*\"(/api/mytenant/v1/user/{username}/disable\x12q\n" +
 	"\n" +
-	"UpdateUser\x12\x12.api.UserUpdateReq\x1a\x13.api.UserUpdateResp\"(\x82\xd3\xe4\x93\x02\"\x1a /api/mytenant/v1/user/{username}\x12_\n" +
+	"UpdateUser\x12\x12.api.UserUpdateReq\x1a\x13.api.UserUpdateResp\":\x8a\xb5\x18\x0e\n" +
+	"\x04user\x1a\x06update\x82\xd3\xe4\x93\x02\"\x1a /api/mytenant/v1/user/{username}\x12q\n" +
 	"\n" +
-	"DeleteUser\x12\x12.api.UserDeleteReq\x1a\x13.api.UserDeleteResp\"(\x82\xd3\xe4\x93\x02\"* /api/mytenant/v1/user/{username}\x12j\n" +
-	"\x10ListUserSessions\x12\x18.api.UserSessionsListReq\x1a\x19.api.UserSessionsListResp\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/mytenant/v1/sessions\x12~\n" +
-	"\x11LogoutUserSession\x12\x19.api.UserSessionLogoutReq\x1a\x1a.api.UserSessionLogoutResp\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logoutB,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"DeleteUser\x12\x12.api.UserDeleteReq\x1a\x13.api.UserDeleteResp\":\x8a\xb5\x18\x0e\n" +
+	"\x04user\x1a\x06delete\x82\xd3\xe4\x93\x02\"* /api/mytenant/v1/user/{username}\x12\x82\x01\n" +
+	"\x10ListUserSessions\x12\x18.api.UserSessionsListReq\x1a\x19.api.UserSessionsListResp\"9\x8a\xb5\x18\x14\n" +
+	"\x04user\x1a\fget-sessions\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/mytenant/v1/sessions\x12\x90\x01\n" +
+	"\x11LogoutUserSession\x12\x19.api.UserSessionLogoutReq\x1a\x1a.api.UserSessionLogoutResp\"D\x8a\xb5\x18\x0e\n" +
+	"\x04user\x1a\x06logout\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logoutB,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once

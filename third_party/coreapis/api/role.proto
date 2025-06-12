@@ -1,0 +1,26 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/go-core-stack/grpc-core/coreapis/api";
+
+// Define the Role definition for Auth Gateway
+message Role {
+  // name of the resource
+  string resource = 1;
+
+  // scope of the resource
+  repeated string scope = 2;
+
+  // actionable verb of the resource like create, update, list, get, poweroff etc. to be shown to the user
+  string verb = 3;
+}
+
+extend google.protobuf.MethodOptions {
+  Role role = 50001;
+}

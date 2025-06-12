@@ -8,7 +8,9 @@ import "github.com/go-core-stack/auth/model"
 var RoutesRegistration = []*model.Route{}
 
 func init() {
+	var route *model.Route
 
-	RoutesRegistration = append(RoutesRegistration, model.NewRoute("/api/register/v1/otp", "POST"))
-
+	// Adding Route information for GetRegisterOtp RPC
+	route = model.NewRoute("/api/register/v1/otp", "POST")
+	RoutesRegistration = append(RoutesRegistration, route)
 }

@@ -8,21 +8,37 @@ import "github.com/go-core-stack/auth/model"
 var RoutesMyAccount = []*model.Route{}
 
 func init() {
+	var route *model.Route
 
-	RoutesMyAccount = append(RoutesMyAccount, model.NewRoute("/api/myaccount/v1/info", "GET"))
+	// Adding Route information for GetMyInfo RPC
+	route = model.NewRoute("/api/myaccount/v1/info", "GET")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 
-	RoutesMyAccount = append(RoutesMyAccount, model.NewRoute("/api/myaccount/v1/sessions", "GET"))
+	// Adding Route information for GetMySessions RPC
+	route = model.NewRoute("/api/myaccount/v1/sessions", "GET")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 
-	RoutesMyAccount = append(RoutesMyAccount, model.NewRoute("/api/myaccount/v1/logout-sessions", "POST"))
+	// Adding Route information for LogoutMySessions RPC
+	route = model.NewRoute("/api/myaccount/v1/logout-sessions", "POST")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 
-	RoutesMyAccount = append(RoutesMyAccount, model.NewRoute("/api/myaccount/v1/api-key", "POST"))
+	// Adding Route information for CreateApiKey RPC
+	route = model.NewRoute("/api/myaccount/v1/api-key", "POST")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 
-	RoutesMyAccount = append(RoutesMyAccount, model.NewRoute("/api/myaccount/v1/api-key/{id}/disable", "POST"))
+	// Adding Route information for DisableApiKey RPC
+	route = model.NewRoute("/api/myaccount/v1/api-key/{id}/disable", "POST")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 
-	RoutesMyAccount = append(RoutesMyAccount, model.NewRoute("/api/myaccount/v1/api-key/{id}/enable", "POST"))
+	// Adding Route information for EnableApiKey RPC
+	route = model.NewRoute("/api/myaccount/v1/api-key/{id}/enable", "POST")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 
-	RoutesMyAccount = append(RoutesMyAccount, model.NewRoute("/api/myaccount/v1/api-key/{id}", "DELETE"))
+	// Adding Route information for DeleteApiKey RPC
+	route = model.NewRoute("/api/myaccount/v1/api-key/{id}", "DELETE")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 
-	RoutesMyAccount = append(RoutesMyAccount, model.NewRoute("/api/myaccount/v1/api-keys", "GET"))
-
+	// Adding Route information for ListApiKeys RPC
+	route = model.NewRoute("/api/myaccount/v1/api-keys", "GET")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 }
