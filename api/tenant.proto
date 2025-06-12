@@ -1,0 +1,133 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+// Service provided to manage tenants
+service Tenant {
+  // Get List of existing tenants
+  rpc ListTenants(TenantsListReq) returns (TenantsListResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/tenants"
+    };
+    option (api.role) = {
+      resource: "tenant"
+      verb: "list"
+    };
+  }
+
+  // Create a new Tenant
+  rpc CreateTenant(TenantCreateReq) returns (TenantCreateResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/tenant"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "tenant"
+      verb: "create"
+    };
+  }
+
+  // Get details of existing tenants
+  rpc GetTenant(TenantGetReq) returns (TenantGetResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/tenant/{id}"
+    };
+    option (api.role) = {
+      resource: "tenant"
+      verb: "get"
+    };
+  }
+}
+
+// tenant list request
+message TenantsListReq {
+  // offset from where to start the list of tenants
+  int32 offset = 1;
+
+  // limit the response to specified count
+  int32 limit = 2;
+}
+
+// tenant information for the list entry
+message TenantListEntry {
+  // tenant id or realm name
+  string id = 1;
+
+  // display name
+  string dispName = 2;
+
+  // descriptive information for the tenant
+  string desc = 3;
+
+  // created since
+  int64 created = 4;
+}
+
+// tenant list response
+message TenantsListResp {
+  // count of list of tenants
+  int32 count = 1;
+
+  // list of items
+  repeated TenantListEntry items = 2;
+}
+
+// tenant admin create time config
+message TenantAdminCreateConfig {
+  // tenant admin user id
+  string userId = 1;
+
+  // temporary password
+  string password = 2;
+}
+
+// tenant create request
+message TenantCreateReq {
+  // tenant ID
+  string id = 1;
+
+  // tenant Display name
+  string dispName = 2;
+
+  // tenant description
+  string desc = 3;
+
+  // default admin config
+  TenantAdminCreateConfig admin = 4;
+}
+
+// tenant create response
+message TenantCreateResp {
+}
+
+// tenant get request
+message TenantGetReq {
+  // tenant id
+  string id = 1;
+}
+
+// tenant get response
+message TenantGetResp {
+  // tenant id or realm name
+  string id = 1;
+
+  // display name
+  string dispName = 2;
+
+  // descriptive information for the tenant
+  string desc = 3;
+
+  // created since
+  int64 created = 4;
+
+  // default tenant admin
+  string admin = 5;
+}

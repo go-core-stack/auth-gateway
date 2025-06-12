@@ -12,6 +12,9 @@
       "name": "Registration"
     },
     {
+      "name": "Tenant"
+    },
+    {
       "name": "TenantUser"
     },
     {
@@ -25,6 +28,71 @@
     "application/json"
   ],
   "paths": {
+    "/api/auth/v1/tenant": {
+      "post": {
+        "summary": "Create a new Tenant",
+        "operationId": "Tenant_CreateTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiTenantCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "Tenant"
+        ]
+      }
+    },
+    "/api/auth/v1/tenant/{id}": {
+      "get": {
+        "summary": "Get details of existing tenants",
+        "operationId": "Tenant_GetTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "tenant id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Tenant"
+        ]
+      }
+    },
     "/api/auth/v1/tenant/{tenant}/sessions": {
       "get": {
         "summary": "List Active sessions, filter by user if provided",
@@ -438,6 +506,47 @@
         ],
         "tags": [
           "TenantUser"
+        ]
+      }
+    },
+    "/api/auth/v1/tenants": {
+      "get": {
+        "summary": "Get List of existing tenants",
+        "operationId": "Tenant_ListTenants",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "offset",
+            "description": "offset from where to start the list of tenants",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the response to specified count",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "Tenant"
         ]
       }
     },
@@ -1265,6 +1374,96 @@
     "apiRegisterOtpResp": {
       "type": "object"
     },
+    "apiTenantAdminCreateConfig": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "title": "tenant admin user id"
+        },
+        "password": {
+          "type": "string",
+          "title": "temporary password"
+        }
+      },
+      "title": "tenant admin create time config"
+    },
+    "apiTenantCreateReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "tenant ID"
+        },
+        "dispName": {
+          "type": "string",
+          "title": "tenant Display name"
+        },
+        "desc": {
+          "type": "string",
+          "title": "tenant description"
+        },
+        "admin": {
+          "$ref": "#/definitions/apiTenantAdminCreateConfig",
+          "title": "default admin config"
+        }
+      },
+      "title": "tenant create request"
+    },
+    "apiTenantCreateResp": {
+      "type": "object",
+      "title": "tenant create response"
+    },
+    "apiTenantGetResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "tenant id or realm name"
+        },
+        "dispName": {
+          "type": "string",
+          "title": "display name"
+        },
+        "desc": {
+          "type": "string",
+          "title": "descriptive information for the tenant"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "created since"
+        },
+        "admin": {
+          "type": "string",
+          "title": "default tenant admin"
+        }
+      },
+      "title": "tenant get response"
+    },
+    "apiTenantListEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "tenant id or realm name"
+        },
+        "dispName": {
+          "type": "string",
+          "title": "display name"
+        },
+        "desc": {
+          "type": "string",
+          "title": "descriptive information for the tenant"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "created since"
+        }
+      },
+      "title": "tenant information for the list entry"
+    },
     "apiTenantUserCreateResp": {
       "type": "object",
       "properties": {
@@ -1510,6 +1709,25 @@
         }
       },
       "title": "Response to the list of users in a tenant"
+    },
+    "apiTenantsListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "count of list of tenants"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiTenantListEntry"
+          },
+          "title": "list of items"
+        }
+      },
+      "title": "tenant list response"
     },
     "apiUserCreateReq": {
       "type": "object",
