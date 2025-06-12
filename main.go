@@ -366,6 +366,9 @@ func main() {
 	// create GRPC Server context
 	serverCtx := createGRPCServerContext()
 
+	// Setup tenant management server
+	_ = server.NewTenantServer(serverCtx, APIEndpoint)
+
 	// Setup as new user server
 	_ = server.NewUserServer(serverCtx, client, APIEndpoint)
 
