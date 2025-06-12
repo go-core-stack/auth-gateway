@@ -74,13 +74,13 @@ func (s *TenantUserApiServer) GetUsers(ctx context.Context, req *api.TenantUsers
 	}
 	for _, user := range users {
 		item := &api.TenantUserListEntry{
-			Username:          user.Key.Username,
-			Email:             user.Info.Email,
-			FirstName:         user.Info.FirstName,
-			LastName:          user.Info.LastName,
-			Enabled:           !utils.PBool(user.Disabled),
-			CreationTimestamp: user.Created,
-			LastAccess:        user.LastAccess,
+			Username:   user.Key.Username,
+			Email:      user.Info.Email,
+			FirstName:  user.Info.FirstName,
+			LastName:   user.Info.LastName,
+			Enabled:    !utils.PBool(user.Disabled),
+			Created:    user.Created,
+			LastAccess: user.LastAccess,
 		}
 		resp.Items = append(resp.Items, item)
 	}
@@ -145,13 +145,13 @@ func (s *TenantUserApiServer) GetUser(ctx context.Context, req *api.TenantUserGe
 	}
 
 	resp := &api.TenantUserGetResp{
-		Username:          uEntry.Key.Username,
-		Email:             uEntry.Info.Email,
-		FirstName:         uEntry.Info.FirstName,
-		LastName:          uEntry.Info.LastName,
-		Enabled:           !utils.PBool(uEntry.Disabled),
-		CreationTimestamp: uEntry.Created,
-		LastAccess:        uEntry.LastAccess,
+		Username:   uEntry.Key.Username,
+		Email:      uEntry.Info.Email,
+		FirstName:  uEntry.Info.FirstName,
+		LastName:   uEntry.Info.LastName,
+		Enabled:    !utils.PBool(uEntry.Disabled),
+		Created:    uEntry.Created,
+		LastAccess: uEntry.LastAccess,
 	}
 	return resp, nil
 }
