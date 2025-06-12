@@ -6,6 +6,7 @@ syntax = "proto3";
 package api;
 
 import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
 
 option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
 
@@ -16,6 +17,10 @@ service User {
     option (google.api.http) = {
       get: "/api/mytenant/v1/users"
     };
+    option (api.role) = {
+      resource: "user"
+      verb: "list"
+    };
   }
 
   // Create a new user for the given tenant
@@ -24,12 +29,20 @@ service User {
       post: "/api/mytenant/v1/user"
       body: "*"
     };
+    option (api.role) = {
+      resource: "user"
+      verb: "create"
+    };
   }
 
   // Get an existing user for the given tenant
   rpc GetUser(UserGetReq) returns (UserGetResp) {
     option (google.api.http) = {
       get: "/api/mytenant/v1/user/{username}"
+    };
+    option (api.role) = {
+      resource: "user"
+      verb: "get"
     };
   }
 
@@ -38,12 +51,20 @@ service User {
     option (google.api.http) = {
       post: "/api/mytenant/v1/user/{username}/enable"
     };
+    option (api.role) = {
+      resource: "user"
+      verb: "enable"
+    };
   }
 
   // Disable an existing enabled user for the given tenant
   rpc DisableUser(UserDisableReq) returns (UserDisableResp) {
     option (google.api.http) = {
       post: "/api/mytenant/v1/user/{username}/disable"
+    };
+    option (api.role) = {
+      resource: "user"
+      verb: "disable"
     };
   }
 
@@ -52,12 +73,20 @@ service User {
     option (google.api.http) = {
       put: "/api/mytenant/v1/user/{username}"
     };
+    option (api.role) = {
+      resource: "user"
+      verb: "update"
+    };
   }
 
   // Delete an existing user for the given tenant
   rpc DeleteUser(UserDeleteReq) returns (UserDeleteResp) {
     option (google.api.http) = {
       delete: "/api/mytenant/v1/user/{username}"
+    };
+    option (api.role) = {
+      resource: "user"
+      verb: "delete"
     };
   }
 
@@ -66,6 +95,10 @@ service User {
     option (google.api.http) = {
       get: "/api/mytenant/v1/sessions"
     };
+    option (api.role) = {
+      resource: "user"
+      verb: "get-sessions"
+    };
   }
 
   // logout user from specific session or all sessions
@@ -73,6 +106,10 @@ service User {
     option (google.api.http) = {
       post: "/api/mytenant/v1/user/{username}/logout"
       body: "*"
+    };
+    option (api.role) = {
+      resource: "user"
+      verb: "logout"
     };
   }
 }
