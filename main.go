@@ -32,6 +32,7 @@ import (
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/config"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/request"
+	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/roledef"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/tenant"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/user"
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/gateway"
@@ -362,6 +363,9 @@ func main() {
 	if err != nil {
 		log.Panicf("failed to create email verification cleanup controller: %s", err)
 	}
+
+	// role definition manager
+	_ = roledef.NewResourceManager()
 
 	// create GRPC Server context
 	serverCtx := createGRPCServerContext()
