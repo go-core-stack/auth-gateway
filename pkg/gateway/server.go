@@ -211,7 +211,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if !match.isUserSpecific {
-			if match.isRoot && authInfo.Realm != "root" {
+			if match.isRoot && !authInfo.IsRoot {
 				// access to the route is meant to come only from root tenancy
 				http.Error(w, "Access Denied", http.StatusForbidden)
 				return

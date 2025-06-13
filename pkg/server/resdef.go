@@ -25,18 +25,16 @@ type ResourceDefinitionServer struct {
 }
 
 func (s *ResourceDefinitionServer) GetResources(ctx context.Context, req *api.ResourceGetReq) (*api.ResourceGetResp, error) {
-	_, err := auth.GetAuthInfoFromContext(ctx)
+	info, err := auth.GetAuthInfoFromContext(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
 	}
 	resp := &api.ResourceGetResp{}
-	resources := s.mgr.GetResourcesDef(false)
+	resources := s.mgr.GetResourcesDef(info.IsRoot)
 	for k, v := range resources.All() {
 		item := &api.ResourceEntry{
-			Name: k,
-		}
-		for _, verb := range v {
-			item.Verbs = append(item.Verbs, verb)
+			Name:  k,
+			Verbs: v,
 		}
 		resp.Items = append(resp.Items, item)
 	}
