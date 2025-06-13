@@ -44,6 +44,12 @@ func (v *authVerifier) decode(tokenStr string) (*common.AuthInfo, error) {
 		return nil, errors.Wrapf(errors.Unauthorized, "Failed to decode token Claims: %s", err)
 	}
 
+	// TODO(prabhjot) we might need to handle this better instead of hard coding
+	if info.Realm == "root" {
+		// ensure isRoot flag is set in this scenario
+		info.IsRoot = true
+	}
+
 	info.Roles = info.RealmAccess.Roles
 
 	return &(info.AuthInfo), nil
