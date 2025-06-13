@@ -6,7 +6,7 @@ require (
 	github.com/go-core-stack/auth v0.0.0-20250612053611-0752a9bf3fee
 	github.com/go-core-stack/core v0.0.0-20250606095702-e6b26bb57621
 	github.com/go-core-stack/grpc-core v0.0.0-20250612052530-de9a8693884f
-	github.com/go-core-stack/patricia v0.0.0-20250603094700-e5a6663f8d2c
+	github.com/go-core-stack/patricia v0.0.0-20250613164405-ac1bcd231c34
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
 	golang.org/x/net v0.37.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250528174236-200df99c418a

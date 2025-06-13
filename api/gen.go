@@ -3,4 +3,4 @@
 
 package api
 
-//go:generate protoc -I . -I ../third_party --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --grpc-gateway_out . --grpc-gateway_opt paths=source_relative  --routes_out . --routes_opt paths=source_relative --openapiv2_out ./swagger --openapiv2_opt logtostderr=true --openapiv2_opt allow_merge=true myaccount.proto register.proto tenant.proto tenant-user.proto user.proto
+//go:generate protoc -I . -I ../third_party --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --grpc-gateway_out . --grpc-gateway_opt paths=source_relative  --routes_out . --routes_opt paths=source_relative --openapiv2_out ./swagger --openapiv2_opt logtostderr=true --openapiv2_opt allow_merge=true myaccount.proto register.proto resdef.proto tenant.proto tenant-user.proto user.proto
