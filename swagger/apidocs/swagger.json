@@ -12,6 +12,9 @@
       "name": "Registration"
     },
     {
+      "name": "ResourceDefinition"
+    },
+    {
       "name": "Tenant"
     },
     {
@@ -28,6 +31,29 @@
     "application/json"
   ],
   "paths": {
+    "/api/auth/v1/resources": {
+      "get": {
+        "summary": "Get Resource definitions along with available actions",
+        "operationId": "ResourceDefinition_GetResources",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiResourceGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "ResourceDefinition"
+        ]
+      }
+    },
     "/api/auth/v1/tenant": {
       "post": {
         "summary": "Create a new Tenant",
@@ -1373,6 +1399,36 @@
     },
     "apiRegisterOtpResp": {
       "type": "object"
+    },
+    "apiResourceEntry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name of the resource"
+        },
+        "verbs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "available verbs"
+        }
+      },
+      "title": "Resource entry"
+    },
+    "apiResourceGetResp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiResourceEntry"
+          }
+        }
+      },
+      "title": "resource get response"
     },
     "apiTenantAdminCreateConfig": {
       "type": "object",

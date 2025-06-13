@@ -365,10 +365,13 @@ func main() {
 	}
 
 	// role definition manager
-	_ = roledef.NewResourceManager()
+	resourceMgr := roledef.NewResourceManager()
 
 	// create GRPC Server context
 	serverCtx := createGRPCServerContext()
+
+	// setup resource definition server
+	_ = server.NewResourceDefinitionServer(serverCtx, resourceMgr, APIEndpoint)
 
 	// Setup tenant management server
 	_ = server.NewTenantServer(serverCtx, APIEndpoint)

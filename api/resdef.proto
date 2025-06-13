@@ -1,0 +1,39 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+// Service provided to expose available resource and actions
+service ResourceDefinition {
+  // Get Resource definitions along with available actions
+  rpc GetResources(ResourceGetReq) returns (ResourceGetResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/resources"
+    };
+  }
+}
+
+// resources get request
+// eventually this will also need to have scopes field
+message ResourceGetReq {
+}
+
+// Resource entry
+message ResourceEntry {
+  // name of the resource
+  string name = 1;
+
+  // available verbs
+  repeated string verbs = 2;
+}
+
+// resource get response
+message ResourceGetResp {
+  repeated ResourceEntry items = 2;
+}
