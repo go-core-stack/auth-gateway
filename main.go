@@ -318,7 +318,7 @@ func main() {
 	locateRootTenant()
 
 	// create a new keycloak client
-	client, err := keycloak.New("http://localhost:8080")
+	client, err := keycloak.New(conf.GetKeycloakEndpoint())
 	if err != nil {
 		// failed to create keycloak client, nothing more can be done
 		log.Panicf("failed to create keycloak client: %s", err)
@@ -329,7 +329,7 @@ func main() {
 
 	// Initialize auth package, needs to be done before starting the
 	// gateway service which in turn will be using auth package
-	err = auth.Initialize("http://localhost:8080", "account")
+	err = auth.Initialize(conf.GetKeycloakEndpoint(), "account")
 	if err != nil {
 		log.Panicf("failed to initialize auth package: %s", err)
 	}
