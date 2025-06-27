@@ -19,10 +19,15 @@ type Swagger struct {
 	Dir string `yaml:"dir,omitempty"`
 }
 
+type Keycloak struct {
+	Endpoint string `yaml:"endpoint,omitempty"`
+}
+
 // Base config struct
 type BaseConfig struct {
-	ConfigDB *MongoDB `yaml:"configDB,omitempty"`
-	Swagger  Swagger  `yaml:"swagger,omitempty"`
+	ConfigDB *MongoDB  `yaml:"configDB,omitempty"`
+	Swagger  Swagger   `yaml:"swagger,omitempty"`
+	Keycloak *Keycloak `yaml:"keycloak,omitempty"`
 }
 
 // get Config database information, if the struct
@@ -37,6 +42,14 @@ func (c *BaseConfig) GetConfigDB() *MongoDB {
 		Host: "localhost",
 		Port: "27017",
 	}
+}
+
+func (c *BaseConfig) GetKeycloakEndpoint() string {
+	if c.Keycloak != nil && c.Keycloak.Endpoint != "" {
+		return c.Keycloak.Endpoint
+	}
+
+	return "http://localhost:8080"
 }
 
 func (c *BaseConfig) GetSwaggerDir() string {
