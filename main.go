@@ -56,18 +56,38 @@ const (
 
 	// service name this process will be hosting
 	serviceName = "auth-gateway"
+)
 
+var (
 	// Port serving Auth Gateway
-	GatewayPort = ":8090"
+	GatewayPort = ":8080"
 
 	// API Port for the server
-	APIPort = ":8095"
+	APIPort = ":8085"
 
 	APIEndpoint = "http://localhost" + APIPort
 
 	// GRPC Port for the server
-	GrpcPort = ":8091"
+	GrpcPort = ":8090"
 )
+
+func evaluatePorts() {
+	port, ok := os.LookupEnv("API_PORT")
+	if ok {
+		APIPort = ":" + port
+		APIEndpoint = "http://localhost" + APIPort
+	}
+
+	port, ok = os.LookupEnv("GATEWAY_PORT")
+	if ok {
+		GatewayPort = ":" + port
+	}
+
+	port, ok = os.LookupEnv("GRPC_PORT")
+	if ok {
+		GrpcPort = ":" + port
+	}
+}
 
 // Parse flags for the process
 func parseFlags() {
@@ -240,6 +260,10 @@ func main() {
 		// of the provided context
 		time.Sleep(10 * time.Second)
 	}()
+
+	// evaluate ports to be used from ENV variables
+	// if override ports are provided
+	evaluatePorts()
 
 	// Parse the flag options for the process
 	parseFlags()
