@@ -337,6 +337,12 @@ func main() {
 		log.Panicf("failed to locate email verification table: %s", err)
 	}
 
+	// locate Org Unit table
+	_, err = table.LocateOrgUnitTable(client)
+	if err != nil {
+		log.Panicf("failed to locate Org Unit table: %s", err)
+	}
+
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()

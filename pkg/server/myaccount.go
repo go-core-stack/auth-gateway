@@ -7,6 +7,7 @@ import (
 	"context"
 	"log"
 	"math/rand"
+	"slices"
 	"strings"
 	"time"
 
@@ -47,7 +48,8 @@ func generateSecret() string {
 // MyAccountServer implements the api.MyAccountServer interface.
 type MyAccountServer struct {
 	api.UnimplementedMyAccountServer
-	apiKeys *table.ApiKeyTable // apiKeys table for managing API keys
+	apiKeys *table.ApiKeyTable  // apiKeys table for managing API keys
+	ouTable *table.OrgUnitTable // Org Unit table
 	client  *keycloak.Client
 }
 
@@ -411,17 +413,29 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 	if authInfo == nil {
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
-	resp := &api.MyOrgUnitsListResp{
-		Default: &api.MyOrgUnitEntry{
-			Id:   "03a2e56c-728a-4432-a156-68b56e793421",
-			Name: "default",
-		},
-		Items: []*api.MyOrgUnitEntry{
-			{
-				Id:   "03a2e56c-728a-4432-a156-68b56e793421",
-				Name: "default",
-			},
-		},
+	if authInfo.Roles == nil || !slices.Contains(authInfo.Roles, "admin") {
+		return nil, status.Errorf(codes.Unimplemented, "Non-admin users currently not supported")
+	}
+	OrgUnits, err := s.ouTable.FindByTenant(ctx, authInfo.Realm)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "No Org Unit available for tenant %s", authInfo.Realm)
+		}
+		log.Printf("got error while fetching org unit list for tenant %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	resp := &api.MyOrgUnitsListResp{}
+	for i, ou := range OrgUnits {
+		item := &api.MyOrgUnitEntry{
+			Id:   ou.Key.ID,
+			Name: ou.Name,
+		}
+		if i == 0 {
+			// TODO: need to handle senario where a specifig default org unit is set for a user
+			// for now, we will just set the first org unit as default
+			resp.Default = item
+		}
+		resp.Items = append(resp.Items, item)
 	}
 
 	return resp, nil
@@ -452,8 +466,13 @@ func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, e
 	if err != nil {
 		log.Panicf("failed to get API key table: %s", err)
 	}
+	ouTbl, err := table.GetOrgUnitTable()
+	if err != nil {
+		log.Panicf("failed to get Org Unit table: %s", err)
+	}
 	srv := &MyAccountServer{
 		apiKeys: apiKeys, // Initialize the API keys table
+		ouTable: ouTbl,   // Initialize the Org Unit table
 		client:  client,
 	}
 	api.RegisterMyAccountServer(ctx.Server, srv)

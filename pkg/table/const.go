@@ -20,4 +20,7 @@ const (
 
 	// email verification collection name
 	EmailVerificationCollectionName = "verify-emails"
+
+	// Org Unit collection name
+	OrgUnitCollectionName = "org-units"
 )
