@@ -1037,6 +1037,232 @@ func (*MySessionsGetReq) Descriptor() ([]byte, []int) {
 	return file_myaccount_proto_rawDescGZIP(), []int{18}
 }
 
+type MyOrgUnitsListReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyOrgUnitsListReq) Reset() {
+	*x = MyOrgUnitsListReq{}
+	mi := &file_myaccount_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyOrgUnitsListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyOrgUnitsListReq) ProtoMessage() {}
+
+func (x *MyOrgUnitsListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyOrgUnitsListReq.ProtoReflect.Descriptor instead.
+func (*MyOrgUnitsListReq) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{19}
+}
+
+type MyOrgUnitEntry struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// org unit id
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// org unit display name
+	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyOrgUnitEntry) Reset() {
+	*x = MyOrgUnitEntry{}
+	mi := &file_myaccount_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyOrgUnitEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyOrgUnitEntry) ProtoMessage() {}
+
+func (x *MyOrgUnitEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyOrgUnitEntry.ProtoReflect.Descriptor instead.
+func (*MyOrgUnitEntry) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *MyOrgUnitEntry) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *MyOrgUnitEntry) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type MyOrgUnitsListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// default Org Unit for the user
+	Default *MyOrgUnitEntry `protobuf:"bytes,1,opt,name=default,proto3" json:"default,omitempty"`
+	// list of available org units for user
+	// inclusive of default Org unit
+	Items         []*MyOrgUnitEntry `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyOrgUnitsListResp) Reset() {
+	*x = MyOrgUnitsListResp{}
+	mi := &file_myaccount_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyOrgUnitsListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyOrgUnitsListResp) ProtoMessage() {}
+
+func (x *MyOrgUnitsListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyOrgUnitsListResp.ProtoReflect.Descriptor instead.
+func (*MyOrgUnitsListResp) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *MyOrgUnitsListResp) GetDefault() *MyOrgUnitEntry {
+	if x != nil {
+		return x.Default
+	}
+	return nil
+}
+
+func (x *MyOrgUnitsListResp) GetItems() []*MyOrgUnitEntry {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type DefaultOrgUnitReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id of the Org Unit to be set as default
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DefaultOrgUnitReq) Reset() {
+	*x = DefaultOrgUnitReq{}
+	mi := &file_myaccount_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DefaultOrgUnitReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DefaultOrgUnitReq) ProtoMessage() {}
+
+func (x *DefaultOrgUnitReq) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DefaultOrgUnitReq.ProtoReflect.Descriptor instead.
+func (*DefaultOrgUnitReq) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *DefaultOrgUnitReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DefaultOrgUnitResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DefaultOrgUnitResp) Reset() {
+	*x = DefaultOrgUnitResp{}
+	mi := &file_myaccount_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DefaultOrgUnitResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DefaultOrgUnitResp) ProtoMessage() {}
+
+func (x *DefaultOrgUnitResp) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DefaultOrgUnitResp.ProtoReflect.Descriptor instead.
+func (*DefaultOrgUnitResp) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{23}
+}
+
 var File_myaccount_proto protoreflect.FileDescriptor
 
 const file_myaccount_proto_rawDesc = "" +
@@ -1096,7 +1322,17 @@ const file_myaccount_proto_rawDesc = "" +
 	"\bexpireAt\x18\x06 \x01(\x03R\bexpireAt\"=\n" +
 	"\x0fApiKeysListResp\x12*\n" +
 	"\x05items\x18\x01 \x03(\v2\x14.api.ApiKeyListEntryR\x05items\"\x12\n" +
-	"\x10MySessionsGetReq2\xbc\x06\n" +
+	"\x10MySessionsGetReq\"\x13\n" +
+	"\x11MyOrgUnitsListReq\"4\n" +
+	"\x0eMyOrgUnitEntry\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"n\n" +
+	"\x12MyOrgUnitsListResp\x12-\n" +
+	"\adefault\x18\x01 \x01(\v2\x13.api.MyOrgUnitEntryR\adefault\x12)\n" +
+	"\x05items\x18\x02 \x03(\v2\x13.api.MyOrgUnitEntryR\x05items\"#\n" +
+	"\x11DefaultOrgUnitReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
+	"\x12DefaultOrgUnitResp2\x9b\b\n" +
 	"\tMyAccount\x12R\n" +
 	"\tGetMyInfo\x12\x11.api.MyInfoGetReq\x1a\x12.api.MyInfoGetResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/myaccount/v1/info\x12b\n" +
 	"\rGetMySessions\x12\x15.api.MySessionsGetReq\x1a\x16.api.MySessionsGetResp\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/myaccount/v1/sessions\x12u\n" +
@@ -1105,7 +1341,9 @@ const file_myaccount_proto_rawDesc = "" +
 	"\rDisableApiKey\x12\x15.api.ApiKeyDisableReq\x1a\x16.api.ApiKeyDisableResp\".\x82\xd3\xe4\x93\x02(\"&/api/myaccount/v1/api-key/{id}/disable\x12j\n" +
 	"\fEnableApiKey\x12\x14.api.ApiKeyEnableReq\x1a\x15.api.ApiKeyEnableResp\"-\x82\xd3\xe4\x93\x02'\"%/api/myaccount/v1/api-key/{id}/enable\x12c\n" +
 	"\fDeleteApiKey\x12\x14.api.ApiKeyDeleteReq\x1a\x15.api.ApiKeyDeleteResp\"&\x82\xd3\xe4\x93\x02 *\x1e/api/myaccount/v1/api-key/{id}\x12\\\n" +
-	"\vListApiKeys\x12\x13.api.ApiKeysListReq\x1a\x14.api.ApiKeysListResp\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/myaccount/v1/api-keysB\x99\x01\x92Aj\x12%\n" +
+	"\vListApiKeys\x12\x13.api.ApiKeysListReq\x1a\x14.api.ApiKeysListResp\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/myaccount/v1/api-keys\x12f\n" +
+	"\x0eListMyOrgUnits\x12\x16.api.MyOrgUnitsListReq\x1a\x17.api.MyOrgUnitsListResp\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/myaccount/v1/org-units\x12u\n" +
+	"\x11SetDefaultOrgUnit\x12\x16.api.DefaultOrgUnitReq\x1a\x17.api.DefaultOrgUnitResp\"/\x82\xd3\xe4\x93\x02)\"'/api/myaccount/v1/org-unit/{id}/defaultB\x99\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
 	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
 
@@ -1122,7 +1360,7 @@ func file_myaccount_proto_rawDescGZIP() []byte {
 }
 
 var file_myaccount_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_myaccount_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_myaccount_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_myaccount_proto_goTypes = []any{
 	(ApiKeyDef_Status)(0),        // 0: api.ApiKeyDef.Status
 	(*MyInfoGetReq)(nil),         // 1: api.MyInfoGetReq
@@ -1144,33 +1382,44 @@ var file_myaccount_proto_goTypes = []any{
 	(*ApiKeyListEntry)(nil),      // 17: api.ApiKeyListEntry
 	(*ApiKeysListResp)(nil),      // 18: api.ApiKeysListResp
 	(*MySessionsGetReq)(nil),     // 19: api.MySessionsGetReq
+	(*MyOrgUnitsListReq)(nil),    // 20: api.MyOrgUnitsListReq
+	(*MyOrgUnitEntry)(nil),       // 21: api.MyOrgUnitEntry
+	(*MyOrgUnitsListResp)(nil),   // 22: api.MyOrgUnitsListResp
+	(*DefaultOrgUnitReq)(nil),    // 23: api.DefaultOrgUnitReq
+	(*DefaultOrgUnitResp)(nil),   // 24: api.DefaultOrgUnitResp
 }
 var file_myaccount_proto_depIdxs = []int32{
 	3,  // 0: api.MySessionsGetResp.items:type_name -> api.MySessionInfo
 	0,  // 1: api.ApiKeyCreateResp.status:type_name -> api.ApiKeyDef.Status
 	0,  // 2: api.ApiKeyListEntry.status:type_name -> api.ApiKeyDef.Status
 	17, // 3: api.ApiKeysListResp.items:type_name -> api.ApiKeyListEntry
-	1,  // 4: api.MyAccount.GetMyInfo:input_type -> api.MyInfoGetReq
-	19, // 5: api.MyAccount.GetMySessions:input_type -> api.MySessionsGetReq
-	5,  // 6: api.MyAccount.LogoutMySessions:input_type -> api.MySessionsLogoutReq
-	7,  // 7: api.MyAccount.CreateApiKey:input_type -> api.ApiKeyCreateReq
-	10, // 8: api.MyAccount.DisableApiKey:input_type -> api.ApiKeyDisableReq
-	12, // 9: api.MyAccount.EnableApiKey:input_type -> api.ApiKeyEnableReq
-	14, // 10: api.MyAccount.DeleteApiKey:input_type -> api.ApiKeyDeleteReq
-	16, // 11: api.MyAccount.ListApiKeys:input_type -> api.ApiKeysListReq
-	2,  // 12: api.MyAccount.GetMyInfo:output_type -> api.MyInfoGetResp
-	4,  // 13: api.MyAccount.GetMySessions:output_type -> api.MySessionsGetResp
-	6,  // 14: api.MyAccount.LogoutMySessions:output_type -> api.MySessionsLogoutResp
-	9,  // 15: api.MyAccount.CreateApiKey:output_type -> api.ApiKeyCreateResp
-	11, // 16: api.MyAccount.DisableApiKey:output_type -> api.ApiKeyDisableResp
-	13, // 17: api.MyAccount.EnableApiKey:output_type -> api.ApiKeyEnableResp
-	15, // 18: api.MyAccount.DeleteApiKey:output_type -> api.ApiKeyDeleteResp
-	18, // 19: api.MyAccount.ListApiKeys:output_type -> api.ApiKeysListResp
-	12, // [12:20] is the sub-list for method output_type
-	4,  // [4:12] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	21, // 4: api.MyOrgUnitsListResp.default:type_name -> api.MyOrgUnitEntry
+	21, // 5: api.MyOrgUnitsListResp.items:type_name -> api.MyOrgUnitEntry
+	1,  // 6: api.MyAccount.GetMyInfo:input_type -> api.MyInfoGetReq
+	19, // 7: api.MyAccount.GetMySessions:input_type -> api.MySessionsGetReq
+	5,  // 8: api.MyAccount.LogoutMySessions:input_type -> api.MySessionsLogoutReq
+	7,  // 9: api.MyAccount.CreateApiKey:input_type -> api.ApiKeyCreateReq
+	10, // 10: api.MyAccount.DisableApiKey:input_type -> api.ApiKeyDisableReq
+	12, // 11: api.MyAccount.EnableApiKey:input_type -> api.ApiKeyEnableReq
+	14, // 12: api.MyAccount.DeleteApiKey:input_type -> api.ApiKeyDeleteReq
+	16, // 13: api.MyAccount.ListApiKeys:input_type -> api.ApiKeysListReq
+	20, // 14: api.MyAccount.ListMyOrgUnits:input_type -> api.MyOrgUnitsListReq
+	23, // 15: api.MyAccount.SetDefaultOrgUnit:input_type -> api.DefaultOrgUnitReq
+	2,  // 16: api.MyAccount.GetMyInfo:output_type -> api.MyInfoGetResp
+	4,  // 17: api.MyAccount.GetMySessions:output_type -> api.MySessionsGetResp
+	6,  // 18: api.MyAccount.LogoutMySessions:output_type -> api.MySessionsLogoutResp
+	9,  // 19: api.MyAccount.CreateApiKey:output_type -> api.ApiKeyCreateResp
+	11, // 20: api.MyAccount.DisableApiKey:output_type -> api.ApiKeyDisableResp
+	13, // 21: api.MyAccount.EnableApiKey:output_type -> api.ApiKeyEnableResp
+	15, // 22: api.MyAccount.DeleteApiKey:output_type -> api.ApiKeyDeleteResp
+	18, // 23: api.MyAccount.ListApiKeys:output_type -> api.ApiKeysListResp
+	22, // 24: api.MyAccount.ListMyOrgUnits:output_type -> api.MyOrgUnitsListResp
+	24, // 25: api.MyAccount.SetDefaultOrgUnit:output_type -> api.DefaultOrgUnitResp
+	16, // [16:26] is the sub-list for method output_type
+	6,  // [6:16] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_myaccount_proto_init() }
@@ -1184,7 +1433,7 @@ func file_myaccount_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_myaccount_proto_rawDesc), len(file_myaccount_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   19,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

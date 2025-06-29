@@ -22,14 +22,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MyAccount_GetMyInfo_FullMethodName        = "/api.MyAccount/GetMyInfo"
-	MyAccount_GetMySessions_FullMethodName    = "/api.MyAccount/GetMySessions"
-	MyAccount_LogoutMySessions_FullMethodName = "/api.MyAccount/LogoutMySessions"
-	MyAccount_CreateApiKey_FullMethodName     = "/api.MyAccount/CreateApiKey"
-	MyAccount_DisableApiKey_FullMethodName    = "/api.MyAccount/DisableApiKey"
-	MyAccount_EnableApiKey_FullMethodName     = "/api.MyAccount/EnableApiKey"
-	MyAccount_DeleteApiKey_FullMethodName     = "/api.MyAccount/DeleteApiKey"
-	MyAccount_ListApiKeys_FullMethodName      = "/api.MyAccount/ListApiKeys"
+	MyAccount_GetMyInfo_FullMethodName         = "/api.MyAccount/GetMyInfo"
+	MyAccount_GetMySessions_FullMethodName     = "/api.MyAccount/GetMySessions"
+	MyAccount_LogoutMySessions_FullMethodName  = "/api.MyAccount/LogoutMySessions"
+	MyAccount_CreateApiKey_FullMethodName      = "/api.MyAccount/CreateApiKey"
+	MyAccount_DisableApiKey_FullMethodName     = "/api.MyAccount/DisableApiKey"
+	MyAccount_EnableApiKey_FullMethodName      = "/api.MyAccount/EnableApiKey"
+	MyAccount_DeleteApiKey_FullMethodName      = "/api.MyAccount/DeleteApiKey"
+	MyAccount_ListApiKeys_FullMethodName       = "/api.MyAccount/ListApiKeys"
+	MyAccount_ListMyOrgUnits_FullMethodName    = "/api.MyAccount/ListMyOrgUnits"
+	MyAccount_SetDefaultOrgUnit_FullMethodName = "/api.MyAccount/SetDefaultOrgUnit"
 )
 
 // MyAccountClient is the client API for MyAccount service.
@@ -55,6 +57,11 @@ type MyAccountClient interface {
 	DeleteApiKey(ctx context.Context, in *ApiKeyDeleteReq, opts ...grpc.CallOption) (*ApiKeyDeleteResp, error)
 	// list all available api keys for the user
 	ListApiKeys(ctx context.Context, in *ApiKeysListReq, opts ...grpc.CallOption) (*ApiKeysListResp, error)
+	// list all Org units available for me
+	ListMyOrgUnits(ctx context.Context, in *MyOrgUnitsListReq, opts ...grpc.CallOption) (*MyOrgUnitsListResp, error)
+	// set specific Org unit as default access on login
+	// relevant only when working with multiple org units
+	SetDefaultOrgUnit(ctx context.Context, in *DefaultOrgUnitReq, opts ...grpc.CallOption) (*DefaultOrgUnitResp, error)
 }
 
 type myAccountClient struct {
@@ -145,6 +152,26 @@ func (c *myAccountClient) ListApiKeys(ctx context.Context, in *ApiKeysListReq, o
 	return out, nil
 }
 
+func (c *myAccountClient) ListMyOrgUnits(ctx context.Context, in *MyOrgUnitsListReq, opts ...grpc.CallOption) (*MyOrgUnitsListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MyOrgUnitsListResp)
+	err := c.cc.Invoke(ctx, MyAccount_ListMyOrgUnits_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myAccountClient) SetDefaultOrgUnit(ctx context.Context, in *DefaultOrgUnitReq, opts ...grpc.CallOption) (*DefaultOrgUnitResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DefaultOrgUnitResp)
+	err := c.cc.Invoke(ctx, MyAccount_SetDefaultOrgUnit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MyAccountServer is the server API for MyAccount service.
 // All implementations must embed UnimplementedMyAccountServer
 // for forward compatibility.
@@ -168,6 +195,11 @@ type MyAccountServer interface {
 	DeleteApiKey(context.Context, *ApiKeyDeleteReq) (*ApiKeyDeleteResp, error)
 	// list all available api keys for the user
 	ListApiKeys(context.Context, *ApiKeysListReq) (*ApiKeysListResp, error)
+	// list all Org units available for me
+	ListMyOrgUnits(context.Context, *MyOrgUnitsListReq) (*MyOrgUnitsListResp, error)
+	// set specific Org unit as default access on login
+	// relevant only when working with multiple org units
+	SetDefaultOrgUnit(context.Context, *DefaultOrgUnitReq) (*DefaultOrgUnitResp, error)
 	mustEmbedUnimplementedMyAccountServer()
 }
 
@@ -201,6 +233,12 @@ func (UnimplementedMyAccountServer) DeleteApiKey(context.Context, *ApiKeyDeleteR
 }
 func (UnimplementedMyAccountServer) ListApiKeys(context.Context, *ApiKeysListReq) (*ApiKeysListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListApiKeys not implemented")
+}
+func (UnimplementedMyAccountServer) ListMyOrgUnits(context.Context, *MyOrgUnitsListReq) (*MyOrgUnitsListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMyOrgUnits not implemented")
+}
+func (UnimplementedMyAccountServer) SetDefaultOrgUnit(context.Context, *DefaultOrgUnitReq) (*DefaultOrgUnitResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetDefaultOrgUnit not implemented")
 }
 func (UnimplementedMyAccountServer) mustEmbedUnimplementedMyAccountServer() {}
 func (UnimplementedMyAccountServer) testEmbeddedByValue()                   {}
@@ -367,6 +405,42 @@ func _MyAccount_ListApiKeys_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MyAccount_ListMyOrgUnits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MyOrgUnitsListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyAccountServer).ListMyOrgUnits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyAccount_ListMyOrgUnits_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyAccountServer).ListMyOrgUnits(ctx, req.(*MyOrgUnitsListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyAccount_SetDefaultOrgUnit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DefaultOrgUnitReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyAccountServer).SetDefaultOrgUnit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyAccount_SetDefaultOrgUnit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyAccountServer).SetDefaultOrgUnit(ctx, req.(*DefaultOrgUnitReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MyAccount_ServiceDesc is the grpc.ServiceDesc for MyAccount service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -405,6 +479,14 @@ var MyAccount_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListApiKeys",
 			Handler:    _MyAccount_ListApiKeys_Handler,
+		},
+		{
+			MethodName: "ListMyOrgUnits",
+			Handler:    _MyAccount_ListMyOrgUnits_Handler,
+		},
+		{
+			MethodName: "SetDefaultOrgUnit",
+			Handler:    _MyAccount_SetDefaultOrgUnit_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
