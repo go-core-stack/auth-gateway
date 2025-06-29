@@ -109,7 +109,10 @@ func (m *authManager) locateVerifier(realm string) *authVerifier {
 			log.Panicf("failed to create new auth verifier: %s", err)
 		}
 		v = &authVerifier{
-			verifier: provider.Verifier(&oidc.Config{ClientID: m.clientId}),
+			verifier: provider.Verifier(&oidc.Config{
+				ClientID:        m.clientId,
+				SkipIssuerCheck: true, // since we will be working with internal keycloak always,
+			}),
 		}
 		m.authMap[realm] = v
 	}
