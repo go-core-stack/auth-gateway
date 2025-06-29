@@ -784,6 +784,61 @@
         ]
       }
     },
+    "/api/myaccount/v1/org-unit/{id}/default": {
+      "post": {
+        "summary": "set specific Org unit as default access on login\nrelevant only when working with multiple org units",
+        "operationId": "MyAccount_SetDefaultOrgUnit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDefaultOrgUnitResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "id of the Org Unit to be set as default",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
+    "/api/myaccount/v1/org-units": {
+      "get": {
+        "summary": "list all Org units available for me",
+        "operationId": "MyAccount_ListMyOrgUnits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMyOrgUnitsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
     "/api/myaccount/v1/sessions": {
       "get": {
         "summary": "get all my active sessions",
@@ -1308,6 +1363,9 @@
         }
       }
     },
+    "apiDefaultOrgUnitResp": {
+      "type": "object"
+    },
     "apiMyInfoGetResp": {
       "type": "object",
       "properties": {
@@ -1326,6 +1384,36 @@
         "email": {
           "type": "string",
           "title": "email of the user"
+        }
+      }
+    },
+    "apiMyOrgUnitEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "org unit id"
+        },
+        "name": {
+          "type": "string",
+          "title": "org unit display name"
+        }
+      }
+    },
+    "apiMyOrgUnitsListResp": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "$ref": "#/definitions/apiMyOrgUnitEntry",
+          "title": "default Org Unit for the user"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiMyOrgUnitEntry"
+          },
+          "title": "list of available org units for user\ninclusive of default Org unit"
         }
       }
     },

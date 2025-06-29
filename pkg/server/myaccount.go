@@ -406,6 +406,38 @@ func (s *MyAccountServer) ListApiKeys(ctx context.Context, req *api.ApiKeysListR
 	return resp, nil
 }
 
+func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnitsListReq) (*api.MyOrgUnitsListResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+	resp := &api.MyOrgUnitsListResp{
+		Default: &api.MyOrgUnitEntry{
+			Id:   "03a2e56c-728a-4432-a156-68b56e793421",
+			Name: "default",
+		},
+		Items: []*api.MyOrgUnitEntry{
+			{
+				Id:   "03a2e56c-728a-4432-a156-68b56e793421",
+				Name: "default",
+			},
+		},
+	}
+
+	return resp, nil
+}
+
+func (s *MyAccountServer) SetDefaultOrgUnit(ctx context.Context, req *api.DefaultOrgUnitReq) (*api.DefaultOrgUnitResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	log.Printf("got request to set default org unit %s for user %s in tenant %s", req.Id, authInfo.UserName, authInfo.Realm)
+
+	return &api.DefaultOrgUnitResp{}, nil
+}
+
 // NewMyAccountServer registers and returns a new MyAccountServer instance.
 //
 // Parameters:

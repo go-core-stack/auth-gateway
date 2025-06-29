@@ -41,4 +41,12 @@ func init() {
 	// Adding Route information for ListApiKeys RPC
 	route = model.NewRoute("/api/myaccount/v1/api-keys", "GET")
 	RoutesMyAccount = append(RoutesMyAccount, route)
+
+	// Adding Route information for ListMyOrgUnits RPC
+	route = model.NewRoute("/api/myaccount/v1/org-units", "GET")
+	RoutesMyAccount = append(RoutesMyAccount, route)
+
+	// Adding Route information for SetDefaultOrgUnit RPC
+	route = model.NewRoute("/api/myaccount/v1/org-unit/{id}/default", "POST")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 }

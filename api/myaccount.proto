@@ -82,6 +82,21 @@ service MyAccount {
       get: "/api/myaccount/v1/api-keys"
     };
   }
+
+  // list all Org units available for me
+  rpc ListMyOrgUnits(MyOrgUnitsListReq) returns (MyOrgUnitsListResp) {
+    option (google.api.http) = {
+      get: "/api/myaccount/v1/org-units"
+    };
+  }
+
+  // set specific Org unit as default access on login
+  // relevant only when working with multiple org units
+  rpc SetDefaultOrgUnit(DefaultOrgUnitReq) returns (DefaultOrgUnitResp) {
+    option (google.api.http) = {
+      post: "/api/myaccount/v1/org-unit/{id}/default"
+    };
+  }
 }
 
 message MyInfoGetReq {
@@ -242,4 +257,32 @@ message ApiKeysListResp {
 
 // my sessions get req
 message MySessionsGetReq {
+}
+
+message MyOrgUnitsListReq {
+}
+
+message MyOrgUnitEntry {
+  // org unit id
+  string id = 1;
+
+  // org unit display name
+  string name = 2;
+}
+
+message MyOrgUnitsListResp {
+  // default Org Unit for the user
+  MyOrgUnitEntry default = 1;
+
+  // list of available org units for user
+  // inclusive of default Org unit
+  repeated MyOrgUnitEntry items = 2;
+}
+
+message DefaultOrgUnitReq {
+  // id of the Org Unit to be set as default
+  string id = 1;
+}
+
+message DefaultOrgUnitResp {
 }
