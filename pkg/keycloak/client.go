@@ -85,12 +85,25 @@ func New(url string) (*Client, error) {
 // recommended for production scenarios, more to be used
 // in development environment.
 // where direct flow enablement needs to be done manually
-func NewUserClient(url, realm, user, password string) (*Client, error) {
+func NewUserClient(url, realm, user, password string, skipTlsVerify bool) (*Client, error) {
 	client := &Client{
 		GoCloak:   *(gocloak.NewClient(url)),
 		userRealm: realm,
 		clientID:  "controller",
 		url:       url,
+	}
+
+	// most of the time clients are going to be external and will require
+	// SSL Validation, and since we are using internal keycloak deployment
+	// provide a construct to skip SSL verification
+	// this will typically not required in production scenarios and will be
+	// used mostly in development environments
+	if skipTlsVerify {
+		restyClient := client.RestyClient()
+
+		// skip ssl verify as we are always going to connect to internal deployment
+		// of keycloak
+		restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 
 	// perform adming login using the provided login credentials and user realm
