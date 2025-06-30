@@ -12,6 +12,14 @@ import (
 	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
 )
 
+func getEndpoint() string {
+	val, found := os.LookupEnv("KEYCLOAK_ENDPOINT")
+	if !found {
+		return "http://localhost:8080"
+	}
+	return val
+}
+
 func getUsername() string {
 	val, found := os.LookupEnv("Username")
 	if !found {
@@ -37,7 +45,7 @@ func getRealm() string {
 }
 
 func main() {
-	client, err := keycloak.NewUserClient("http://localhost:8080", getRealm(), getUsername(), getPassword())
+	client, err := keycloak.NewUserClient(getEndpoint(), getRealm(), getUsername(), getPassword(), true)
 	if err != nil {
 		log.Panicf("failed to get keycloak client: %s", err)
 	}
