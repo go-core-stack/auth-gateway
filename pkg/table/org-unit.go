@@ -31,6 +31,9 @@ type OrgUnitEntry struct {
 	// Created timestamp
 	Created int64 `bson:"created,omitempty"`
 
+	// created by
+	CreatedBy string `bson:"createdBy,omitempty"`
+
 	// Tenant this OU belongs to
 	Tenant string `bson:"tenant,omitempty"`
 }

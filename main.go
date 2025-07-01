@@ -418,6 +418,9 @@ func main() {
 	// setup registeration server
 	_ = server.NewRegistrationServer(serverCtx, APIEndpoint)
 
+	// setup Org Unit server
+	_ = server.NewOrgUnitServer(serverCtx, APIEndpoint)
+
 	// once all the servers are added to the list
 	// start server
 	startServerContext(serverCtx, conf.GetSwaggerDir())
