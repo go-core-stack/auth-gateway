@@ -9,6 +9,9 @@
       "name": "MyAccount"
     },
     {
+      "name": "OrgUnit"
+    },
+    {
       "name": "Registration"
     },
     {
@@ -862,6 +865,180 @@
         ]
       }
     },
+    "/api/mytenant/v1/ou": {
+      "post": {
+        "summary": "Create new org unit for my tenant",
+        "operationId": "OrgUnit_CreateOrgUnit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitCreateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "OrgUnit"
+        ]
+      }
+    },
+    "/api/mytenant/v1/ou/{id}": {
+      "get": {
+        "summary": "get an existing org unit for my tenant",
+        "operationId": "OrgUnit_GetOrgUnit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "id of the org unit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrgUnit"
+        ]
+      },
+      "delete": {
+        "summary": "delete an existing org unit for my tenant",
+        "operationId": "OrgUnit_DeleteOrgUnit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "org unit id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrgUnit"
+        ]
+      },
+      "put": {
+        "summary": "Update an existing org unit for my tenant",
+        "operationId": "OrgUnit_UpdateOrgUnit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitUpdateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "id of the org unit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrgUnitUpdateOrgUnitBody"
+            }
+          }
+        ],
+        "tags": [
+          "OrgUnit"
+        ]
+      }
+    },
+    "/api/mytenant/v1/ous": {
+      "get": {
+        "summary": "Get List of existing org units in my tenant",
+        "operationId": "OrgUnit_ListOrgUnits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "offset",
+            "description": "offset from where to start the list of org units",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the response to specified count",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "OrgUnit"
+        ]
+      }
+    },
     "/api/mytenant/v1/sessions": {
       "get": {
         "summary": "List Active sessions, filter by user if provided",
@@ -1250,6 +1427,20 @@
     }
   },
   "definitions": {
+    "OrgUnitUpdateOrgUnitBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "display name for the org unit"
+        },
+        "desc": {
+          "type": "string",
+          "title": "org unit description"
+        }
+      },
+      "title": "request for update of an existing org unit"
+    },
     "apiApiKeyCreateReq": {
       "type": "object",
       "properties": {
@@ -1466,6 +1657,107 @@
     "apiMySessionsLogoutResp": {
       "type": "object",
       "title": "session logout empty response"
+    },
+    "apiOrgUnitCreateReq": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "display name for the org unit"
+        },
+        "desc": {
+          "type": "string",
+          "title": "org unit description"
+        }
+      },
+      "title": "request for creation of new org unit"
+    },
+    "apiOrgUnitCreateResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "id of the org unit created"
+        }
+      },
+      "title": "response for creation of new org unit"
+    },
+    "apiOrgUnitDeleteResp": {
+      "type": "object"
+    },
+    "apiOrgUnitGetResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "org unit id"
+        },
+        "name": {
+          "type": "string",
+          "title": "org unit display name"
+        },
+        "desc": {
+          "type": "string",
+          "title": "org unit description"
+        },
+        "createdBy": {
+          "type": "string",
+          "title": "created by"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "create time"
+        }
+      }
+    },
+    "apiOrgUnitUpdateResp": {
+      "type": "object"
+    },
+    "apiOrgUnitsListEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "org unit id"
+        },
+        "name": {
+          "type": "string",
+          "title": "org unit display name"
+        },
+        "desc": {
+          "type": "string",
+          "title": "org unit description"
+        },
+        "createdBy": {
+          "type": "string",
+          "title": "created by"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "create time"
+        }
+      }
+    },
+    "apiOrgUnitsListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "count of Org units available"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiOrgUnitsListEntry"
+          },
+          "title": "list of org unit info in response"
+        }
+      },
+      "title": "list org units response"
     },
     "apiRegisterOtpReq": {
       "type": "object",

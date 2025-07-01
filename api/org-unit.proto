@@ -1,0 +1,169 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
+
+option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+
+// Service provided to manage orgunits for user/tenant
+service OrgUnit {
+  // Get List of existing org units in my tenant
+  rpc ListOrgUnits(OrgUnitsListReq) returns (OrgUnitsListResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/ous"
+    };
+    option (api.role) = {
+      resource: "org-unit"
+      verb: "list"
+    };
+  }
+
+  // Create new org unit for my tenant
+  rpc CreateOrgUnit(OrgUnitCreateReq) returns (OrgUnitCreateResp) {
+    option (google.api.http) = {
+      post: "/api/mytenant/v1/ou"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "org-unit"
+      verb: "create"
+    };
+  }
+
+  // Update an existing org unit for my tenant
+  rpc UpdateOrgUnit(OrgUnitUpdateReq) returns (OrgUnitUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/ou/{id}"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "org-unit"
+      verb: "update"
+    };
+  }
+
+  // get an existing org unit for my tenant
+  rpc GetOrgUnit(OrgUnitGetReq) returns (OrgUnitGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/ou/{id}"
+    };
+    option (api.role) = {
+      resource: "org-unit"
+      verb: "get"
+    };
+  }
+
+  // delete an existing org unit for my tenant
+  rpc DeleteOrgUnit(OrgUnitDeleteReq) returns (OrgUnitDeleteResp) {
+    option (google.api.http) = {
+      delete: "/api/mytenant/v1/ou/{id}"
+    };
+    option (api.role) = {
+      resource: "org-unit"
+      verb: "delete"
+    };
+  }
+}
+
+// list org units for my tenant
+// typically available only for tenant admin
+message OrgUnitsListReq {
+  // offset from where to start the list of org units
+  int32 offset = 1;
+
+  // limit the response to specified count
+  int32 limit = 2;
+}
+
+message OrgUnitsListEntry {
+  // org unit id
+  string id = 1;
+
+  // org unit display name
+  string name = 2;
+
+  // org unit description
+  string desc = 3;
+
+  // created by
+  string createdBy = 4;
+
+  // create time
+  int64 created = 5;
+}
+
+// list org units response
+message OrgUnitsListResp {
+  // count of Org units available
+  int32 count = 1;
+
+  // list of org unit info in response
+  repeated OrgUnitsListEntry items = 2;
+}
+
+// request for creation of new org unit
+message OrgUnitCreateReq {
+  // display name for the org unit
+  string name = 1;
+
+  // org unit description
+  string desc = 2;
+}
+
+// response for creation of new org unit
+message OrgUnitCreateResp {
+  // id of the org unit created
+  string id = 1;
+}
+
+// request for update of an existing org unit
+message OrgUnitUpdateReq {
+  // id of the org unit
+  string id = 1;
+
+  // display name for the org unit
+  string name = 2;
+
+  // org unit description
+  string desc = 3;
+}
+
+message OrgUnitUpdateResp {
+}
+
+// org unit get request
+message OrgUnitGetReq {
+  // id of the org unit 
+  string id = 1;
+}
+
+message OrgUnitGetResp {
+  // org unit id
+  string id = 1;
+
+  // org unit display name
+  string name = 2;
+
+  // org unit description
+  string desc = 3;
+
+  // created by
+  string createdBy = 4;
+
+  // create time
+  int64 created = 5;
+}
+
+// delete org unit req
+message OrgUnitDeleteReq {
+  // org unit id
+  string id = 1;
+}
+
+message OrgUnitDeleteResp {
+}
