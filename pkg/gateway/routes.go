@@ -22,6 +22,7 @@ type routeData struct {
 	isPublic       bool
 	isRoot         bool
 	isUserSpecific bool
+	scopes         []string
 }
 
 type routeNodes map[route.MethodType]routeData
@@ -47,6 +48,7 @@ func populateRoutes(routes *route.RouteTable) {
 					isPublic:       utils.PBool(r.IsPublic),
 					isRoot:         utils.PBool(r.IsRoot),
 					isUserSpecific: utils.PBool(r.IsUserSpecific),
+					scopes:         r.Scopes,
 				},
 			}
 			nRoutes.Insert(r.Key.Url, node)
@@ -66,19 +68,20 @@ func populateRoutes(routes *route.RouteTable) {
 	gwRoutes = nRoutes
 }
 
-func matchRoute(m string, url string) (*routeData, error) {
+func matchRoute(m string, url string) (*routeData, string, error) {
 	var node *routeNodes
 	var ok bool
+	var keys, values []string
 
 	func() {
 		routeLock.RLock()
 		defer routeLock.RUnlock()
 
-		_, _, node, ok = gwRoutes.Match(url)
+		keys, values, node, ok = gwRoutes.Match(url)
 	}()
 
 	if !ok {
-		return nil, errors.Wrapf(errors.NotFound, "route not found for %s", url)
+		return nil, "", errors.Wrapf(errors.NotFound, "route not found for %s", url)
 	}
 
 	var method route.MethodType
@@ -102,13 +105,34 @@ func matchRoute(m string, url string) (*routeData, error) {
 	case http.MethodTrace:
 		method = route.TRACE
 	default:
-		return nil, errors.Wrapf(errors.InvalidArgument, "invalid method %s", m)
+		return nil, "", errors.Wrapf(errors.InvalidArgument, "invalid method %s", m)
 	}
 
 	data, ok := (*node)[method]
 	if !ok {
-		return nil, errors.Wrapf(errors.NotFound, "route not found for %s", url)
+		return nil, "", errors.Wrapf(errors.NotFound, "route not found for %s", url)
 	}
 
-	return &data, nil
+	orgUnit := ""
+	switch len(data.scopes) {
+	case 1:
+		if data.scopes[0] != "ou" {
+			return nil, "", errors.Wrapf(errors.InvalidArgument, "invalid scope %s for %s", data.scopes[0], url)
+		}
+		for i, k := range keys {
+			if k == "ou" {
+				orgUnit = values[i]
+				break
+			}
+		}
+		if orgUnit == "" {
+			return nil, "", errors.Wrapf(errors.InvalidArgument, "org unit not found")
+		}
+	case 0:
+		break
+	default:
+		return nil, "", errors.Wrapf(errors.InvalidArgument, "multiple scopes found for %s", url)
+	}
+
+	return &data, orgUnit, nil
 }

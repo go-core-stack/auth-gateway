@@ -30,6 +30,7 @@ type gateway struct {
 	apiKeys   *table.ApiKeyTable
 	userTbl   *table.UserTable
 	routes    *route.RouteTable
+	ouTbl     *table.OrgUnitTable
 	proxyV1   *httputil.ReverseProxy
 	proxyV2   *httputil.ReverseProxy
 }
@@ -185,7 +186,7 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 }
 
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	match, err := matchRoute(r.Method, r.URL.Path)
+	match, orgUnit, err := matchRoute(r.Method, r.URL.Path)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), http.StatusNotFound)
 		return
@@ -223,6 +224,24 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if role == "admin" {
 					isAdmin = true
 					break
+				}
+			}
+			if orgUnit != "" {
+				log.Printf("Checking access for org unit %s in tenant %s", orgUnit, authInfo.Realm)
+				// check org unit is available and associated with tenant
+				ouList, err := s.ouTbl.FindByTenant(r.Context(), authInfo.Realm, orgUnit)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
+						return
+					}
+					log.Printf("Failed to find org unit %s in tenant %s: %s", orgUnit, authInfo.Realm, err)
+					http.Error(w, "Something went wrong while processing request", http.StatusInternalServerError)
+					return
+				}
+				if len(ouList) == 0 {
+					http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
+					return
 				}
 			}
 			if !isAdmin {
@@ -276,6 +295,11 @@ func New() http.Handler {
 		log.Panicf("unable to get route table: %s", err)
 	}
 
+	ouTbl, err := table.GetOrgUnitTable()
+	if err != nil {
+		log.Panicf("unable to get org unit table: %s", err)
+	}
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -295,6 +319,7 @@ func New() http.Handler {
 		apiKeys:   apiKeys,
 		userTbl:   userTbl,
 		routes:    routes,
+		ouTbl:     ouTbl,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,
