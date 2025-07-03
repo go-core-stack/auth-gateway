@@ -46,11 +46,15 @@ type OrgUnitTable struct {
 type tenantFilter struct {
 	// Tenant to which Org Unit belongs
 	Tenant string `bson:"tenant,omitempty"`
+
+	// Org Unit ID if provided
+	OuId string `bson:"key.id,omitempty"`
 }
 
-func (t *OrgUnitTable) FindByTenant(ctx context.Context, tenant string) ([]*OrgUnitEntry, error) {
+func (t *OrgUnitTable) FindByTenant(ctx context.Context, tenant, ouId string) ([]*OrgUnitEntry, error) {
 	filter := &tenantFilter{
 		Tenant: tenant,
+		OuId:   ouId,
 	}
 
 	return t.FindMany(ctx, filter)

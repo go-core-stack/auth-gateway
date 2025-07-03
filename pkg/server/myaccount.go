@@ -416,7 +416,7 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 	if authInfo.Roles == nil || !slices.Contains(authInfo.Roles, "admin") {
 		return nil, status.Errorf(codes.Unimplemented, "Non-admin users currently not supported")
 	}
-	OrgUnits, err := s.ouTable.FindByTenant(ctx, authInfo.Realm)
+	OrgUnits, err := s.ouTable.FindByTenant(ctx, authInfo.Realm, "")
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, status.Errorf(codes.NotFound, "No Org Unit available for tenant %s", authInfo.Realm)
