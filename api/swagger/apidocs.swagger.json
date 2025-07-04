@@ -842,6 +842,29 @@
         ]
       }
     },
+    "/api/myaccount/v1/regions": {
+      "get": {
+        "summary": "Get List of available regions for user to work with",
+        "operationId": "MyAccount_ListMyRegions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMyRegionsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
     "/api/myaccount/v1/sessions": {
       "get": {
         "summary": "get all my active sessions",
@@ -1605,6 +1628,36 @@
             "$ref": "#/definitions/apiMyOrgUnitEntry"
           },
           "title": "list of available org units for user\ninclusive of default Org unit"
+        }
+      }
+    },
+    "apiMyRegionsListEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "identifier of the region"
+        },
+        "name": {
+          "type": "string",
+          "title": "name of the region typically unique for tenant"
+        }
+      }
+    },
+    "apiMyRegionsListResp": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "$ref": "#/definitions/apiMyRegionsListEntry",
+          "title": "default region for the user"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiMyRegionsListEntry"
+          },
+          "title": "list of available regions for the tenant\ninclusive of the set default region"
         }
       }
     },

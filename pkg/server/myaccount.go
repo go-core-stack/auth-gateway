@@ -449,7 +449,27 @@ func (s *MyAccountServer) SetDefaultOrgUnit(ctx context.Context, req *api.Defaul
 
 	log.Printf("got request to set default org unit %s for user %s in tenant %s", req.Id, authInfo.UserName, authInfo.Realm)
 
-	return &api.DefaultOrgUnitResp{}, nil
+	return nil, status.Errorf(codes.Unimplemented, "SetDefaultOrgUnit not implemented yet")
+}
+
+func (s *MyAccountServer) ListMyRegions(ctx context.Context, req *api.MyRegionsListReq) (*api.MyRegionsListResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	return &api.MyRegionsListResp{
+		Default: &api.MyRegionsListEntry{
+			Id:   "local",
+			Name: "Demo Local Region",
+		},
+		Items: []*api.MyRegionsListEntry{
+			{
+				Id:   "local",
+				Name: "Demo Local Region",
+			},
+		},
+	}, nil
 }
 
 // NewMyAccountServer registers and returns a new MyAccountServer instance.
