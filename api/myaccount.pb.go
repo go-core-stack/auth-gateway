@@ -1263,6 +1263,151 @@ func (*DefaultOrgUnitResp) Descriptor() ([]byte, []int) {
 	return file_myaccount_proto_rawDescGZIP(), []int{23}
 }
 
+type MyRegionsListReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyRegionsListReq) Reset() {
+	*x = MyRegionsListReq{}
+	mi := &file_myaccount_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyRegionsListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyRegionsListReq) ProtoMessage() {}
+
+func (x *MyRegionsListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyRegionsListReq.ProtoReflect.Descriptor instead.
+func (*MyRegionsListReq) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{24}
+}
+
+type MyRegionsListEntry struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// identifier of the region
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// name of the region typically unique for tenant
+	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyRegionsListEntry) Reset() {
+	*x = MyRegionsListEntry{}
+	mi := &file_myaccount_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyRegionsListEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyRegionsListEntry) ProtoMessage() {}
+
+func (x *MyRegionsListEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyRegionsListEntry.ProtoReflect.Descriptor instead.
+func (*MyRegionsListEntry) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *MyRegionsListEntry) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *MyRegionsListEntry) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type MyRegionsListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// default region for the user
+	Default *MyRegionsListEntry `protobuf:"bytes,1,opt,name=default,proto3" json:"default,omitempty"`
+	// list of available regions for the tenant
+	// inclusive of the set default region
+	Items         []*MyRegionsListEntry `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyRegionsListResp) Reset() {
+	*x = MyRegionsListResp{}
+	mi := &file_myaccount_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyRegionsListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyRegionsListResp) ProtoMessage() {}
+
+func (x *MyRegionsListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyRegionsListResp.ProtoReflect.Descriptor instead.
+func (*MyRegionsListResp) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *MyRegionsListResp) GetDefault() *MyRegionsListEntry {
+	if x != nil {
+		return x.Default
+	}
+	return nil
+}
+
+func (x *MyRegionsListResp) GetItems() []*MyRegionsListEntry {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_myaccount_proto protoreflect.FileDescriptor
 
 const file_myaccount_proto_rawDesc = "" +
@@ -1332,7 +1477,14 @@ const file_myaccount_proto_rawDesc = "" +
 	"\x05items\x18\x02 \x03(\v2\x13.api.MyOrgUnitEntryR\x05items\"#\n" +
 	"\x11DefaultOrgUnitReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
-	"\x12DefaultOrgUnitResp2\x9b\b\n" +
+	"\x12DefaultOrgUnitResp\"\x12\n" +
+	"\x10MyRegionsListReq\"8\n" +
+	"\x12MyRegionsListEntry\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"u\n" +
+	"\x11MyRegionsListResp\x121\n" +
+	"\adefault\x18\x01 \x01(\v2\x17.api.MyRegionsListEntryR\adefault\x12-\n" +
+	"\x05items\x18\x02 \x03(\v2\x17.api.MyRegionsListEntryR\x05items2\xfe\b\n" +
 	"\tMyAccount\x12R\n" +
 	"\tGetMyInfo\x12\x11.api.MyInfoGetReq\x1a\x12.api.MyInfoGetResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/myaccount/v1/info\x12b\n" +
 	"\rGetMySessions\x12\x15.api.MySessionsGetReq\x1a\x16.api.MySessionsGetResp\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/myaccount/v1/sessions\x12u\n" +
@@ -1343,7 +1495,8 @@ const file_myaccount_proto_rawDesc = "" +
 	"\fDeleteApiKey\x12\x14.api.ApiKeyDeleteReq\x1a\x15.api.ApiKeyDeleteResp\"&\x82\xd3\xe4\x93\x02 *\x1e/api/myaccount/v1/api-key/{id}\x12\\\n" +
 	"\vListApiKeys\x12\x13.api.ApiKeysListReq\x1a\x14.api.ApiKeysListResp\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/myaccount/v1/api-keys\x12f\n" +
 	"\x0eListMyOrgUnits\x12\x16.api.MyOrgUnitsListReq\x1a\x17.api.MyOrgUnitsListResp\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/myaccount/v1/org-units\x12u\n" +
-	"\x11SetDefaultOrgUnit\x12\x16.api.DefaultOrgUnitReq\x1a\x17.api.DefaultOrgUnitResp\"/\x82\xd3\xe4\x93\x02)\"'/api/myaccount/v1/org-unit/{id}/defaultB\x99\x01\x92Aj\x12%\n" +
+	"\x11SetDefaultOrgUnit\x12\x16.api.DefaultOrgUnitReq\x1a\x17.api.DefaultOrgUnitResp\"/\x82\xd3\xe4\x93\x02)\"'/api/myaccount/v1/org-unit/{id}/default\x12a\n" +
+	"\rListMyRegions\x12\x15.api.MyRegionsListReq\x1a\x16.api.MyRegionsListResp\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/myaccount/v1/regionsB\x99\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
 	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
 
@@ -1360,7 +1513,7 @@ func file_myaccount_proto_rawDescGZIP() []byte {
 }
 
 var file_myaccount_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_myaccount_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_myaccount_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_myaccount_proto_goTypes = []any{
 	(ApiKeyDef_Status)(0),        // 0: api.ApiKeyDef.Status
 	(*MyInfoGetReq)(nil),         // 1: api.MyInfoGetReq
@@ -1387,6 +1540,9 @@ var file_myaccount_proto_goTypes = []any{
 	(*MyOrgUnitsListResp)(nil),   // 22: api.MyOrgUnitsListResp
 	(*DefaultOrgUnitReq)(nil),    // 23: api.DefaultOrgUnitReq
 	(*DefaultOrgUnitResp)(nil),   // 24: api.DefaultOrgUnitResp
+	(*MyRegionsListReq)(nil),     // 25: api.MyRegionsListReq
+	(*MyRegionsListEntry)(nil),   // 26: api.MyRegionsListEntry
+	(*MyRegionsListResp)(nil),    // 27: api.MyRegionsListResp
 }
 var file_myaccount_proto_depIdxs = []int32{
 	3,  // 0: api.MySessionsGetResp.items:type_name -> api.MySessionInfo
@@ -1395,31 +1551,35 @@ var file_myaccount_proto_depIdxs = []int32{
 	17, // 3: api.ApiKeysListResp.items:type_name -> api.ApiKeyListEntry
 	21, // 4: api.MyOrgUnitsListResp.default:type_name -> api.MyOrgUnitEntry
 	21, // 5: api.MyOrgUnitsListResp.items:type_name -> api.MyOrgUnitEntry
-	1,  // 6: api.MyAccount.GetMyInfo:input_type -> api.MyInfoGetReq
-	19, // 7: api.MyAccount.GetMySessions:input_type -> api.MySessionsGetReq
-	5,  // 8: api.MyAccount.LogoutMySessions:input_type -> api.MySessionsLogoutReq
-	7,  // 9: api.MyAccount.CreateApiKey:input_type -> api.ApiKeyCreateReq
-	10, // 10: api.MyAccount.DisableApiKey:input_type -> api.ApiKeyDisableReq
-	12, // 11: api.MyAccount.EnableApiKey:input_type -> api.ApiKeyEnableReq
-	14, // 12: api.MyAccount.DeleteApiKey:input_type -> api.ApiKeyDeleteReq
-	16, // 13: api.MyAccount.ListApiKeys:input_type -> api.ApiKeysListReq
-	20, // 14: api.MyAccount.ListMyOrgUnits:input_type -> api.MyOrgUnitsListReq
-	23, // 15: api.MyAccount.SetDefaultOrgUnit:input_type -> api.DefaultOrgUnitReq
-	2,  // 16: api.MyAccount.GetMyInfo:output_type -> api.MyInfoGetResp
-	4,  // 17: api.MyAccount.GetMySessions:output_type -> api.MySessionsGetResp
-	6,  // 18: api.MyAccount.LogoutMySessions:output_type -> api.MySessionsLogoutResp
-	9,  // 19: api.MyAccount.CreateApiKey:output_type -> api.ApiKeyCreateResp
-	11, // 20: api.MyAccount.DisableApiKey:output_type -> api.ApiKeyDisableResp
-	13, // 21: api.MyAccount.EnableApiKey:output_type -> api.ApiKeyEnableResp
-	15, // 22: api.MyAccount.DeleteApiKey:output_type -> api.ApiKeyDeleteResp
-	18, // 23: api.MyAccount.ListApiKeys:output_type -> api.ApiKeysListResp
-	22, // 24: api.MyAccount.ListMyOrgUnits:output_type -> api.MyOrgUnitsListResp
-	24, // 25: api.MyAccount.SetDefaultOrgUnit:output_type -> api.DefaultOrgUnitResp
-	16, // [16:26] is the sub-list for method output_type
-	6,  // [6:16] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	26, // 6: api.MyRegionsListResp.default:type_name -> api.MyRegionsListEntry
+	26, // 7: api.MyRegionsListResp.items:type_name -> api.MyRegionsListEntry
+	1,  // 8: api.MyAccount.GetMyInfo:input_type -> api.MyInfoGetReq
+	19, // 9: api.MyAccount.GetMySessions:input_type -> api.MySessionsGetReq
+	5,  // 10: api.MyAccount.LogoutMySessions:input_type -> api.MySessionsLogoutReq
+	7,  // 11: api.MyAccount.CreateApiKey:input_type -> api.ApiKeyCreateReq
+	10, // 12: api.MyAccount.DisableApiKey:input_type -> api.ApiKeyDisableReq
+	12, // 13: api.MyAccount.EnableApiKey:input_type -> api.ApiKeyEnableReq
+	14, // 14: api.MyAccount.DeleteApiKey:input_type -> api.ApiKeyDeleteReq
+	16, // 15: api.MyAccount.ListApiKeys:input_type -> api.ApiKeysListReq
+	20, // 16: api.MyAccount.ListMyOrgUnits:input_type -> api.MyOrgUnitsListReq
+	23, // 17: api.MyAccount.SetDefaultOrgUnit:input_type -> api.DefaultOrgUnitReq
+	25, // 18: api.MyAccount.ListMyRegions:input_type -> api.MyRegionsListReq
+	2,  // 19: api.MyAccount.GetMyInfo:output_type -> api.MyInfoGetResp
+	4,  // 20: api.MyAccount.GetMySessions:output_type -> api.MySessionsGetResp
+	6,  // 21: api.MyAccount.LogoutMySessions:output_type -> api.MySessionsLogoutResp
+	9,  // 22: api.MyAccount.CreateApiKey:output_type -> api.ApiKeyCreateResp
+	11, // 23: api.MyAccount.DisableApiKey:output_type -> api.ApiKeyDisableResp
+	13, // 24: api.MyAccount.EnableApiKey:output_type -> api.ApiKeyEnableResp
+	15, // 25: api.MyAccount.DeleteApiKey:output_type -> api.ApiKeyDeleteResp
+	18, // 26: api.MyAccount.ListApiKeys:output_type -> api.ApiKeysListResp
+	22, // 27: api.MyAccount.ListMyOrgUnits:output_type -> api.MyOrgUnitsListResp
+	24, // 28: api.MyAccount.SetDefaultOrgUnit:output_type -> api.DefaultOrgUnitResp
+	27, // 29: api.MyAccount.ListMyRegions:output_type -> api.MyRegionsListResp
+	19, // [19:30] is the sub-list for method output_type
+	8,  // [8:19] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_myaccount_proto_init() }
@@ -1433,7 +1593,7 @@ func file_myaccount_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_myaccount_proto_rawDesc), len(file_myaccount_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   24,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -32,6 +32,7 @@ const (
 	MyAccount_ListApiKeys_FullMethodName       = "/api.MyAccount/ListApiKeys"
 	MyAccount_ListMyOrgUnits_FullMethodName    = "/api.MyAccount/ListMyOrgUnits"
 	MyAccount_SetDefaultOrgUnit_FullMethodName = "/api.MyAccount/SetDefaultOrgUnit"
+	MyAccount_ListMyRegions_FullMethodName     = "/api.MyAccount/ListMyRegions"
 )
 
 // MyAccountClient is the client API for MyAccount service.
@@ -62,6 +63,8 @@ type MyAccountClient interface {
 	// set specific Org unit as default access on login
 	// relevant only when working with multiple org units
 	SetDefaultOrgUnit(ctx context.Context, in *DefaultOrgUnitReq, opts ...grpc.CallOption) (*DefaultOrgUnitResp, error)
+	// Get List of available regions for user to work with
+	ListMyRegions(ctx context.Context, in *MyRegionsListReq, opts ...grpc.CallOption) (*MyRegionsListResp, error)
 }
 
 type myAccountClient struct {
@@ -172,6 +175,16 @@ func (c *myAccountClient) SetDefaultOrgUnit(ctx context.Context, in *DefaultOrgU
 	return out, nil
 }
 
+func (c *myAccountClient) ListMyRegions(ctx context.Context, in *MyRegionsListReq, opts ...grpc.CallOption) (*MyRegionsListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MyRegionsListResp)
+	err := c.cc.Invoke(ctx, MyAccount_ListMyRegions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MyAccountServer is the server API for MyAccount service.
 // All implementations must embed UnimplementedMyAccountServer
 // for forward compatibility.
@@ -200,6 +213,8 @@ type MyAccountServer interface {
 	// set specific Org unit as default access on login
 	// relevant only when working with multiple org units
 	SetDefaultOrgUnit(context.Context, *DefaultOrgUnitReq) (*DefaultOrgUnitResp, error)
+	// Get List of available regions for user to work with
+	ListMyRegions(context.Context, *MyRegionsListReq) (*MyRegionsListResp, error)
 	mustEmbedUnimplementedMyAccountServer()
 }
 
@@ -239,6 +254,9 @@ func (UnimplementedMyAccountServer) ListMyOrgUnits(context.Context, *MyOrgUnitsL
 }
 func (UnimplementedMyAccountServer) SetDefaultOrgUnit(context.Context, *DefaultOrgUnitReq) (*DefaultOrgUnitResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDefaultOrgUnit not implemented")
+}
+func (UnimplementedMyAccountServer) ListMyRegions(context.Context, *MyRegionsListReq) (*MyRegionsListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMyRegions not implemented")
 }
 func (UnimplementedMyAccountServer) mustEmbedUnimplementedMyAccountServer() {}
 func (UnimplementedMyAccountServer) testEmbeddedByValue()                   {}
@@ -441,6 +459,24 @@ func _MyAccount_SetDefaultOrgUnit_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MyAccount_ListMyRegions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MyRegionsListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyAccountServer).ListMyRegions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyAccount_ListMyRegions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyAccountServer).ListMyRegions(ctx, req.(*MyRegionsListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MyAccount_ServiceDesc is the grpc.ServiceDesc for MyAccount service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -487,6 +523,10 @@ var MyAccount_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetDefaultOrgUnit",
 			Handler:    _MyAccount_SetDefaultOrgUnit_Handler,
+		},
+		{
+			MethodName: "ListMyRegions",
+			Handler:    _MyAccount_ListMyRegions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

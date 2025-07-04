@@ -97,6 +97,13 @@ service MyAccount {
       post: "/api/myaccount/v1/org-unit/{id}/default"
     };
   }
+
+  // Get List of available regions for user to work with
+  rpc ListMyRegions(MyRegionsListReq) returns (MyRegionsListResp) {
+    option (google.api.http) = {
+      get: "/api/myaccount/v1/regions"
+    };
+  }
 }
 
 message MyInfoGetReq {
@@ -285,4 +292,24 @@ message DefaultOrgUnitReq {
 }
 
 message DefaultOrgUnitResp {
+}
+
+message MyRegionsListReq {
+}
+
+message MyRegionsListEntry {
+  // identifier of the region
+  string id = 1;
+
+  // name of the region typically unique for tenant
+  string name = 2;
+}
+
+message MyRegionsListResp {
+  // default region for the user
+  MyRegionsListEntry default = 1;
+
+  // list of available regions for the tenant
+  // inclusive of the set default region
+  repeated MyRegionsListEntry items = 2;
 }
