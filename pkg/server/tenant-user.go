@@ -458,7 +458,7 @@ func NewTenantUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, 
 			Endpoint: ep,
 			IsRoot:   utils.BoolP(true), // these routes are only meant for root tenancy
 		}
-		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {
+		if err := routeTbl.Locate(context.Background(), entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)
 		}
 	}

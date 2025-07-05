@@ -500,7 +500,7 @@ func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep str
 			Resource: r.Resource,
 			Verb:     r.Verb,
 		}
-		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {
+		if err := routeTbl.Locate(context.Background(), entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)
 		}
 	}

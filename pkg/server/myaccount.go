@@ -514,7 +514,7 @@ func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, e
 			Endpoint:       ep,
 			IsUserSpecific: utils.BoolP(true),
 		}
-		if err := tbl.Locate(context.Background(), key, entry); err != nil {
+		if err := tbl.Locate(context.Background(), entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)
 		}
 	}
