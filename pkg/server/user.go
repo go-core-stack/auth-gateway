@@ -18,10 +18,10 @@ import (
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/utils"
 
-	"github.com/Prabhjot-Sethi/auth-gateway/api"
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
+	"github.com/go-core-stack/auth-gateway/api"
+	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
+	"github.com/go-core-stack/auth-gateway/pkg/model"
+	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
 type UserApiServer struct {

@@ -1496,9 +1496,9 @@ const file_myaccount_proto_rawDesc = "" +
 	"\vListApiKeys\x12\x13.api.ApiKeysListReq\x1a\x14.api.ApiKeysListResp\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/myaccount/v1/api-keys\x12f\n" +
 	"\x0eListMyOrgUnits\x12\x16.api.MyOrgUnitsListReq\x1a\x17.api.MyOrgUnitsListResp\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/myaccount/v1/org-units\x12u\n" +
 	"\x11SetDefaultOrgUnit\x12\x16.api.DefaultOrgUnitReq\x1a\x17.api.DefaultOrgUnitResp\"/\x82\xd3\xe4\x93\x02)\"'/api/myaccount/v1/org-unit/{id}/default\x12a\n" +
-	"\rListMyRegions\x12\x15.api.MyRegionsListReq\x1a\x16.api.MyRegionsListResp\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/myaccount/v1/regionsB\x99\x01\x92Aj\x12%\n" +
+	"\rListMyRegions\x12\x15.api.MyRegionsListReq\x1a\x16.api.MyRegionsListResp\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/myaccount/v1/regionsB\x98\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
-	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"?Auth Gateway API Specification - sample descriptive informationZ)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_myaccount_proto_rawDescOnce sync.Once

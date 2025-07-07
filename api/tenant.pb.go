@@ -541,7 +541,7 @@ const file_tenant_proto_rawDesc = "" +
 	"\fCreateTenant\x12\x14.api.TenantCreateReq\x1a\x15.api.TenantCreateResp\"2\x8a\xb5\x18\x10\n" +
 	"\x06tenant\x1a\x06create\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/auth/v1/tenant\x12e\n" +
 	"\tGetTenant\x12\x11.api.TenantGetReq\x1a\x12.api.TenantGetResp\"1\x8a\xb5\x18\r\n" +
-	"\x06tenant\x1a\x03get\x82\xd3\xe4\x93\x02\x1a\x12\x18/api/auth/v1/tenant/{id}B,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"\x06tenant\x1a\x03get\x82\xd3\xe4\x93\x02\x1a\x12\x18/api/auth/v1/tenant/{id}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_tenant_proto_rawDescOnce sync.Once

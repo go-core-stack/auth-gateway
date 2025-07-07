@@ -20,8 +20,8 @@ import (
 	"github.com/go-core-stack/core/utils"
 	"golang.org/x/net/http2"
 
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/auth"
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
+	"github.com/go-core-stack/auth-gateway/pkg/auth"
+	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
 type gateway struct {

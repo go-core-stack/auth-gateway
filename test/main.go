@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
+	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
 )
 
 func getEndpoint() string {

@@ -7,7 +7,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/table"
+	"github.com/go-core-stack/auth-gateway/pkg/table"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/reconciler"
 )

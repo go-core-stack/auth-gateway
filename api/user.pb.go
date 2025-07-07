@@ -1382,7 +1382,7 @@ const file_user_proto_rawDesc = "" +
 	"\x10ListUserSessions\x12\x18.api.UserSessionsListReq\x1a\x19.api.UserSessionsListResp\"9\x8a\xb5\x18\x14\n" +
 	"\x04user\x1a\fget-sessions\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/mytenant/v1/sessions\x12\x90\x01\n" +
 	"\x11LogoutUserSession\x12\x19.api.UserSessionLogoutReq\x1a\x1a.api.UserSessionLogoutResp\"D\x8a\xb5\x18\x0e\n" +
-	"\x04user\x1a\x06logout\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logoutB,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"\x04user\x1a\x06logout\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logoutB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once

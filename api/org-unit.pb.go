@@ -677,7 +677,7 @@ const file_org_unit_proto_rawDesc = "" +
 	"GetOrgUnit\x12\x12.api.OrgUnitGetReq\x1a\x13.api.OrgUnitGetResp\"3\x8a\xb5\x18\x0f\n" +
 	"\borg-unit\x1a\x03get\x82\xd3\xe4\x93\x02\x1a\x12\x18/api/mytenant/v1/ou/{id}\x12v\n" +
 	"\rDeleteOrgUnit\x12\x15.api.OrgUnitDeleteReq\x1a\x16.api.OrgUnitDeleteResp\"6\x8a\xb5\x18\x12\n" +
-	"\borg-unit\x1a\x06delete\x82\xd3\xe4\x93\x02\x1a*\x18/api/mytenant/v1/ou/{id}B,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"\borg-unit\x1a\x06delete\x82\xd3\xe4\x93\x02\x1a*\x18/api/mytenant/v1/ou/{id}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_org_unit_proto_rawDescOnce sync.Once
