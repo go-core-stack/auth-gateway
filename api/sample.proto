@@ -7,7 +7,7 @@ package api;
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+option go_package = "github.com/go-core-stack/auth-gateway/api";
 
 // These annotations are used when generating the OpenAPI file.
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {

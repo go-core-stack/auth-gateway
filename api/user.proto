@@ -8,7 +8,7 @@ package api;
 import "google/api/annotations.proto";
 import "coreapis/api/role.proto";
 
-option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+option go_package = "github.com/go-core-stack/auth-gateway/api";
 
 // Service provided to manage users
 service User {

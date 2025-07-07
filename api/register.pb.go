@@ -138,7 +138,7 @@ const file_register_proto_rawDesc = "" +
 	"\blastName\x18\x03 \x01(\tR\blastName\"\x11\n" +
 	"\x0fRegisterOtpResp2l\n" +
 	"\fRegistration\x12\\\n" +
-	"\x0eGetRegisterOtp\x12\x13.api.RegisterOtpReq\x1a\x14.api.RegisterOtpResp\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/register/v1/otpB,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"\x0eGetRegisterOtp\x12\x13.api.RegisterOtpReq\x1a\x14.api.RegisterOtpResp\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/register/v1/otpB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_register_proto_rawDescOnce sync.Once

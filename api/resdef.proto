@@ -7,7 +7,7 @@ package api;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/Prabhjot-Sethi/auth-gateway/api";
+option go_package = "github.com/go-core-stack/auth-gateway/api";
 
 // Service provided to expose available resource and actions
 service ResourceDefinition {

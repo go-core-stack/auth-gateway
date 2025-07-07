@@ -1,4 +1,4 @@
-module github.com/Prabhjot-Sethi/auth-gateway
+module github.com/go-core-stack/auth-gateway
 
 go 1.24
 

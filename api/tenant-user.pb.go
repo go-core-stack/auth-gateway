@@ -1462,9 +1462,9 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\n" +
 	"DeleteUser\x12\x18.api.TenantUserDeleteReq\x1a\x19.api.TenantUserDeleteResp\"4\x82\xd3\xe4\x93\x02.*,/api/auth/v1/tenant/{tenant}/user/{username}\x12\x82\x01\n" +
 	"\x10ListUserSessions\x12\x1e.api.TenantUserSessionsListReq\x1a\x1f.api.TenantUserSessionsListResp\"-\x82\xd3\xe4\x93\x02'\x12%/api/auth/v1/tenant/{tenant}/sessions\x12\x96\x01\n" +
-	"\x11LogoutUserSession\x12\x1f.api.TenantUserSessionLogoutReq\x1a .api.TenantUserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logoutB\x99\x01\x92Aj\x12%\n" +
+	"\x11LogoutUserSession\x12\x1f.api.TenantUserSessionLogoutReq\x1a .api.TenantUserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logoutB\x98\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
-	"?Auth Gateway API Specification - sample descriptive informationZ*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"?Auth Gateway API Specification - sample descriptive informationZ)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_tenant_user_proto_rawDescOnce sync.Once

@@ -14,9 +14,9 @@ import (
 	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/utils"
 
-	"github.com/Prabhjot-Sethi/auth-gateway/api"
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/controller/roledef"
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/model"
+	"github.com/go-core-stack/auth-gateway/api"
+	"github.com/go-core-stack/auth-gateway/pkg/controller/roledef"
+	"github.com/go-core-stack/auth-gateway/pkg/model"
 )
 
 type ResourceDefinitionServer struct {

@@ -15,7 +15,7 @@ import (
 	common "github.com/go-core-stack/auth/context"
 	"github.com/go-core-stack/core/errors"
 
-	"github.com/Prabhjot-Sethi/auth-gateway/pkg/keycloak"
+	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
 )
 
 // internal structure of auth Verifier

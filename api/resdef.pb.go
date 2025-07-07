@@ -175,7 +175,7 @@ const file_resdef_proto_rawDesc = "" +
 	"\x0fResourceGetResp\x12(\n" +
 	"\x05items\x18\x02 \x03(\v2\x12.api.ResourceEntryR\x05items2o\n" +
 	"\x12ResourceDefinition\x12Y\n" +
-	"\fGetResources\x12\x13.api.ResourceGetReq\x1a\x14.api.ResourceGetResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/auth/v1/resourcesB,Z*github.com/Prabhjot-Sethi/auth-gateway/apib\x06proto3"
+	"\fGetResources\x12\x13.api.ResourceGetReq\x1a\x14.api.ResourceGetResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/auth/v1/resourcesB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_resdef_proto_rawDescOnce sync.Once
