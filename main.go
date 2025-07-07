@@ -403,6 +403,9 @@ func main() {
 	// setup resource definition server
 	_ = server.NewResourceDefinitionServer(serverCtx, resourceMgr, APIEndpoint)
 
+	// setup customer management server
+	_ = server.NewCustomerServer(serverCtx, APIEndpoint)
+
 	// Setup tenant management server
 	_ = server.NewTenantServer(serverCtx, APIEndpoint)
 

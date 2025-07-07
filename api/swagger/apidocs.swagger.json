@@ -9,6 +9,9 @@
       "name": "MyAccount"
     },
     {
+      "name": "Customer"
+    },
+    {
       "name": "OrgUnit"
     },
     {
@@ -34,6 +37,180 @@
     "application/json"
   ],
   "paths": {
+    "/api/auth/v1/customer": {
+      "post": {
+        "summary": "Add new customer",
+        "operationId": "Customer_AddCustomer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCustomerAddResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiCustomerAddReq"
+            }
+          }
+        ],
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/api/auth/v1/customer/{id}": {
+      "get": {
+        "summary": "get an existing customer details",
+        "operationId": "Customer_GetCustomer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCustomerGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "id of the customer",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Customer"
+        ]
+      },
+      "delete": {
+        "summary": "delete an existing customer",
+        "operationId": "Customer_DeleteCustomer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCustomerDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "customer id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Customer"
+        ]
+      },
+      "put": {
+        "summary": "Update an existing customer details",
+        "operationId": "Customer_UpdateCustomer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCustomerUpdateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "id of the customer",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CustomerUpdateCustomerBody"
+            }
+          }
+        ],
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/api/auth/v1/customers": {
+      "get": {
+        "summary": "Get List of existing customers",
+        "operationId": "Customer_ListCustomers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCustomersListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "offset",
+            "description": "offset from where to start the list of customers",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the response to specified count",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
     "/api/auth/v1/resources": {
       "get": {
         "summary": "Get Resource definitions along with available actions",
@@ -1450,6 +1627,29 @@
     }
   },
   "definitions": {
+    "CustomerDefsTenancy": {
+      "type": "string",
+      "enum": [
+        "Dedicated",
+        "Shared"
+      ],
+      "default": "Dedicated",
+      "title": "- Dedicated: dedicated tenancy customer\ntypically assigned for Orgs requiring user management\nwith custom SSO integrations, requiring extra security\ncontrols\n - Shared: Shared tenancy customer\ntypically assigned for individuals or group of\nindividuals, where users can authenticate using public\nSSO and authz can be managed by admins"
+    },
+    "CustomerUpdateCustomerBody": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "display name for the customer"
+        },
+        "desc": {
+          "type": "string",
+          "title": "customer description"
+        }
+      },
+      "title": "request for update of an existing customer"
+    },
     "OrgUnitUpdateOrgUnitBody": {
       "type": "object",
       "properties": {
@@ -1576,6 +1776,110 @@
           }
         }
       }
+    },
+    "apiCustomerAddReq": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "display name for the customer"
+        },
+        "desc": {
+          "type": "string",
+          "title": "customer description"
+        },
+        "tenancy": {
+          "$ref": "#/definitions/CustomerDefsTenancy",
+          "title": "customer tenancy type, cannot be changed\nonce created"
+        }
+      },
+      "title": "request for addition of new customer"
+    },
+    "apiCustomerAddResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "id of the customer created"
+        }
+      },
+      "title": "response for addition of new customer"
+    },
+    "apiCustomerDeleteResp": {
+      "type": "object"
+    },
+    "apiCustomerGetResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "customer id"
+        },
+        "name": {
+          "type": "string",
+          "title": "customer display name"
+        },
+        "desc": {
+          "type": "string",
+          "title": "customer description"
+        },
+        "createdBy": {
+          "type": "string",
+          "title": "created by"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "create time"
+        },
+        "tenancy": {
+          "$ref": "#/definitions/CustomerDefsTenancy",
+          "title": "customer tenancy type"
+        }
+      }
+    },
+    "apiCustomerUpdateResp": {
+      "type": "object"
+    },
+    "apiCustomersListEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "customer id"
+        },
+        "name": {
+          "type": "string",
+          "title": "customer display name"
+        },
+        "desc": {
+          "type": "string",
+          "title": "customer description"
+        },
+        "tenancy": {
+          "$ref": "#/definitions/CustomerDefsTenancy",
+          "title": "customer tenancy type"
+        }
+      }
+    },
+    "apiCustomersListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "count of customers available"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiCustomersListEntry"
+          },
+          "title": "list of customer info in response"
+        }
+      },
+      "title": "list customers response"
     },
     "apiDefaultOrgUnitResp": {
       "type": "object"

@@ -1,0 +1,195 @@
+
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
+
+option go_package = "github.com/go-core-stack/auth-gateway/api";
+
+// Service provided to manage customers
+service Customer {
+  // Get List of existing customers	
+  rpc ListCustomers(CustomersListReq) returns (CustomersListResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/customers"
+    };
+    option (api.role) = {
+      resource: "customers"
+      verb: "list"
+    };
+  }
+
+  // Add new customer
+  rpc AddCustomer(CustomerAddReq) returns (CustomerAddResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/customer"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "customer"
+      verb: "add"
+    };
+  }
+
+  // Update an existing customer details
+  rpc UpdateCustomer(CustomerUpdateReq) returns (CustomerUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/auth/v1/customer/{id}"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "customer"
+      verb: "update"
+    };
+  }
+
+  // get an existing customer details
+  rpc GetCustomer(CustomerGetReq) returns (CustomerGetResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/customer/{id}"
+    };
+    option (api.role) = {
+      resource: "customer"
+      verb: "get"
+    };
+  }
+
+  // delete an existing customer
+  rpc DeleteCustomer(CustomerDeleteReq) returns (CustomerDeleteResp) {
+    option (google.api.http) = {
+      delete: "/api/auth/v1/customer/{id}"
+    };
+    option (api.role) = {
+      resource: "customer"
+      verb: "delete"
+    };
+  }
+}
+
+message CustomerDefs {
+  enum Tenancy {
+    // dedicated tenancy customer
+    // typically assigned for Orgs requiring user management
+    // with custom SSO integrations, requiring extra security
+    // controls
+    Dedicated = 0;
+
+    // Shared tenancy customer
+    // typically assigned for individuals or group of
+    // individuals, where users can authenticate using public
+    // SSO and authz can be managed by admins
+    Shared = 1;
+  }
+}
+
+// list existing customers
+// typically available only for super admin
+message CustomersListReq {
+  // offset from where to start the list of customers
+  int32 offset = 1;
+
+  // limit the response to specified count
+  int32 limit = 2;
+}
+
+message CustomersListEntry {
+  // customer id
+  string id = 1;
+
+  // customer display name
+  string name = 2;
+
+  // customer description
+  string desc = 3;
+
+  // customer tenancy type
+  CustomerDefs.Tenancy tenancy = 4;
+
+  // more fields to be added...
+}
+
+// list customers response
+message CustomersListResp {
+  // count of customers available
+  int32 count = 1;
+
+  // list of customer info in response
+  repeated CustomersListEntry items = 2;
+}
+
+// request for addition of new customer
+message CustomerAddReq {
+  // display name for the customer
+  string name = 1;
+
+  // customer description
+  string desc = 2;
+
+  // customer tenancy type, cannot be changed
+  // once created
+  CustomerDefs.Tenancy tenancy = 3;
+
+  // more fields to be added...
+}
+
+// response for addition of new customer
+message CustomerAddResp {
+  // id of the customer created
+  string id = 1;
+}
+
+// request for update of an existing customer
+message CustomerUpdateReq {
+  // id of the customer
+  string id = 1;
+
+  // display name for the customer
+  string name = 2;
+
+  // customer description
+  string desc = 3;
+}
+
+message CustomerUpdateResp {
+}
+
+// customer get request
+message CustomerGetReq {
+  // id of the customer 
+  string id = 1;
+}
+
+message CustomerGetResp {
+  // customer id
+  string id = 1;
+
+  // customer display name
+  string name = 2;
+
+  // customer description
+  string desc = 3;
+
+  // created by
+  string createdBy = 4;
+
+  // create time
+  int64 created = 5;
+
+  // customer tenancy type
+  CustomerDefs.Tenancy tenancy = 6;
+
+  // more fields to be added...
+}
+
+// delete customer req
+message CustomerDeleteReq {
+  // customer id
+  string id = 1;
+}
+
+message CustomerDeleteResp {
+}
