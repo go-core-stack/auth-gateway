@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 	"flag"
-	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -28,7 +27,7 @@ import (
 	"github.com/go-core-stack/core/sync"
 	"github.com/go-core-stack/core/values"
 
-	"github.com/go-core-stack/auth-gateway/api"
+	"github.com/go-core-stack/auth-gateway/pkg/apidocs"
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
 	"github.com/go-core-stack/auth-gateway/pkg/config"
 	"github.com/go-core-stack/auth-gateway/pkg/controller/request"
@@ -165,16 +164,6 @@ func locateRootTenant() {
 	}
 }
 
-func getSwaggerHandler() http.Handler {
-	//mime.AddExtensionType(".svg", "image/svg+xml")
-	// Use subdirectory in embedded files
-	subFS, err := fs.Sub(api.Swagger, "swagger")
-	if err != nil {
-		panic("couldn't create sub filesystem: " + err.Error())
-	}
-	return http.FileServer(http.FS(subFS))
-}
-
 func createGRPCServerContext() *model.GrpcServerContext {
 	var opts = []grpc.ServerOption{}
 	// Ensure adding an interceptor to process the auth Headers
@@ -206,7 +195,7 @@ func createGRPCServerContext() *model.GrpcServerContext {
 	return serverCtx
 }
 
-func startServerContext(serverCtx *model.GrpcServerContext, gwSwagger string) {
+func startServerContext(serverCtx *model.GrpcServerContext) {
 	go func() {
 		lis, err := net.Listen("tcp", GrpcPort)
 		if err != nil {
@@ -216,25 +205,16 @@ func startServerContext(serverCtx *model.GrpcServerContext, gwSwagger string) {
 	}()
 
 	go func() {
-		oa := getSwaggerHandler()
-		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/api/") {
-				// all APIs are handled via GRPC gateway
-				serverCtx.Mux.ServeHTTP(w, r)
-			} else {
-				oa.ServeHTTP(w, r)
-			}
-		})
 		lis, err := net.Listen("tcp", APIPort)
 		if err != nil {
 			log.Panicf("failed to start GRPC Gateway Server: %s", err)
 		}
-		log.Panic(http.Serve(lis, gwHandler))
+		log.Panic(http.Serve(lis, serverCtx.Mux))
 	}()
 
 	go func() {
 		gw := gateway.New()
-		oa := http.FileServer(http.Dir(gwSwagger))
+		oa := apidocs.NewApiDocsServer()
 		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, "/apidocs/") {
 				oa.ServeHTTP(w, r)
@@ -426,7 +406,7 @@ func main() {
 
 	// once all the servers are added to the list
 	// start server
-	startServerContext(serverCtx, conf.GetSwaggerDir())
+	startServerContext(serverCtx)
 	log.Println("Initialization of Auth Gateway completed")
 
 	sigc := make(chan os.Signal, 1)
