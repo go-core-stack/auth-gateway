@@ -61,6 +61,9 @@ var (
 	// Port serving Auth Gateway
 	GatewayPort = ":8080"
 
+	// TLS Port serving Auth Gateway
+	TLSGatewayPort = ":8443"
+
 	// API Port for the server
 	APIPort = ":8085"
 
@@ -80,6 +83,11 @@ func evaluatePorts() {
 	port, ok = os.LookupEnv("GATEWAY_PORT")
 	if ok {
 		GatewayPort = ":" + port
+	}
+
+	port, ok = os.LookupEnv("TLS_GATEWAY_PORT")
+	if ok {
+		TLSGatewayPort = ":" + port
 	}
 
 	port, ok = os.LookupEnv("GRPC_PORT")
@@ -223,11 +231,18 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 				gw.ServeHTTP(w, r)
 			}
 		})
-		lis, err := net.Listen("tcp", GatewayPort)
+		go func() {
+			lis, err := net.Listen("tcp", GatewayPort)
+			if err != nil {
+				log.Panicf("failed to start Auth Gateway Server: %s", err)
+			}
+			log.Panic(http.Serve(lis, gwHandler))
+		}()
+		lis, err := net.Listen("tcp", TLSGatewayPort)
 		if err != nil {
 			log.Panicf("failed to start Auth Gateway Server: %s", err)
 		}
-		log.Panic(http.Serve(lis, gwHandler))
+		log.Panic(http.ServeTLS(lis, gwHandler, "/opt/certs/tls.crt", "/opt/certs/tls.key"))
 	}()
 }
 
