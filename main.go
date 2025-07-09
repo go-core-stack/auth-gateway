@@ -203,7 +203,7 @@ func createGRPCServerContext() *model.GrpcServerContext {
 	return serverCtx
 }
 
-func startServerContext(serverCtx *model.GrpcServerContext) {
+func startServerContext(defaultEndpoint string, serverCtx *model.GrpcServerContext) {
 	go func() {
 		lis, err := net.Listen("tcp", GrpcPort)
 		if err != nil {
@@ -221,7 +221,7 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 	}()
 
 	go func() {
-		gw := gateway.New()
+		gw := gateway.New(defaultEndpoint)
 		oa := apidocs.NewApiDocsServer()
 		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, "/apidocs/") {
@@ -421,7 +421,7 @@ func main() {
 
 	// once all the servers are added to the list
 	// start server
-	startServerContext(serverCtx)
+	startServerContext(conf.GetDefaultEndpoint(), serverCtx)
 	log.Println("Initialization of Auth Gateway completed")
 
 	sigc := make(chan os.Signal, 1)

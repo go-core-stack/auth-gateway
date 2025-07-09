@@ -23,11 +23,16 @@ type Keycloak struct {
 	Endpoint string `yaml:"endpoint,omitempty"`
 }
 
+type Default struct {
+	Endpoint string `yaml:"endpoint,omitempty"`
+}
+
 // Base config struct
 type BaseConfig struct {
 	ConfigDB *MongoDB  `yaml:"configDB,omitempty"`
 	Swagger  Swagger   `yaml:"swagger,omitempty"`
 	Keycloak *Keycloak `yaml:"keycloak,omitempty"`
+	Default  *Default  `yaml:"default,omitempty"`
 }
 
 // get Config database information, if the struct
@@ -63,6 +68,14 @@ func (c *BaseConfig) GetSwaggerDir() string {
 	}
 
 	return "./swagger"
+}
+
+func (c *BaseConfig) GetDefaultEndpoint() string {
+	if c.Default != nil {
+		return c.Default.Endpoint
+	}
+
+	return ""
 }
 
 // Parse YAML Config file from the provided config file path
