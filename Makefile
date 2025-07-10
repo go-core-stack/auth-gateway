@@ -25,3 +25,6 @@ go-vet:
 
 go-lint:
 	golangci-lint run
+
+push-images:
+	sudo docker push ${IMG}
