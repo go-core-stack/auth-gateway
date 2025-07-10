@@ -17,7 +17,6 @@ WORKDIR /
 COPY --from=builder /workspace/auth-gateway .
 COPY swagger /opt/swagger
 COPY default.yaml /opt/config.yaml
-COPY certs /opt/certs
 USER 65532:65532
 
 ENTRYPOINT ["/auth-gateway", "-config", "/opt/config.yaml"]
