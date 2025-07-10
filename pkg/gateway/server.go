@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"net/url"
 	"sync"
 	"time"
 
@@ -34,12 +33,6 @@ type gateway struct {
 	ouTbl     *table.OrgUnitTable
 	proxyV1   *httputil.ReverseProxy
 	proxyV2   *httputil.ReverseProxy
-
-	// default Endpoint to fallback to
-	// in case no route is matched
-	// typically used to render the ui hosted behind
-	// auth-gateway
-	defaultEndpoint *url.URL
 }
 
 type gatewayReconciler struct {
@@ -195,15 +188,11 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	match, orgUnit, err := matchRoute(r.Method, r.URL.Path)
 	if err != nil {
-		if s.defaultEndpoint == nil {
-			http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), http.StatusNotFound)
-			return
-		}
-		match = &routeData{
-			scheme: s.defaultEndpoint.Scheme,
-			host:   s.defaultEndpoint.Host,
-		}
-	} else if match.isPublic {
+		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), http.StatusNotFound)
+		return
+	}
+
+	if match.isPublic {
 		// even for public route ensure that we have auth info
 		// set in the request header, so that backend server
 		// can process the request correctly.
@@ -290,7 +279,7 @@ func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
 
 // Create a new Auth Gateway server, wrapped around
 // locally hosted insecure server
-func New(defaultEndpoint string) http.Handler {
+func New() http.Handler {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("unable to get api keys table: %s", err)
@@ -325,13 +314,6 @@ func New(defaultEndpoint string) http.Handler {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	var uri *url.URL
-	if defaultEndpoint != "" {
-		uri, err = url.Parse(defaultEndpoint)
-		if err != nil {
-			log.Panicf("Failed to parse default endpoint %s: %s", defaultEndpoint, err)
-		}
-	}
 	gateway := &gateway{
 		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
 		apiKeys:   apiKeys,
@@ -348,7 +330,6 @@ func New(defaultEndpoint string) http.Handler {
 			Transport:    tr2,
 			ErrorHandler: gatewayErrorHandler,
 		},
-		defaultEndpoint: uri,
 	}
 
 	r := &gatewayReconciler{
