@@ -9,8 +9,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-core-stack/auth v0.0.0-20250703132332-24ef7e70de0e h1:tUTEjKsOIDHs5Soow87VdVP3qaP4CJP9WfrTIAtJJmA=
 github.com/go-core-stack/auth v0.0.0-20250703132332-24ef7e70de0e/go.mod h1:FIeqO3MfI39U0SeDQ5ulzGX0yuCoh8OiZ52bZ7etJCc=
-github.com/go-core-stack/core v0.0.0-20250626091428-04a8fda86da3 h1:85gX36dCr034qL/27lNoN9ZWLua0MyEqsaVoPy29MY8=
-github.com/go-core-stack/core v0.0.0-20250626091428-04a8fda86da3/go.mod h1:twakoIk0zC6ChVRe0l6LOEb+yJPMPBmEnEZSvZY5C8c=
+github.com/go-core-stack/core v0.0.0-20250714165806-e44c517771fc h1:8XsvFfw/HhxVx5Ko8Mtm8nooQJKNnWGKKe5mZXRBRQk=
+github.com/go-core-stack/core v0.0.0-20250714165806-e44c517771fc/go.mod h1:twakoIk0zC6ChVRe0l6LOEb+yJPMPBmEnEZSvZY5C8c=
 github.com/go-core-stack/grpc-core v0.0.0-20250612052530-de9a8693884f h1:Vz2mS05ZNfKO3LO4QnYW6tjodSOBh0ViyWrLosSSzkE=
 github.com/go-core-stack/grpc-core v0.0.0-20250612052530-de9a8693884f/go.mod h1:0E4zg2joop2hsTT7XlcY9NtNHDIbbNeE0lQm3jvN488=
 github.com/go-core-stack/patricia v0.0.0-20250613164405-ac1bcd231c34 h1:MRyqhm038Q9yeHrJ9fkbWeoT1b0u9b7bdQk754N9QLA=
