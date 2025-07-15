@@ -226,26 +226,29 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 			}
-			if orgUnit != "" {
-				log.Printf("Checking access for org unit %s in tenant %s", orgUnit, authInfo.Realm)
-				// check org unit is available and associated with tenant
-				ouList, err := s.ouTbl.FindByTenant(r.Context(), authInfo.Realm, orgUnit)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
-						return
-					}
-					log.Printf("Failed to find org unit %s in tenant %s: %s", orgUnit, authInfo.Realm, err)
-					http.Error(w, "Something went wrong while processing request", http.StatusInternalServerError)
-					return
-				}
-				if len(ouList) == 0 {
+
+			if !isAdmin {
+				http.Error(w, "Access Denied", http.StatusForbidden)
+				return
+			}
+		}
+		// validate Org unit scope irrespective if the match is
+		// user specific or not
+		if orgUnit != "" {
+			log.Printf("Checking access for org unit %s in tenant %s", orgUnit, authInfo.Realm)
+			// check org unit is available and associated with tenant
+			ouList, err := s.ouTbl.FindByTenant(r.Context(), authInfo.Realm, orgUnit)
+			if err != nil {
+				if errors.IsNotFound(err) {
 					http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
 					return
 				}
+				log.Printf("Failed to find org unit %s in tenant %s: %s", orgUnit, authInfo.Realm, err)
+				http.Error(w, "Something went wrong while processing request", http.StatusInternalServerError)
+				return
 			}
-			if !isAdmin {
-				http.Error(w, "Access Denied", http.StatusForbidden)
+			if len(ouList) == 0 {
+				http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
 				return
 			}
 		}
