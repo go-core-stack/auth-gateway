@@ -251,7 +251,7 @@ func main() {
 	if err != nil {
 		log.Panicf("Failed to parse config: %s", err)
 	}
-	log.Printf("Got config %s:%s", conf.GetConfigDB().Host, conf.GetConfigDB().Port)
+	log.Printf("Got Uri config %s", conf.GetConfigDB().Uri)
 
 	// Get mongo configdb database Credentials from environment variables
 	// this is done to ensure that the credentials are not stored in plain
@@ -260,8 +260,7 @@ func main() {
 
 	// read the configuration for configdb
 	config := &db.MongoConfig{
-		Host:     conf.GetConfigDB().Host,
-		Port:     conf.GetConfigDB().Port,
+		Uri:      conf.GetConfigDB().Uri,
 		Username: username,
 		Password: password,
 	}
