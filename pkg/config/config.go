@@ -11,8 +11,7 @@ import (
 
 // mongo db config struct
 type MongoDB struct {
-	Host string `yaml:"host,omitempty"`
-	Port string `yaml:"port,omitempty"`
+	Uri string `yaml:"uri,omitempty"`
 }
 
 type Swagger struct {
@@ -39,8 +38,7 @@ func (c *BaseConfig) GetConfigDB() *MongoDB {
 	}
 
 	return &MongoDB{
-		Host: "localhost",
-		Port: "27017",
+		Uri: "",
 	}
 }
 
