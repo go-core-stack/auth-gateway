@@ -104,6 +104,13 @@ service MyAccount {
       get: "/api/myaccount/v1/regions"
     };
   }
+
+  // Get List of availability zones in a given region for the user
+  rpc ListMyAzs(MyAzsListReq) returns (MyAzsListResp) {
+    option (google.api.http) = {
+      get: "/api/myaccount/v1/region/{region}/azs"
+    };
+  }
 }
 
 message MyInfoGetReq {
@@ -312,4 +319,23 @@ message MyRegionsListResp {
   // list of available regions for the tenant
   // inclusive of the set default region
   repeated MyRegionsListEntry items = 2;
+}
+
+message MyAzsListReq {
+  // region under consideration
+  string region = 1;
+}
+
+message MyAzsListEntry {
+  // identifier of the availability zone
+  string id = 1;
+
+  // name of the availability zone
+  string name = 2;
+}
+
+message MyAzsListResp {
+  // list of available azs for the tenant
+  // under a region
+  repeated MyAzsListEntry items = 2;
 }

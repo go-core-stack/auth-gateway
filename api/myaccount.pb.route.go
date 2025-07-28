@@ -53,4 +53,8 @@ func init() {
 	// Adding Route information for ListMyRegions RPC
 	route = model.NewRoute("/api/myaccount/v1/regions", "GET")
 	RoutesMyAccount = append(RoutesMyAccount, route)
+
+	// Adding Route information for ListMyAzs RPC
+	route = model.NewRoute("/api/myaccount/v1/region/{region}/azs", "GET")
+	RoutesMyAccount = append(RoutesMyAccount, route)
 }
