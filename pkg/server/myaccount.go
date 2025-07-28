@@ -472,6 +472,22 @@ func (s *MyAccountServer) ListMyRegions(ctx context.Context, req *api.MyRegionsL
 	}, nil
 }
 
+func (s *MyAccountServer) ListMyAzs(ctx context.Context, req *api.MyAzsListReq) (*api.MyAzsListResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	return &api.MyAzsListResp{
+		Items: []*api.MyAzsListEntry{
+			{
+				Id:   "local-a",
+				Name: "Demo Local Availability Zone",
+			},
+		},
+	}, nil
+}
+
 // NewMyAccountServer registers and returns a new MyAccountServer instance.
 //
 // Parameters:

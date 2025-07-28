@@ -1019,6 +1019,38 @@
         ]
       }
     },
+    "/api/myaccount/v1/region/{region}/azs": {
+      "get": {
+        "summary": "Get List of availability zones in a given region for the user",
+        "operationId": "MyAccount_ListMyAzs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMyAzsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "region",
+            "description": "region under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MyAccount"
+        ]
+      }
+    },
     "/api/myaccount/v1/regions": {
       "get": {
         "summary": "Get List of available regions for user to work with",
@@ -1883,6 +1915,32 @@
     },
     "apiDefaultOrgUnitResp": {
       "type": "object"
+    },
+    "apiMyAzsListEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "identifier of the availability zone"
+        },
+        "name": {
+          "type": "string",
+          "title": "name of the availability zone"
+        }
+      }
+    },
+    "apiMyAzsListResp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiMyAzsListEntry"
+          },
+          "title": "list of available azs for the tenant\nunder a region"
+        }
+      }
     },
     "apiMyInfoGetResp": {
       "type": "object",
