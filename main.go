@@ -47,6 +47,9 @@ var (
 
 	// client handle to database store
 	client db.StoreClient
+
+	// flag that checks if Cross Origin Resource sharing is enabled
+	enableCORS bool
 )
 
 const (
@@ -195,6 +198,33 @@ func createGRPCServerContext() *model.GrpcServerContext {
 	return serverCtx
 }
 
+// handleCORS http handler checks if we need to allow Cross Origin
+// Resource Sharing from any origin. This is enabled or disabled
+// based on the configuration as part of auth gateway
+// It is usally not recommended for production environments.
+// However enables frontend development environment.
+//
+// when CORS is enabled. we handler copy the origin from the
+// request and paste back instead of wildcard
+func handleCORS(h http.Handler) http.Handler {
+	if !enableCORS {
+		// if CORS is disabled do not override the http handler
+		return h
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if origin := r.Header.Get("Origin"); origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			if r.Method == "OPTIONS" && r.Header.Get("Access-Control-Request-Method") != "" {
+				w.Header().Set("Access-Control-Expose-Headers", "*")
+				w.Header().Set("Access-Control-Allow-Headers", "*")
+				w.Header().Set("Access-Control-Allow-Methods", "*")
+				return
+			}
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
 func startServerContext(serverCtx *model.GrpcServerContext) {
 	go func() {
 		lis, err := net.Listen("tcp", GrpcPort)
@@ -227,7 +257,7 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 		if err != nil {
 			log.Panicf("failed to start Auth Gateway Server: %s", err)
 		}
-		log.Panic(http.Serve(lis, gwHandler))
+		log.Panic(http.Serve(lis, handleCORS(gwHandler)))
 	}()
 }
 
@@ -251,6 +281,10 @@ func main() {
 	if err != nil {
 		log.Panicf("Failed to parse config: %s", err)
 	}
+
+	// update cors enabled flag based on config file
+	enableCORS = conf.IsCORSEnabled()
+
 	log.Printf("Got Uri config %s", conf.GetConfigDB().Uri)
 
 	// Get mongo configdb database Credentials from environment variables

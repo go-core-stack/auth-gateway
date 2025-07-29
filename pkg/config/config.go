@@ -22,11 +22,16 @@ type Keycloak struct {
 	Endpoint string `yaml:"endpoint,omitempty"`
 }
 
+type CorsConfig struct {
+	Enabled bool `yaml:"enabled,omitempty"`
+}
+
 // Base config struct
 type BaseConfig struct {
-	ConfigDB *MongoDB  `yaml:"configDB,omitempty"`
-	Swagger  Swagger   `yaml:"swagger,omitempty"`
-	Keycloak *Keycloak `yaml:"keycloak,omitempty"`
+	ConfigDB *MongoDB   `yaml:"configDB,omitempty"`
+	Swagger  Swagger    `yaml:"swagger,omitempty"`
+	Keycloak *Keycloak  `yaml:"keycloak,omitempty"`
+	Cors     CorsConfig `yaml:"cors,omitempty"`
 }
 
 // get Config database information, if the struct
@@ -61,6 +66,10 @@ func (c *BaseConfig) GetSwaggerDir() string {
 	}
 
 	return "./swagger"
+}
+
+func (c *BaseConfig) IsCORSEnabled() bool {
+	return c.Cors.Enabled
 }
 
 // Parse YAML Config file from the provided config file path
