@@ -39,7 +39,11 @@ func (s *OrgUnitServer) ListOrgUnits(ctx context.Context, req *api.OrgUnitsListR
 		log.Printf("got error while fetching org unit list for tenant %s: %s", authInfo.Realm, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
-	resp := &api.OrgUnitsListResp{}
+
+	resp := &api.OrgUnitsListResp{
+		Count: int32(len(OrgUnits)),
+	}
+
 	for _, ou := range OrgUnits {
 		item := &api.OrgUnitsListEntry{
 			Id:        ou.Key.ID,
