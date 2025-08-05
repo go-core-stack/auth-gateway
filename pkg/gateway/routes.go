@@ -31,7 +31,7 @@ var routeLock sync.RWMutex
 var gwRoutes = patricia.NewUrlTree[*routeNodes]()
 
 func populateRoutes(routes *route.RouteTable) {
-	list, err := routes.FindMany(context.Background(), nil)
+	list, err := routes.FindMany(context.Background(), nil, 0, 0)
 	if err != nil {
 		log.Printf("Failed to find routes: %s", err)
 		return

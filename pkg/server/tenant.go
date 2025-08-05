@@ -58,7 +58,7 @@ func (s *TenantServer) ListTenants(ctx context.Context, req *api.TenantsListReq)
 		log.Printf("got error while fetching count of tenants: %s", err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
-	list, err := s.tenantTbl.FindMany(ctx, nil)
+	list, err := s.tenantTbl.FindMany(ctx, nil, req.Offset, req.Limit)
 	if err != nil {
 		log.Printf("got error while fetching list of tenants: %s", err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
