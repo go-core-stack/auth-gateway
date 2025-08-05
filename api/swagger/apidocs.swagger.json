@@ -18,6 +18,9 @@
       "name": "OrgUnitRole"
     },
     {
+      "name": "OrgUnitUser"
+    },
+    {
       "name": "Registration"
     },
     {
@@ -243,6 +246,178 @@
         ],
         "tags": [
           "OrgUnitRole"
+        ]
+      }
+    },
+    "/api/auth/v1/ou/{ou}/user": {
+      "post": {
+        "summary": "Add user to the org unit",
+        "operationId": "OrgUnitUser_AddOrgUnitUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitUserAddResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "org unit under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrgUnitUserAddOrgUnitUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "OrgUnitUser"
+        ]
+      }
+    },
+    "/api/auth/v1/ou/{ou}/user/{user}": {
+      "delete": {
+        "summary": "delete user role to the org unit",
+        "operationId": "OrgUnitUser_DeleteOrgUnitUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitUserDeleteResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "org unit under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "description": "username to delete",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrgUnitUser"
+        ]
+      },
+      "put": {
+        "summary": "Update user role to the org unit",
+        "operationId": "OrgUnitUser_UpdateOrgUnitUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitUserUpdateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "org unit under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "description": "user name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrgUnitUserUpdateOrgUnitUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "OrgUnitUser"
+        ]
+      }
+    },
+    "/api/auth/v1/ou/{ou}/users": {
+      "get": {
+        "summary": "Get List of available org unit users",
+        "operationId": "OrgUnitUser_ListOrgUnitUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitUsersListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "org unit under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset to start from",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the number of entries in the response",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "OrgUnitUser"
         ]
       }
     },
@@ -1731,6 +1906,30 @@
       },
       "title": "request for update of an existing org unit"
     },
+    "OrgUnitUserAddOrgUnitUserBody": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string",
+          "title": "user name"
+        },
+        "role": {
+          "type": "string",
+          "title": "org unit role"
+        }
+      },
+      "title": "org unit user role add request"
+    },
+    "OrgUnitUserUpdateOrgUnitUserBody": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "title": "org unit role"
+        }
+      },
+      "title": "org unit user role update request"
+    },
     "apiApiKeyCreateReq": {
       "type": "object",
       "properties": {
@@ -2191,6 +2390,59 @@
     },
     "apiOrgUnitUpdateResp": {
       "type": "object"
+    },
+    "apiOrgUnitUserAddResp": {
+      "type": "object",
+      "title": "org unit user role add response"
+    },
+    "apiOrgUnitUserDeleteResp": {
+      "type": "object",
+      "title": "org unit user role delete response"
+    },
+    "apiOrgUnitUserListEntry": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "username"
+        },
+        "firstname": {
+          "type": "string",
+          "title": "first name of the user"
+        },
+        "lastname": {
+          "type": "string",
+          "title": "last name of the user"
+        },
+        "role": {
+          "type": "string",
+          "title": "role associated with the user"
+        }
+      },
+      "title": "Org unit user list entry"
+    },
+    "apiOrgUnitUserUpdateResp": {
+      "type": "object",
+      "title": "org unit user role update response"
+    },
+    "apiOrgUnitUsersListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "count of the users in the ou"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiOrgUnitUserListEntry"
+          },
+          "title": "list of users as part of current response"
+        }
+      },
+      "title": "response to the list org unit users request"
     },
     "apiOrgUnitsListEntry": {
       "type": "object",

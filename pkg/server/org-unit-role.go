@@ -7,9 +7,10 @@ import (
 	"context"
 	"log"
 
+	"github.com/go-core-stack/auth/route"
+
 	"github.com/go-core-stack/auth-gateway/api"
 	"github.com/go-core-stack/auth-gateway/pkg/model"
-	"github.com/go-core-stack/auth/route"
 )
 
 type OrgUnitRoleServer struct {
