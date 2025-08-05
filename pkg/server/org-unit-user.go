@@ -61,6 +61,15 @@ func (s *OrgUnitUserServer) AddOrgUnitUser(ctx context.Context, req *api.OrgUnit
 	if authInfo == nil {
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
+
+	// validate role, currently only admin, default and auditor roles are allowed
+	if req.Role != "admin" && req.Role != "default" && req.Role != "auditor" {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s", req.Role)
+	}
+
+	// TODO: validate if user exists, this might be never done to allow adding users
+	// that are not yet logged in or registered with the system
+
 	entry := &table.OrgUnitUser{
 		Key: &table.OrgUnitUserKey{
 			Tenant:    authInfo.Realm, // might require a better handling for across tenants access
@@ -89,6 +98,12 @@ func (s *OrgUnitUserServer) UpdateOrgUnitUser(ctx context.Context, req *api.OrgU
 	if authInfo == nil {
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
+
+	// validate role, currently only admin, default and auditor roles are allowed
+	if req.Role != "admin" && req.Role != "default" && req.Role != "auditor" {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s", req.Role)
+	}
+
 	update := &table.OrgUnitUser{
 		Key: &table.OrgUnitUserKey{
 			Tenant:    authInfo.Realm, // might require a better handling for across tenants access
