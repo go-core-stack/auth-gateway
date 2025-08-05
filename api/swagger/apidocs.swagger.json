@@ -15,6 +15,9 @@
       "name": "OrgUnit"
     },
     {
+      "name": "OrgUnitRole"
+    },
+    {
       "name": "Registration"
     },
     {
@@ -208,6 +211,38 @@
         ],
         "tags": [
           "Customer"
+        ]
+      }
+    },
+    "/api/auth/v1/ou/{ou}/roles": {
+      "get": {
+        "summary": "Get List of available org unit roles, for specifc orgranisation",
+        "operationId": "OrgUnitRole_ListOrgUnitRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitRolesListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ou",
+            "description": "org unit under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrgUnitRole"
         ]
       }
     },
@@ -2125,6 +2160,34 @@
           "title": "create time"
         }
       }
+    },
+    "apiOrgUnitRolesListEntry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "role name, unique in an Org Unit"
+        },
+        "desc": {
+          "type": "string",
+          "title": "role description, provding details about the role"
+        }
+      }
+    },
+    "apiOrgUnitRolesListResp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiOrgUnitRolesListEntry"
+          },
+          "title": "list of roles available as part of the response"
+        }
+      },
+      "description": "eventually if we start working with longer list of roles\n keep first index for count to provide pagination\n int32 count = 1;",
+      "title": "org unit roles list response"
     },
     "apiOrgUnitUpdateResp": {
       "type": "object"

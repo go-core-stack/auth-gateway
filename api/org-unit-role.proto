@@ -1,0 +1,50 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
+
+option go_package = "github.com/go-core-stack/auth-gateway/api";
+
+// Service provided to manage org unit roles
+service OrgUnitRole {
+  // Get List of available org unit roles, for specifc orgranisation
+  rpc ListOrgUnitRoles(OrgUnitRolesListReq) returns (OrgUnitRolesListResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/ou/{ou}/roles"
+    };
+    option (api.role) = {
+      resource: "org-unit-role"
+      scope: "ou"
+      verb: "list"
+    };
+  }
+}
+
+// org unit roles list request
+message OrgUnitRolesListReq {
+  // org unit under consideration
+  string ou = 1;
+}
+
+message OrgUnitRolesListEntry {
+  // role name, unique in an Org Unit
+  string name = 1;
+
+  // role description, provding details about the role
+  string desc = 2;
+}
+
+// org unit roles list response
+message OrgUnitRolesListResp {
+  // eventually if we start working with longer list of roles
+  // keep first index for count to provide pagination
+  // int32 count = 1;
+
+  // list of roles available as part of the response
+  repeated OrgUnitRolesListEntry items = 2;
+}
