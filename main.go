@@ -437,6 +437,9 @@ func main() {
 	// setup Org Unit server
 	_ = server.NewOrgUnitServer(serverCtx, APIEndpoint)
 
+	// setup org unit role server
+	_ = server.NewOrgUnitRoleServer(serverCtx, APIEndpoint)
+
 	// once all the servers are added to the list
 	// start server
 	startServerContext(serverCtx)
