@@ -1,0 +1,145 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
+
+option go_package = "github.com/go-core-stack/auth-gateway/api";
+
+// Service provided to manage org unit users
+service OrgUnitUser {
+  // Get List of available org unit users
+  rpc ListOrgUnitUsers(OrgUnitUsersListReq) returns (OrgUnitUsersListResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/ou/{ou}/users"
+    };
+    option (api.role) = {
+      resource: "org-unit-user-role"
+      scope: "ou"
+      verb: "list"
+    };
+  }
+
+  // Add user to the org unit
+  rpc AddOrgUnitUser(OrgUnitUserAddReq) returns (OrgUnitUserAddResp) {
+    option (google.api.http) = {
+      post: "/api/auth/v1/ou/{ou}/user"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "org-unit-user-role"
+      scope: "ou"
+      verb: "add"
+    };
+  }
+
+  // Update user role to the org unit
+  rpc UpdateOrgUnitUser(OrgUnitUserUpdateReq) returns (OrgUnitUserUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/auth/v1/ou/{ou}/user/{user}"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "org-unit-user-role"
+      scope: "ou"
+      verb: "update"
+    };
+  }
+
+  // delete user role to the org unit
+  rpc DeleteOrgUnitUser(OrgUnitUserDeleteReq) returns (OrgUnitUserDeleteResp) {
+    option (google.api.http) = {
+      delete: "/api/auth/v1/ou/{ou}/user/{user}"
+    };
+    option (api.role) = {
+      resource: "org-unit-user-role"
+      scope: "ou"
+      verb: "delete"
+    };
+  }
+}
+
+// org unit users list request
+message OrgUnitUsersListReq {
+  // org unit under consideration
+  string ou = 1;
+
+  // offset to start from
+  int32 offset = 2;
+
+  // limit the number of entries in the response
+  int32 limit = 3;
+}
+
+// Org unit user list entry
+message OrgUnitUserListEntry {
+  // username
+  string username = 1;
+
+  // first name of the user
+  string firstname = 2;
+
+  // last name of the user
+  string lastname = 3;
+
+  // role associated with the user
+  string role = 4;
+}
+
+// response to the list org unit users request
+message OrgUnitUsersListResp {
+  // count of the users in the ou
+  int32 count = 1;
+
+  // list of users as part of current response
+  repeated OrgUnitUserListEntry items = 2;
+}
+
+// org unit user role add request
+message OrgUnitUserAddReq {
+  // org unit under consideration
+  string ou = 1;
+
+  // user name
+  string user = 2;
+
+  // org unit role
+  string role = 3;
+}
+
+// org unit user role add response
+message OrgUnitUserAddResp {
+}
+
+// org unit user role update request
+message OrgUnitUserUpdateReq {
+  // org unit under consideration
+  string ou = 1;
+
+  // user name
+  string user = 2;
+
+  // org unit role
+  string role = 3;
+}
+
+// org unit user role update response
+message OrgUnitUserUpdateResp {
+}
+
+// org unit delete req
+message OrgUnitUserDeleteReq {
+  // org unit under consideration
+  string ou = 1;
+
+  // username to delete
+  string user = 2;
+}
+
+// org unit user role delete response
+message OrgUnitUserDeleteResp {
+}
