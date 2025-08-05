@@ -356,6 +356,12 @@ func main() {
 		log.Panicf("failed to locate Org Unit table: %s", err)
 	}
 
+	// locate Org Unit User table
+	_, err = table.LocateOrgUnitUserTable(client)
+	if err != nil {
+		log.Panicf("failed to locate Org Unit User table: %s", err)
+	}
+
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()

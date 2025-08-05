@@ -23,4 +23,7 @@ const (
 
 	// Org Unit collection name
 	OrgUnitCollectionName = "org-units"
+
+	// Org Unit User collection name
+	OrgUnitUserCollectionName = "org-unit-users"
 )

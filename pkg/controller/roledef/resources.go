@@ -31,7 +31,7 @@ type resourceReconciler struct {
 }
 
 func (r *resourceReconciler) compileResourceDef() {
-	list, err := r.mgr.routes.FindMany(context.Background(), nil)
+	list, err := r.mgr.routes.FindMany(context.Background(), nil, 0, 0)
 	if err != nil {
 		log.Printf("Failed to find routes: %s", err)
 		return

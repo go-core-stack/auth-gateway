@@ -71,12 +71,12 @@ type UserTable struct {
 	col db.StoreCollection
 }
 
-func (t *UserTable) GetByTenant(ctx context.Context, tenant string, offset, limit int64) ([]*UserEntry, error) {
+func (t *UserTable) GetByTenant(ctx context.Context, tenant string, offset, limit int32) ([]*UserEntry, error) {
 	filter := bson.M{
 		"key.tenant": tenant,
 	}
-	// TODO: Handle offset and limit
-	list, err := t.FindMany(ctx, filter)
+
+	list, err := t.FindMany(ctx, filter, offset, limit)
 	if err != nil {
 		return nil, err
 	}

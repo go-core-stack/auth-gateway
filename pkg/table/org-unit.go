@@ -57,7 +57,7 @@ func (t *OrgUnitTable) FindByTenant(ctx context.Context, tenant, ouId string) ([
 		OuId:   ouId,
 	}
 
-	return t.FindMany(ctx, filter)
+	return t.FindMany(ctx, filter, 0, 0)
 }
 
 func GetOrgUnitTable() (*OrgUnitTable, error) {

@@ -68,7 +68,7 @@ func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*a
 		Items: []*api.UserListEntry{},
 	}
 
-	users, err := s.userTbl.GetByTenant(ctx, tenant, int64(req.Offset), int64(req.Limit))
+	users, err := s.userTbl.GetByTenant(ctx, tenant, req.Offset, req.Limit)
 	if err != nil && !errors.IsNotFound(err) {
 		log.Printf("failed to fetch users for tenant %s: %s", tenant, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")

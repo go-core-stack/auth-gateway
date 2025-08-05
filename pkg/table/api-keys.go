@@ -112,7 +112,7 @@ func (t *ApiKeyTable) FindByUser(ctx context.Context, info *ApiKeyUserInfo) ([]*
 		Username: info.Username,
 	}
 
-	return t.FindMany(ctx, filter)
+	return t.FindMany(ctx, filter, 0, 0)
 }
 
 type userIdFilter struct {
@@ -133,7 +133,7 @@ func (t *ApiKeyTable) FindIdByUser(ctx context.Context, id string, info *ApiKeyU
 		Username: info.Username,
 	}
 
-	list, err := t.FindMany(ctx, filter)
+	list, err := t.FindMany(ctx, filter, 0, 0)
 	if err != nil {
 		return nil, err
 	}
