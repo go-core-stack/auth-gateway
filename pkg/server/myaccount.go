@@ -48,9 +48,10 @@ func generateSecret() string {
 // MyAccountServer implements the api.MyAccountServer interface.
 type MyAccountServer struct {
 	api.UnimplementedMyAccountServer
-	apiKeys *table.ApiKeyTable  // apiKeys table for managing API keys
-	ouTable *table.OrgUnitTable // Org Unit table
-	client  *keycloak.Client
+	apiKeys     *table.ApiKeyTable      // apiKeys table for managing API keys
+	ouTable     *table.OrgUnitTable     // Org Unit table
+	ouUserTable *table.OrgUnitUserTable // Org Unit User table
+	client      *keycloak.Client
 }
 
 // GetMyInfo returns account information for the current user.
@@ -413,8 +414,35 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 	if authInfo == nil {
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
+	resp := &api.MyOrgUnitsListResp{}
 	if authInfo.Roles == nil || !slices.Contains(authInfo.Roles, "admin") {
-		return nil, status.Errorf(codes.Unimplemented, "Non-admin users currently not supported")
+		// user is not a tenant admin, so we will just return the org units where the user is assigned specific role
+		list, err := s.ouUserTable.GetByUser(ctx, authInfo.Realm, authInfo.UserName)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				return resp, nil
+			}
+			log.Printf("got error while fetching org unit user list for user %s: %s", authInfo.UserName, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+		for i, entry := range list {
+			ou, err := s.ouTable.Find(ctx, &table.OrgUnitKey{ID: entry.Key.OrgUnitId})
+			if err != nil {
+				log.Printf("failed to find org unit %s, while user role exists, got error: %s", entry.Key.OrgUnitId, err)
+				continue
+			}
+			item := &api.MyOrgUnitEntry{
+				Id:   ou.Key.ID,
+				Name: ou.Name,
+			}
+			if i == 0 {
+				// TODO: need to handle senario where a specifig default org unit is set for a user
+				// for now, we will just set the first org unit as default
+				resp.Default = item
+			}
+			resp.Items = append(resp.Items, item)
+		}
+		return resp, nil
 	}
 	OrgUnits, err := s.ouTable.FindByTenant(ctx, authInfo.Realm, "")
 	if err != nil {
@@ -424,7 +452,7 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 		log.Printf("got error while fetching org unit list for tenant %s: %s", authInfo.Realm, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
-	resp := &api.MyOrgUnitsListResp{}
+
 	for i, ou := range OrgUnits {
 		item := &api.MyOrgUnitEntry{
 			Id:   ou.Key.ID,
@@ -506,10 +534,15 @@ func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, e
 	if err != nil {
 		log.Panicf("failed to get Org Unit table: %s", err)
 	}
+	ouUserTable, err := table.GetOrgUnitUserTable()
+	if err != nil {
+		log.Panicf("failed to get Org Unit User table: %s", err)
+	}
 	srv := &MyAccountServer{
-		apiKeys: apiKeys, // Initialize the API keys table
-		ouTable: ouTbl,   // Initialize the Org Unit table
-		client:  client,
+		apiKeys:     apiKeys, // Initialize the API keys table
+		ouTable:     ouTbl,   // Initialize the Org Unit table
+		ouUserTable: ouUserTable,
+		client:      client,
 	}
 	api.RegisterMyAccountServer(ctx.Server, srv)
 	err = api.RegisterMyAccountHandler(context.Background(), ctx.Mux, ctx.Conn)
