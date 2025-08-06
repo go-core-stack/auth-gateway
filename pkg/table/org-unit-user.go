@@ -39,11 +39,25 @@ type OrgUnitUserTable struct {
 	col db.StoreCollection
 }
 
+func (t *OrgUnitUserTable) GetByUser(ctx context.Context, tenant, user string) ([]*OrgUnitUser, error) {
+	filter := bson.M{
+		"key.tenant":   tenant,
+		"key.username": user,
+	}
+
+	list, err := t.FindMany(ctx, filter, 0, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
 func (t *OrgUnitUserTable) GetByOrgUnitId(ctx context.Context, orgUnitId string, offset, limit int32) ([]*OrgUnitUser, error) {
 	filter := bson.M{
 		"key.orgUnitId": orgUnitId,
 	}
-	// TODO: Handle offset and limit
+
 	list, err := t.FindMany(ctx, filter, offset, limit)
 	if err != nil {
 		return nil, err
