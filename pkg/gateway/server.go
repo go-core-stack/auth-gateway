@@ -31,6 +31,7 @@ type gateway struct {
 	userTbl   *table.UserTable
 	routes    *route.RouteTable
 	ouTbl     *table.OrgUnitTable
+	ouUserTbl *table.OrgUnitUserTable
 	proxyV1   *httputil.ReverseProxy
 	proxyV2   *httputil.ReverseProxy
 }
@@ -185,6 +186,35 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 	return authInfo, nil
 }
 
+// performOrgUnitRoleCheck checks if the Org unit role associated with the user
+// allows the requested access, returns true if the role allows access
+func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, r *http.Request) bool {
+	ouUserKey := &table.OrgUnitUserKey{
+		Tenant:    authInfo.Realm,
+		Username:  authInfo.UserName,
+		OrgUnitId: ou,
+	}
+	ouUser, err := s.ouUserTbl.Find(r.Context(), ouUserKey)
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			log.Printf("failed to find org unit user %v, got error: %s", ouUserKey, err)
+		}
+		return false
+	}
+	switch ouUser.Role {
+	case "admin":
+		// wildcard access to the org unit
+		return true
+	case "auditor":
+		if r.Method == http.MethodGet || r.Method == http.MethodHead {
+			// allow read-only access for auditor role
+			return true
+		}
+		return false
+	}
+	return false
+}
+
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	match, orgUnit, err := matchRoute(r.Method, r.URL.Path)
 	if err != nil {
@@ -219,17 +249,25 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			// perform RBAC / PBAC and scope validations
 			// TODO(prabhjot) currently only allow admin role
-			isAdmin := false
+			isTenantAdmin := false
 			for _, role := range authInfo.Roles {
 				if role == "admin" {
-					isAdmin = true
+					isTenantAdmin = true
 					break
 				}
 			}
 
-			if !isAdmin {
-				http.Error(w, "Access Denied", http.StatusForbidden)
-				return
+			if !isTenantAdmin {
+				allow := false
+				if orgUnit != "" {
+					// check if Org Unit Role associated with user, allows the
+					// requested access
+					allow = s.performOrgUnitRoleCheck(authInfo, orgUnit, r)
+				}
+				if !allow {
+					http.Error(w, "Access Denied", http.StatusForbidden)
+					return
+				}
 			}
 		}
 		// validate Org unit scope irrespective if the match is
@@ -303,6 +341,11 @@ func New() http.Handler {
 		log.Panicf("unable to get org unit table: %s", err)
 	}
 
+	ouUserTbl, err := table.GetOrgUnitUserTable()
+	if err != nil {
+		log.Panicf("unable to get org unit user table: %s", err)
+	}
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -323,6 +366,7 @@ func New() http.Handler {
 		userTbl:   userTbl,
 		routes:    routes,
 		ouTbl:     ouTbl,
+		ouUserTbl: ouUserTbl,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,
