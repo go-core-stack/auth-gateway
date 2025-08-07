@@ -60,6 +60,26 @@ func (t *OrgUnitUserTable) CountByOrgUnitId(ctx context.Context, orgUnitId strin
 	return int32(count), err
 }
 
+// GetByTenantUsernameAndOrgUnitId retrieves all org unit roles for a specific user within a tenant
+// This method is used to check if a user has specific roles (like Admin or Auditor)
+// in a org unit they belong to within their tenant. This is a step for us to implement RBAC
+// beyond tenant-level.
+func (t *OrgUnitUserTable) GetByTenantUsernameAndOrgUnitId(ctx context.Context, tenant, username, orgUnitId string) (*OrgUnitUser, error) {
+	key := &OrgUnitUserKey{
+		Tenant:    tenant,
+		Username:  username,
+		OrgUnitId: orgUnitId,
+	}
+
+	// Expecting only one match: one user in one org unit
+	user, err := t.Find(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func GetOrgUnitUserTable() (*OrgUnitUserTable, error) {
 	if orgUnitUserTable != nil {
 		return orgUnitUserTable, nil

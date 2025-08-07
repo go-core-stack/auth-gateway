@@ -4,11 +4,13 @@
 package gateway
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 	"sync"
 	"time"
 
@@ -31,6 +33,7 @@ type gateway struct {
 	userTbl   *table.UserTable
 	routes    *route.RouteTable
 	ouTbl     *table.OrgUnitTable
+	ouUserTbl *table.OrgUnitUserTable
 	proxyV1   *httputil.ReverseProxy
 	proxyV2   *httputil.ReverseProxy
 }
@@ -185,6 +188,52 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 	return authInfo, nil
 }
 
+// hasAdminOrAuditorRole checks if a user has Admin or Auditor roles within a specific org unit.
+// This method provides role-based access control for a particular org unit rather than checking
+// across all org units. It queries the org unit user collection to find the specific role
+// assigned to the user in the given org unit and checks if it's "Admin" or "Auditor".
+// Admin users get full access to all HTTP methods, while Auditor users only get GET access.
+func (s *gateway) hasAdminOrAuditorRole(ctx context.Context, tenant, username string, orgUnitId string, httpMethod string) (bool, error) {
+	// Query the org unit user table to get the specific role this user has in the given org unit
+	orgUnitUser, err := s.ouUserTbl.GetByTenantUsernameAndOrgUnitId(ctx, tenant, username, orgUnitId)
+	if err != nil {
+		// If there's an error querying the database or user not found in org unit, we log it and deny access
+		// This ensures that database errors don't accidentally grant unauthorized access
+		if errors.IsNotFound(err) {
+			log.Printf("User %s not found in org unit %s within tenant %s", username, orgUnitId, tenant)
+			return false, nil // User simply doesn't exist in this org unit, not an error
+		}
+		log.Printf("Error checking org unit role for user %s in org unit %s, tenant %s: %v", username, orgUnitId, tenant, err)
+		return false, err
+	}
+
+	// Check if the user has Admin or Auditor role in this specific org unit
+	if strings.ToLower(orgUnitUser.Role) == "admin" {
+		// Admin users have full access to all HTTP methods
+		log.Printf("User %s in tenant %s has Admin role in org unit %s - granting full access",
+			username, tenant, orgUnitId)
+		return true, nil
+	}
+
+	if strings.ToLower(orgUnitUser.Role) == "auditor" {
+		// Auditor users only have access to GET requests (read-only)
+		if httpMethod == "GET" {
+			log.Printf("User %s in tenant %s has Auditor role in org unit %s - granting GET access",
+				username, tenant, orgUnitId)
+			return true, nil
+		} else {
+			log.Printf("User %s in tenant %s has Auditor role in org unit %s - denying %s access (auditors only get GET)",
+				username, tenant, orgUnitId, httpMethod)
+			return false, nil
+		}
+	}
+
+	// User doesn't have Admin or Auditor role in this org unit
+	log.Printf("User %s in tenant %s has %s role (not admin/auditor) in org unit %s",
+		username, tenant, orgUnitUser.Role, orgUnitId)
+	return false, nil
+}
+
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	match, orgUnit, err := matchRoute(r.Method, r.URL.Path)
 	if err != nil {
@@ -219,6 +268,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			// perform RBAC / PBAC and scope validations
 			// TODO(prabhjot) currently only allow admin role
+			// Check if user has tenant admin role first
 			isAdmin := false
 			for _, role := range authInfo.Roles {
 				if role == "admin" {
@@ -227,7 +277,33 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
+			// If the user is not a tenant admin, check if they have Admin or Auditor roles
+			// in the specific org unit (if orgUnit is available in the request context).
+			// This provides more granular access control allowing users with elevated org unit
+			// roles to access certain resources even if they don't have tenant-wide admin privileges.
+			if !isAdmin && orgUnit != "" {
+				// Check org unit roles for Admin or Auditor privileges in the specific org unit
+				hasElevatedRole, err := s.hasAdminOrAuditorRole(r.Context(), authInfo.Realm, authInfo.UserName, orgUnit, r.Method)
+				if err != nil {
+					// Log the error but don't expose internal details to the client
+					log.Printf("Failed to check org unit role for user %s in org unit %s, tenant %s: %v",
+						authInfo.UserName, orgUnit, authInfo.Realm, err)
+					http.Error(w, "Internal server error while checking permissions", http.StatusInternalServerError)
+					return
+				}
+
+				// Grant access if user has Admin or Auditor role in this specific org unit
+				if hasElevatedRole {
+					isAdmin = true
+					log.Printf("Access granted to user %s in tenant %s based on %s role in org unit %s",
+						authInfo.UserName, authInfo.Realm, "Admin/Auditor", orgUnit)
+				}
+			}
+
+			// Final access control check - deny access if user lacks sufficient privileges
 			if !isAdmin {
+				log.Printf("Access denied for user %s in tenant %s - insufficient privileges",
+					authInfo.UserName, authInfo.Realm)
 				http.Error(w, "Access Denied", http.StatusForbidden)
 				return
 			}
@@ -303,6 +379,14 @@ func New() http.Handler {
 		log.Panicf("unable to get org unit table: %s", err)
 	}
 
+	ouUserTbl, err := table.GetOrgUnitUserTable()
+	if err != nil {
+		log.Panicf("unable to get org unit user table: %s", err)
+	}
+
+	// TODO: REMOVE THESE STUBS AFTER TESTING - Initialize test data for RBAC validation
+	// initializeTestData(ouTbl, ouUserTbl)
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -323,6 +407,7 @@ func New() http.Handler {
 		userTbl:   userTbl,
 		routes:    routes,
 		ouTbl:     ouTbl,
+		ouUserTbl: ouUserTbl,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,
