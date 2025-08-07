@@ -235,7 +235,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// validate Org unit scope irrespective if the match is
 		// user specific or not
 		if orgUnit != "" {
-			log.Printf("Checking access for org unit %s in tenant %s", orgUnit, authInfo.Realm)
+			//log.Printf("Checking access for org unit %s in tenant %s", orgUnit, authInfo.Realm)
 			// check org unit is available and associated with tenant
 			ouList, err := s.ouTbl.FindByTenant(r.Context(), authInfo.Realm, orgUnit)
 			if err != nil {
