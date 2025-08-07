@@ -59,6 +59,7 @@ func populateRoutes(routes *route.RouteTable) {
 				isPublic:       utils.PBool(r.IsPublic),
 				isRoot:         utils.PBool(r.IsRoot),
 				isUserSpecific: utils.PBool(r.IsUserSpecific),
+				scopes:         r.Scopes,
 			}
 		}
 	}
