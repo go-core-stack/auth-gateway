@@ -6,10 +6,11 @@ package table
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
+
 	"github.com/go-core-stack/core/db"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/table"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 var orgUnitUserTable *OrgUnitUserTable
@@ -72,6 +73,11 @@ func (t *OrgUnitUserTable) CountByOrgUnitId(ctx context.Context, orgUnitId strin
 	}
 	count, err := t.col.Count(ctx, filter)
 	return int32(count), err
+}
+
+func (t *OrgUnitUserTable) StartEventLogger() error {
+	logger := db.NewEventLogger[OrgUnitUserKey, OrgUnitUser](t.col, nil)
+	return logger.Start(context.Background())
 }
 
 func GetOrgUnitUserTable() (*OrgUnitUserTable, error) {

@@ -351,15 +351,25 @@ func main() {
 	}
 
 	// locate Org Unit table
-	_, err = table.LocateOrgUnitTable(client)
+	ouTable, err := table.LocateOrgUnitTable(client)
 	if err != nil {
 		log.Panicf("failed to locate Org Unit table: %s", err)
 	}
 
+	err = ouTable.StartEventLogger()
+	if err != nil {
+		log.Panicf("failed to start event logger for Org Unit User table: %s", err)
+	}
+
 	// locate Org Unit User table
-	_, err = table.LocateOrgUnitUserTable(client)
+	ouUserTbl, err := table.LocateOrgUnitUserTable(client)
 	if err != nil {
 		log.Panicf("failed to locate Org Unit User table: %s", err)
+	}
+
+	err = ouUserTbl.StartEventLogger()
+	if err != nil {
+		log.Panicf("failed to start event logger for Org Unit User table: %s", err)
 	}
 
 	// ensure that the root tenant exists to work with as the default

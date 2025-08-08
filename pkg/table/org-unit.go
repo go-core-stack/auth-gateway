@@ -60,6 +60,11 @@ func (t *OrgUnitTable) FindByTenant(ctx context.Context, tenant, ouId string) ([
 	return t.FindMany(ctx, filter, 0, 0)
 }
 
+func (t *OrgUnitTable) StartEventLogger() error {
+	logger := db.NewEventLogger[OrgUnitKey, OrgUnitEntry](t.col, nil)
+	return logger.Start(context.Background())
+}
+
 func GetOrgUnitTable() (*OrgUnitTable, error) {
 	if ouTable != nil {
 		return ouTable, nil
