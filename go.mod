@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/go-core-stack/auth v0.0.0-20250703132332-24ef7e70de0e
-	github.com/go-core-stack/core v0.0.0-20250805162144-55cd0446c13e
+	github.com/go-core-stack/core v0.0.0-20250808174703-793334d9127e
 	github.com/go-core-stack/grpc-core v0.0.0-20250612052530-de9a8693884f
 	github.com/go-core-stack/patricia v0.0.0-20250613164405-ac1bcd231c34
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
@@ -39,7 +39,7 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.mongodb.org/mongo-driver v1.17.3
-	go.mongodb.org/mongo-driver/v2 v2.2.1 // indirect
+	go.mongodb.org/mongo-driver/v2 v2.2.1
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
