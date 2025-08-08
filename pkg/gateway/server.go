@@ -4,6 +4,7 @@
 package gateway
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"log"
@@ -22,6 +23,13 @@ import (
 
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
+)
+
+type gwContextKey string
+
+const (
+	authKey gwContextKey = "auth"
+	ouKey   gwContextKey = "ou"
 )
 
 type gateway struct {
@@ -216,11 +224,20 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 }
 
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var status int
 	match, orgUnit, err := matchRoute(r.Method, r.URL.Path)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), http.StatusNotFound)
+		status = http.StatusNotFound
+		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), status)
 		return
 	}
+
+	var authInfo *common.AuthInfo
+	defer func() {
+		if status != 0 {
+			s.handleAccessLog(authInfo, orgUnit, r, status)
+		}
+	}()
 
 	if match.isPublic {
 		// even for public route ensure that we have auth info
@@ -232,19 +249,25 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// interceptors
 		err = common.SetAuthInfoHeader(r, &common.AuthInfo{})
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Something went wrong: %s", err), http.StatusInternalServerError)
+			status = http.StatusInternalServerError
+			http.Error(w, fmt.Sprintf("Something went wrong: %s", err), status)
 			return
 		}
 	} else {
-		authInfo, err := s.AuthenticateRequest(r)
+		authInfo, err = s.AuthenticateRequest(r)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Authentication failed: %s", err), http.StatusUnauthorized)
+			status = http.StatusUnauthorized
+			http.Error(w, fmt.Sprintf("Authentication failed: %s", err), status)
 			return
 		}
+		newCtx := context.WithValue(r.Context(), authKey, *authInfo)
+		newCtx = context.WithValue(newCtx, ouKey, orgUnit)
+		r = r.WithContext(newCtx)
 		if !match.isUserSpecific {
 			if match.isRoot && !authInfo.IsRoot {
 				// access to the route is meant to come only from root tenancy
-				http.Error(w, "Access Denied", http.StatusForbidden)
+				status = http.StatusForbidden
+				http.Error(w, "Access Denied", status)
 				return
 			}
 			// perform RBAC / PBAC and scope validations
@@ -265,7 +288,8 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					allow = s.performOrgUnitRoleCheck(authInfo, orgUnit, r)
 				}
 				if !allow {
-					http.Error(w, "Access Denied", http.StatusForbidden)
+					status = http.StatusForbidden
+					http.Error(w, "Access Denied", status)
 					return
 				}
 			}
@@ -278,15 +302,18 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			ouList, err := s.ouTbl.FindByTenant(r.Context(), authInfo.Realm, orgUnit)
 			if err != nil {
 				if errors.IsNotFound(err) {
-					http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
+					status = http.StatusNotFound
+					http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), status)
 					return
 				}
 				log.Printf("Failed to find org unit %s in tenant %s: %s", orgUnit, authInfo.Realm, err)
-				http.Error(w, "Something went wrong while processing request", http.StatusInternalServerError)
+				status = http.StatusInternalServerError
+				http.Error(w, "Something went wrong while processing request", status)
 				return
 			}
 			if len(ouList) == 0 {
-				http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), http.StatusNotFound)
+				status = http.StatusNotFound
+				http.Error(w, fmt.Sprintf("Org Unit %s not found", orgUnit), status)
 				return
 			}
 		}
@@ -311,6 +338,34 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		s.proxyV1.ServeHTTP(w, r)
 	}
+}
+
+func (s *gateway) handleAccessLog(authInfo *common.AuthInfo, ou string, r *http.Request, status int) {
+	msg := fmt.Sprintf("[Access Log] Method: %s, Url: %s, Status: %d", r.Method, r.URL.Path, status)
+	if ou != "" {
+		msg += fmt.Sprintf(", ou: %s", ou)
+	}
+	if authInfo != nil {
+		msg += fmt.Sprintf(", accessed by %s:%s", authInfo.Realm, authInfo.UserName)
+	} else {
+		msg += ", accessed anonymously"
+	}
+	log.Println(msg)
+}
+
+// currently this is only relevant for logging response
+func (s *gateway) ModifyResponse(resp *http.Response) error {
+	var authInfo *common.AuthInfo
+	authInfoObj, ok := resp.Request.Context().Value(authKey).(common.AuthInfo)
+	if ok {
+		authInfo = &authInfoObj
+	}
+	ou, ok := resp.Request.Context().Value(ouKey).(string)
+	if !ok {
+		ou = ""
+	}
+	s.handleAccessLog(authInfo, ou, resp.Request, resp.StatusCode)
+	return nil
 }
 
 func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
@@ -378,6 +433,10 @@ func New() http.Handler {
 			ErrorHandler: gatewayErrorHandler,
 		},
 	}
+
+	// set modify response handler for both v1 and v2 proxy
+	gateway.proxyV1.ModifyResponse = gateway.ModifyResponse
+	gateway.proxyV2.ModifyResponse = gateway.ModifyResponse
 
 	r := &gatewayReconciler{
 		gw: gateway,
