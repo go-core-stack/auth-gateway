@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"slices"
 	"sync"
 	"time"
 
@@ -249,13 +250,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			// perform RBAC / PBAC and scope validations
 			// TODO(prabhjot) currently only allow admin role
-			isTenantAdmin := false
-			for _, role := range authInfo.Roles {
-				if role == "admin" {
-					isTenantAdmin = true
-					break
-				}
-			}
+			isTenantAdmin := slices.Contains(authInfo.Roles, "admin")
 
 			if !isTenantAdmin {
 				allow := false
