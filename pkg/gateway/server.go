@@ -44,14 +44,15 @@ var logger *zap.Logger
 
 type gateway struct {
 	http.Handler
-	validator hash.Validator
-	apiKeys   *table.ApiKeyTable
-	userTbl   *table.UserTable
-	routes    *route.RouteTable
-	ouTbl     *table.OrgUnitTable
-	ouUserTbl *table.OrgUnitUserTable
-	proxyV1   *httputil.ReverseProxy
-	proxyV2   *httputil.ReverseProxy
+	validator       hash.Validator
+	apiKeys         *table.ApiKeyTable
+	userTbl         *table.UserTable
+	routes          *route.RouteTable
+	ouTbl           *table.OrgUnitTable
+	ouUserTbl       *table.OrgUnitUserTable
+	ouCustomRoleTbl *table.OrgUnitCustomRoleTable
+	proxyV1         *httputil.ReverseProxy
+	proxyV2         *httputil.ReverseProxy
 }
 
 type gatewayReconciler struct {
@@ -219,6 +220,7 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 		}
 		return false
 	}
+
 	switch ouUser.Role {
 	case "admin":
 		// wildcard access to the org unit
@@ -230,11 +232,141 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 		}
 		return false
 	}
-	return false
+
+	// Check if it's a custom role
+	customRole, err := s.ouCustomRoleTbl.FindByNameAndOrgUnit(r.Context(), authInfo.Realm, ou, ouUser.Role)
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			log.Printf("failed to find custom role %s for org unit %s: %s", ouUser.Role, ou, err)
+		}
+		// If custom role not found, deny access
+		return false
+	}
+
+	// Check if the custom role allows the requested action
+	return s.checkCustomRolePermissions(customRole, r)
+}
+
+// checkCustomRolePermissions validates if a custom role permits the requested HTTP action
+func (s *gateway) checkCustomRolePermissions(customRole *table.OrgUnitCustomRole, r *http.Request) bool {
+	// Extract route info for permission checking
+	routeInfo, err := s.extractRouteInfo(r)
+	if err != nil {
+		log.Printf("failed to extract route info for permission check: %s", err)
+		return false // Deny access if we can't determine the resource
+	}
+
+	return s.validatePermissions(customRole, routeInfo)
+}
+
+// validatePermissions checks if the custom role allows access to the given resource/verb
+// Supports wildcard "*" for both resources and verbs
+// Processes Allow/Deny actions with Deny taking precedence
+func (s *gateway) validatePermissions(customRole *table.OrgUnitCustomRole, routeInfo *RouteInfo) bool {
+	var hasAllowMatch bool
+
+	// First pass: check for any Deny rules that match
+	// Deny takes precedence, so we check all permissions for Deny first
+	for _, permission := range customRole.Permissions {
+		// Check if resource matches (exact match or wildcard)
+		resourceMatches := permission.Resource == "*" || permission.Resource == routeInfo.Resource
+
+		if resourceMatches {
+			// Check if verb matches (exact match or wildcard)
+			for _, allowedVerb := range permission.Verbs {
+				verbMatches := allowedVerb == "*" || allowedVerb == routeInfo.Verb
+
+				if verbMatches {
+					// Check action type (default to "Allow" if not specified for backward compatibility)
+					action := permission.Action
+					if action == "" {
+						action = "Allow"
+					}
+
+					if action == "Deny" {
+						// Deny takes precedence - immediately reject access
+						return false
+					}
+				}
+			}
+		}
+	}
+
+	// Second pass: check for Allow rules that match
+	for _, permission := range customRole.Permissions {
+		// Check if resource matches (exact match or wildcard)
+		resourceMatches := permission.Resource == "*" || permission.Resource == routeInfo.Resource
+
+		if resourceMatches {
+			// Check if verb matches (exact match or wildcard)
+			for _, allowedVerb := range permission.Verbs {
+				verbMatches := allowedVerb == "*" || allowedVerb == routeInfo.Verb
+
+				if verbMatches {
+					// Check action type (default to "Allow" if not specified for backward compatibility)
+					action := permission.Action
+					if action == "" {
+						action = "Allow"
+					}
+
+					if action == "Allow" {
+						hasAllowMatch = true
+						break
+					}
+				}
+			}
+		}
+
+		// If we found an Allow, no need to continue checking
+		if hasAllowMatch {
+			break
+		}
+	}
+
+	// Grant access only if there's an Allow match
+	return hasAllowMatch
+}
+
+// RouteInfo holds information about the current request route
+type RouteInfo struct {
+	Resource string // The resource being accessed
+	Verb     string // The action being performed
+}
+
+// extractRouteInfo extracts resource and verb information from the current request
+func (s *gateway) extractRouteInfo(r *http.Request) (*RouteInfo, error) {
+	// Select the path to use, mirroring ServeHTTP's logic for encoded paths
+	path := r.URL.RawPath
+	if path == "" {
+		// if the path does not contain such explicitly encoded
+		// characters that would be lost during decoding,
+		// RawPath will be an empty string
+		path = r.URL.Path
+	}
+
+	// Use the existing matchRoute function for efficient route matching
+	routeData, _, err := matchRoute(r.Method, path)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RouteInfo{
+		Resource: routeData.resource, // Resource name from route config
+		Verb:     routeData.verb,     // Verb from route config
+	}, nil
 }
 
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var status int
+	var authInfo *common.AuthInfo
+	var orgUnit string
+
+	defer func() {
+		if status != 0 {
+			s.handleAccessLog(authInfo, orgUnit, r, status)
+		}
+	}()
+
 	path := r.URL.RawPath
 	if path == "" {
 		// if the path does not contain such explicitly encoded
@@ -248,13 +380,6 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, path), status)
 		return
 	}
-
-	var authInfo *common.AuthInfo
-	defer func() {
-		if status != 0 {
-			s.handleAccessLog(authInfo, orgUnit, r, status)
-		}
-	}()
 
 	if match.isPublic {
 		// even for public route ensure that we have auth info
@@ -466,6 +591,11 @@ func New() http.Handler {
 		log.Panicf("unable to get org unit user table: %s", err)
 	}
 
+	ouCustomRoleTbl, err := table.GetOrgUnitCustomRoleTable()
+	if err != nil {
+		log.Panicf("unable to get org unit custom role table: %s", err)
+	}
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -481,12 +611,13 @@ func New() http.Handler {
 	}
 
 	gateway := &gateway{
-		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
-		apiKeys:   apiKeys,
-		userTbl:   userTbl,
-		routes:    routes,
-		ouTbl:     ouTbl,
-		ouUserTbl: ouUserTbl,
+		validator:       hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
+		apiKeys:         apiKeys,
+		userTbl:         userTbl,
+		routes:          routes,
+		ouTbl:           ouTbl,
+		ouUserTbl:       ouUserTbl,
+		ouCustomRoleTbl: ouCustomRoleTbl,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,
