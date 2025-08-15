@@ -226,10 +226,17 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var status int
-	match, orgUnit, err := matchRoute(r.Method, r.URL.Path)
+	path := r.URL.RawPath
+	if path == "" {
+		// if the path does not contain such explicitly encoded
+		// characters that would be lost during decoding,
+		// RawPath will be an empty string
+		path = r.URL.Path
+	}
+	match, orgUnit, err := matchRoute(r.Method, path)
 	if err != nil {
 		status = http.StatusNotFound
-		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, r.URL.Path), status)
+		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, path), status)
 		return
 	}
 
@@ -336,7 +343,14 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *gateway) handleAccessLog(authInfo *common.AuthInfo, ou string, r *http.Request, status int) {
-	msg := fmt.Sprintf("[Access Log] Method: %s, Url: %s, Status: %d", r.Method, r.URL.Path, status)
+	path := r.URL.RawPath
+	if path == "" {
+		// if the path does not contain such explicitly encoded
+		// characters that would be lost during decoding,
+		// RawPath will be an empty string
+		path = r.URL.Path
+	}
+	msg := fmt.Sprintf("[Access Log] Method: %s, Url: %s, Status: %d", r.Method, path, status)
 	if ou != "" {
 		msg += fmt.Sprintf(", ou: %s", ou)
 	}
