@@ -9,11 +9,13 @@ import (
 	"time"
 
 	"github.com/Nerzal/gocloak/v13"
-	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
-	"github.com/go-core-stack/auth-gateway/pkg/table"
+
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/reconciler"
 	"github.com/go-core-stack/core/utils"
+
+	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
+	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
 // User reconciler Controller responsible for managing Keycloak
@@ -101,17 +103,20 @@ func (r *UserReconciler) Reconcile(k any) (*reconciler.Result, error) {
 			Username: gocloak.StringP(key.Username),
 		}
 		users, err := r.ctrl.client.GetUsers(ctx, token, tEntry.KCStatus.RealmName, params)
-		if err != nil || len(users) == 0 {
+		if err != nil {
 			log.Printf("failed to find the user in given tenant %s, got error: %s", key.Tenant, err)
 			// TODO(Prabhjot) might need to consider error handling
 			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
 		}
-		// assume that it is always the first and the only user in the list
-		err = r.ctrl.client.DeleteUser(ctx, token, tEntry.KCStatus.RealmName, *users[0].ID)
-		if err != nil {
-			log.Printf("failed to delete user %s:%s, got error: %s", key.Tenant, key.Username, err)
-			// TODO(Prabhjot) might need to consider error handling
-			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
+
+		if len(users) != 0 {
+			// assume that it is always the first and the only user in the list
+			err = r.ctrl.client.DeleteUser(ctx, token, tEntry.KCStatus.RealmName, *users[0].ID)
+			if err != nil {
+				log.Printf("failed to delete user %s:%s, got error: %s", key.Tenant, key.Username, err)
+				// TODO(Prabhjot) might need to consider error handling
+				return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
+			}
 		}
 
 		err = r.ctrl.userTbl.DeleteKey(ctx, key)
