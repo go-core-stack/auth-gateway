@@ -88,14 +88,14 @@ func (s *OrgUnitServer) UpdateOrgUnit(ctx context.Context, req *api.OrgUnitUpdat
 	if authInfo == nil {
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
-	entry := &table.OrgUnitEntry{
+	update := &table.OrgUnitEntry{
 		Key: &table.OrgUnitKey{
 			ID: req.Id,
 		},
 		Name: req.Name,
 		Desc: req.Desc,
 	}
-	_, err := s.ouTable.Find(ctx, entry.Key)
+	found, err := s.ouTable.Find(ctx, update.Key)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, status.Errorf(codes.NotFound, "Org Unit with ID %s not found for tenant %s", req.Id, authInfo.Realm)
@@ -103,10 +103,11 @@ func (s *OrgUnitServer) UpdateOrgUnit(ctx context.Context, req *api.OrgUnitUpdat
 		log.Printf("failed to find org unit for tenant %s: %s", authInfo.Realm, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
-	if entry.Tenant != authInfo.Realm {
+	if found.Tenant != authInfo.Realm {
+		log.Printf("user belongs to %s, but trying to update org unit for %s", authInfo.Realm, found.Tenant)
 		return nil, status.Errorf(codes.PermissionDenied, "You do not have permission to update this Org Unit")
 	}
-	err = s.ouTable.Update(ctx, entry.Key, entry)
+	err = s.ouTable.Update(ctx, update.Key, update)
 	if err != nil {
 		log.Printf("failed to update org unit for tenant %s: %s", authInfo.Realm, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
