@@ -332,6 +332,12 @@ func main() {
 		log.Panicf("failed to locate user table: %s", err)
 	}
 
+	// locate the user preference table
+	_, err = table.LocateUserPreferenceTable(client)
+	if err != nil {
+		log.Panicf("failed to locate user preference table: %s", err)
+	}
+
 	// locate the api key table
 	_, err = table.LocateApiKeyTable(client)
 	if err != nil {

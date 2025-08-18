@@ -48,10 +48,11 @@ func generateSecret() string {
 // MyAccountServer implements the api.MyAccountServer interface.
 type MyAccountServer struct {
 	api.UnimplementedMyAccountServer
-	apiKeys     *table.ApiKeyTable      // apiKeys table for managing API keys
-	ouTable     *table.OrgUnitTable     // Org Unit table
-	ouUserTable *table.OrgUnitUserTable // Org Unit User table
-	client      *keycloak.Client
+	apiKeys             *table.ApiKeyTable         // apiKeys table for managing API keys
+	ouTable             *table.OrgUnitTable        // Org Unit table
+	ouUserTable         *table.OrgUnitUserTable    // Org Unit User table
+	userPreferenceTable *table.UserPreferenceTable // user preference table
+	client              *keycloak.Client
 }
 
 // GetMyInfo returns account information for the current user.
@@ -453,14 +454,30 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
 
+	uKey := &table.UserKey{
+		Tenant:   authInfo.Realm,
+		Username: authInfo.UserName,
+	}
+
+	pref, _ := s.userPreferenceTable.Find(ctx, uKey)
+
+	defaultOU := ""
+	if pref != nil {
+		defaultOU = utils.PString(pref.DefaultOU)
+	}
+
 	for i, ou := range OrgUnits {
 		item := &api.MyOrgUnitEntry{
 			Id:   ou.Key.ID,
 			Name: ou.Name,
 		}
 		if i == 0 {
-			// TODO: need to handle senario where a specifig default org unit is set for a user
-			// for now, we will just set the first org unit as default
+			// by default ensure settign the first org unit as default
+			resp.Default = item
+		}
+		if defaultOU != "" && defaultOU == ou.Key.ID {
+			// if a default org unit is set for a user then ensure
+			// switching to the configured default org unit
 			resp.Default = item
 		}
 		resp.Items = append(resp.Items, item)
@@ -475,9 +492,54 @@ func (s *MyAccountServer) SetDefaultOrgUnit(ctx context.Context, req *api.Defaul
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 
-	log.Printf("got request to set default org unit %s for user %s in tenant %s", req.Id, authInfo.UserName, authInfo.Realm)
+	if authInfo.Roles == nil || !slices.Contains(authInfo.Roles, "admin") {
+		// user is not a tenant admin
+		ouKey := &table.OrgUnitUserKey{
+			Tenant:    authInfo.Realm,
+			Username:  authInfo.UserName,
+			OrgUnitId: req.Id,
+		}
+		_, err := s.ouUserTable.Find(ctx, ouKey)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				return nil, status.Errorf(codes.NotFound, "Org Unit %s not found for user %s", req.Id, authInfo.UserName)
+			}
+			log.Printf("got error while fetching org unit user entry for user %s: %s", authInfo.UserName, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+	} else {
+		// check ou exists and maps to the correct tenant
+		ouKey := &table.OrgUnitKey{
+			ID: req.Id,
+		}
+		ou, err := s.ouTable.Find(ctx, ouKey)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				return nil, status.Errorf(codes.NotFound, "Org Unit %s not found for user %s", req.Id, authInfo.UserName)
+			}
+			log.Printf("got error while finding org unit %s: %s", req.Id, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+		}
+		if ou.Tenant != authInfo.Realm {
+			return nil, status.Errorf(codes.PermissionDenied, "Org Unit %s does not belong to tenant %s", req.Id, authInfo.Realm)
+		}
+	}
 
-	return nil, status.Errorf(codes.Unimplemented, "SetDefaultOrgUnit not implemented yet")
+	update := &table.UserPreferenceEntry{
+		Key: &table.UserKey{
+			Tenant:   authInfo.Realm,
+			Username: authInfo.UserName,
+		},
+		DefaultOU: utils.StringP(req.Id),
+	}
+
+	err := s.userPreferenceTable.Locate(ctx, update.Key, update)
+	if err != nil {
+		log.Printf("got error while setting default org unit %s for user %s: %s", req.Id, authInfo.UserName, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	return &api.DefaultOrgUnitResp{}, nil
 }
 
 func (s *MyAccountServer) ListMyRegions(ctx context.Context, req *api.MyRegionsListReq) (*api.MyRegionsListResp, error) {
@@ -538,11 +600,16 @@ func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, e
 	if err != nil {
 		log.Panicf("failed to get Org Unit User table: %s", err)
 	}
+	userPreferenceTable, err := table.GetUserPreferenceTable()
+	if err != nil {
+		log.Panicf("failed to get user preference table: %s", err)
+	}
 	srv := &MyAccountServer{
-		apiKeys:     apiKeys, // Initialize the API keys table
-		ouTable:     ouTbl,   // Initialize the Org Unit table
-		ouUserTable: ouUserTable,
-		client:      client,
+		apiKeys:             apiKeys, // Initialize the API keys table
+		ouTable:             ouTbl,   // Initialize the Org Unit table
+		ouUserTable:         ouUserTable,
+		userPreferenceTable: userPreferenceTable,
+		client:              client,
 	}
 	api.RegisterMyAccountServer(ctx.Server, srv)
 	err = api.RegisterMyAccountHandler(context.Background(), ctx.Mux, ctx.Conn)
