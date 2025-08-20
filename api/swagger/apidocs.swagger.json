@@ -870,6 +870,61 @@
         ]
       }
     },
+    "/api/auth/v1/tenant/{tenant}/user/{username}/ous": {
+      "get": {
+        "summary": "List org units where a specific user has roles (ops admin cross-tenant access)",
+        "operationId": "TenantUser_ListTenantUserOrgUnits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantUserOrgUnitsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "tenant id to get org units and roles for",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "description": "username to get org units and roles for",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset from where to start",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the number of entries in the response",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "TenantUser"
+        ]
+      }
+    },
     "/api/auth/v1/tenant/{tenant}/users": {
       "get": {
         "summary": "Get List of existing users in a tenant",
@@ -1779,6 +1834,54 @@
             "schema": {
               "$ref": "#/definitions/apiUserLogoutUserSessionBody"
             }
+          }
+        ],
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/mytenant/v1/user/{username}/ous": {
+      "get": {
+        "summary": "List org units where a specific user has roles (tenant admin within-tenant access)",
+        "operationId": "User_ListUserOrgUnits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUserOrgUnitsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "description": "username parameter from the URL path",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset from where to start",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the number of entries in the response",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
           }
         ],
         "tags": [
@@ -2780,6 +2883,43 @@
       },
       "title": "user session logout request"
     },
+    "apiTenantUserOrgUnitWithRoles": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "org unit id"
+        },
+        "name": {
+          "type": "string",
+          "title": "org unit display name"
+        },
+        "role": {
+          "type": "string",
+          "title": "current user's role in this org unit"
+        }
+      },
+      "title": "org unit entry with user roles"
+    },
+    "apiTenantUserOrgUnitsListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "total count of org units"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiTenantUserOrgUnitWithRoles"
+          },
+          "title": "list of org units with their user roles"
+        }
+      },
+      "title": "response for listing org units with user roles"
+    },
     "apiTenantUserSessionInfo": {
       "type": "object",
       "properties": {
@@ -3044,6 +3184,43 @@
         }
       },
       "title": "user session logout request"
+    },
+    "apiUserOrgUnitWithRole": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "org unit id"
+        },
+        "name": {
+          "type": "string",
+          "title": "org unit display name"
+        },
+        "role": {
+          "type": "string",
+          "title": "current user's role in this org unit"
+        }
+      },
+      "title": "org unit entry with the current user's role"
+    },
+    "apiUserOrgUnitsListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "total count of org units the user belongs to"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiUserOrgUnitWithRole"
+          },
+          "title": "list of org units with the user's roles"
+        }
+      },
+      "title": "response for listing org units with user's roles"
     },
     "apiUserSessionInfo": {
       "type": "object",

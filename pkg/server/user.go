@@ -26,9 +26,11 @@ import (
 
 type UserApiServer struct {
 	api.UnimplementedUserServer
-	tenantTbl *table.TenantTable
-	userTbl   *table.UserTable
-	client    *keycloak.Client
+	tenantTbl      *table.TenantTable
+	userTbl        *table.UserTable
+	orgUnitTbl     *table.OrgUnitTable
+	orgUnitUserTbl *table.OrgUnitUserTable
+	client         *keycloak.Client
 }
 
 func (s *UserApiServer) getTenant(ctx context.Context, name string) (*table.TenantEntry, error) {
@@ -466,6 +468,61 @@ func (s *UserApiServer) LogoutUserSession(ctx context.Context, req *api.UserSess
 	return &api.UserSessionLogoutResp{}, nil
 }
 
+func (s *UserApiServer) ListUserOrgUnits(ctx context.Context, req *api.UserOrgUnitsListReq) (*api.UserOrgUnitsListResp, error) {
+	// Get authenticated user info
+	info, err := auth.GetAuthInfoFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "Authentication required: %s", err.Error())
+	}
+	tenant := info.Realm
+
+	// Get org units where the current user has roles
+	orgUnitUsers, err := s.orgUnitUserTbl.GetByUser(ctx, tenant, req.Username)
+	if err != nil {
+		log.Printf("error getting org units for user %s in tenant %s: %s", req.Username, tenant, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	// Apply pagination
+	totalCount := len(orgUnitUsers)
+	startIdx := int(req.Offset)
+	endIdx := startIdx + int(req.Limit)
+	if req.Limit == 0 || endIdx > totalCount {
+		endIdx = totalCount
+	}
+	if startIdx > totalCount {
+		startIdx = totalCount
+	}
+
+	resp := &api.UserOrgUnitsListResp{
+		Count: int32(totalCount),
+		Items: []*api.UserOrgUnitWithRole{},
+	}
+
+	// Process each org unit where user has roles
+	for _, orgUnitUser := range orgUnitUsers[startIdx:endIdx] {
+		// Get org unit details
+		orgUnitKey := &table.OrgUnitKey{
+			ID: orgUnitUser.Key.OrgUnitId,
+		}
+		orgUnit, err := s.orgUnitTbl.Find(ctx, orgUnitKey)
+		if err != nil {
+			log.Printf("error getting org unit details for %s: %s", orgUnitUser.Key.OrgUnitId, err)
+			continue // Skip this org unit but continue with others
+		}
+
+		orgUnitWithRole := &api.UserOrgUnitWithRole{
+			Id:   orgUnit.Key.ID,
+			Name: orgUnit.Name,
+			Role: orgUnitUser.Role,
+		}
+
+		resp.Items = append(resp.Items, orgUnitWithRole)
+	}
+
+	return resp, nil
+}
+
 func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *UserApiServer {
 	tbl, err := table.GetTenantTable()
 	if err != nil {
@@ -475,10 +532,20 @@ func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep str
 	if err != nil {
 		log.Panicf("failed to get user table: %s", err)
 	}
+	orgUnitTbl, err := table.GetOrgUnitTable()
+	if err != nil {
+		log.Panicf("failed to get org unit table: %s", err)
+	}
+	orgUnitUserTbl, err := table.GetOrgUnitUserTable()
+	if err != nil {
+		log.Panicf("failed to get org unit user table: %s", err)
+	}
 	srv := &UserApiServer{
-		tenantTbl: tbl,
-		userTbl:   uTbl,
-		client:    client,
+		tenantTbl:      tbl,
+		userTbl:        uTbl,
+		orgUnitTbl:     orgUnitTbl,
+		orgUnitUserTbl: orgUnitUserTbl,
+		client:         client,
 	}
 	api.RegisterUserServer(ctx.Server, srv)
 	err = api.RegisterUserHandler(context.Background(), ctx.Mux, ctx.Conn)
