@@ -45,4 +45,8 @@ func init() {
 	// Adding Route information for LogoutUserSession RPC
 	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/logout", "POST")
 	RoutesTenantUser = append(RoutesTenantUser, route)
+
+	// Adding Route information for ListTenantUserOrgUnits RPC
+	route = model.NewRoute("/api/auth/v1/tenant/{tenant}/user/{username}/ous", "GET")
+	RoutesTenantUser = append(RoutesTenantUser, route)
 }

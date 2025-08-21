@@ -87,6 +87,13 @@ service TenantUser {
       body: "*"
     };
   }
+
+  // List org units where a specific user has roles (ops admin cross-tenant access)
+  rpc ListTenantUserOrgUnits(TenantUserOrgUnitsListReq) returns (TenantUserOrgUnitsListResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/tenant/{tenant}/user/{username}/ous"
+    };
+  }
 }
 
 // Request List of users in a tenant
@@ -347,4 +354,40 @@ message TenantUserSessionLogoutReq {
 
 // user session logout response
 message TenantUserSessionLogoutResp {
+}
+
+// request for listing org units with user roles for a tenant
+message TenantUserOrgUnitsListReq {
+  // tenant id to get org units and roles for
+  string tenant = 1;
+
+  // username to get org units and roles for
+  string username = 2;
+
+  // offset from where to start
+  int32 offset = 3;
+
+  // limit the number of entries in the response  
+  int32 limit = 4;
+}
+
+// org unit entry with user roles
+message TenantUserOrgUnitWithRoles {
+  // org unit id
+  string id = 1;
+
+  // org unit display name
+  string name = 2;
+
+  // current user's role in this org unit
+  string role = 3;
+}
+
+// response for listing org units with user roles
+message TenantUserOrgUnitsListResp {
+  // total count of org units
+  int32 count = 1;
+
+  // list of org units with their user roles
+  repeated TenantUserOrgUnitWithRoles items = 2;
 }

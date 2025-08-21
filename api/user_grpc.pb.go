@@ -31,6 +31,7 @@ const (
 	User_DeleteUser_FullMethodName        = "/api.User/DeleteUser"
 	User_ListUserSessions_FullMethodName  = "/api.User/ListUserSessions"
 	User_LogoutUserSession_FullMethodName = "/api.User/LogoutUserSession"
+	User_ListUserOrgUnits_FullMethodName  = "/api.User/ListUserOrgUnits"
 )
 
 // UserClient is the client API for User service.
@@ -57,6 +58,8 @@ type UserClient interface {
 	ListUserSessions(ctx context.Context, in *UserSessionsListReq, opts ...grpc.CallOption) (*UserSessionsListResp, error)
 	// logout user from specific session or all sessions
 	LogoutUserSession(ctx context.Context, in *UserSessionLogoutReq, opts ...grpc.CallOption) (*UserSessionLogoutResp, error)
+	// List org units where a specific user has roles (tenant admin within-tenant access)
+	ListUserOrgUnits(ctx context.Context, in *UserOrgUnitsListReq, opts ...grpc.CallOption) (*UserOrgUnitsListResp, error)
 }
 
 type userClient struct {
@@ -157,6 +160,16 @@ func (c *userClient) LogoutUserSession(ctx context.Context, in *UserSessionLogou
 	return out, nil
 }
 
+func (c *userClient) ListUserOrgUnits(ctx context.Context, in *UserOrgUnitsListReq, opts ...grpc.CallOption) (*UserOrgUnitsListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserOrgUnitsListResp)
+	err := c.cc.Invoke(ctx, User_ListUserOrgUnits_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
@@ -181,6 +194,8 @@ type UserServer interface {
 	ListUserSessions(context.Context, *UserSessionsListReq) (*UserSessionsListResp, error)
 	// logout user from specific session or all sessions
 	LogoutUserSession(context.Context, *UserSessionLogoutReq) (*UserSessionLogoutResp, error)
+	// List org units where a specific user has roles (tenant admin within-tenant access)
+	ListUserOrgUnits(context.Context, *UserOrgUnitsListReq) (*UserOrgUnitsListResp, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -217,6 +232,9 @@ func (UnimplementedUserServer) ListUserSessions(context.Context, *UserSessionsLi
 }
 func (UnimplementedUserServer) LogoutUserSession(context.Context, *UserSessionLogoutReq) (*UserSessionLogoutResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LogoutUserSession not implemented")
+}
+func (UnimplementedUserServer) ListUserOrgUnits(context.Context, *UserOrgUnitsListReq) (*UserOrgUnitsListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListUserOrgUnits not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 func (UnimplementedUserServer) testEmbeddedByValue()              {}
@@ -401,6 +419,24 @@ func _User_LogoutUserSession_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_ListUserOrgUnits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserOrgUnitsListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).ListUserOrgUnits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_ListUserOrgUnits_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).ListUserOrgUnits(ctx, req.(*UserOrgUnitsListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -443,6 +479,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LogoutUserSession",
 			Handler:    _User_LogoutUserSession_Handler,
+		},
+		{
+			MethodName: "ListUserOrgUnits",
+			Handler:    _User_ListUserOrgUnits_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

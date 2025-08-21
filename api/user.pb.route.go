@@ -63,4 +63,10 @@ func init() {
 	route.Resource = "user"
 	route.Verb = "logout"
 	RoutesUser = append(RoutesUser, route)
+
+	// Adding Route information for ListUserOrgUnits RPC
+	route = model.NewRoute("/api/mytenant/v1/user/{username}/ous", "GET")
+	route.Resource = "user"
+	route.Verb = "ou-list"
+	RoutesUser = append(RoutesUser, route)
 }

@@ -1271,6 +1271,189 @@ func (*UserSessionLogoutResp) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{19}
 }
 
+// request for listing org units with roles for the current user
+type UserOrgUnitsListReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// username parameter from the URL path
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	// offset from where to start
+	Offset int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	// limit the number of entries in the response
+	Limit         int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserOrgUnitsListReq) Reset() {
+	*x = UserOrgUnitsListReq{}
+	mi := &file_user_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserOrgUnitsListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserOrgUnitsListReq) ProtoMessage() {}
+
+func (x *UserOrgUnitsListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserOrgUnitsListReq.ProtoReflect.Descriptor instead.
+func (*UserOrgUnitsListReq) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *UserOrgUnitsListReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UserOrgUnitsListReq) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *UserOrgUnitsListReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// org unit entry with the current user's role
+type UserOrgUnitWithRole struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// org unit id
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// org unit display name
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// current user's role in this org unit
+	Role          string `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserOrgUnitWithRole) Reset() {
+	*x = UserOrgUnitWithRole{}
+	mi := &file_user_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserOrgUnitWithRole) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserOrgUnitWithRole) ProtoMessage() {}
+
+func (x *UserOrgUnitWithRole) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserOrgUnitWithRole.ProtoReflect.Descriptor instead.
+func (*UserOrgUnitWithRole) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *UserOrgUnitWithRole) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UserOrgUnitWithRole) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UserOrgUnitWithRole) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+// response for listing org units with user's roles
+type UserOrgUnitsListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// total count of org units the user belongs to
+	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	// list of org units with the user's roles
+	Items         []*UserOrgUnitWithRole `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserOrgUnitsListResp) Reset() {
+	*x = UserOrgUnitsListResp{}
+	mi := &file_user_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserOrgUnitsListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserOrgUnitsListResp) ProtoMessage() {}
+
+func (x *UserOrgUnitsListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserOrgUnitsListResp.ProtoReflect.Descriptor instead.
+func (*UserOrgUnitsListResp) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *UserOrgUnitsListResp) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *UserOrgUnitsListResp) GetItems() []*UserOrgUnitWithRole {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_user_proto protoreflect.FileDescriptor
 
 const file_user_proto_rawDesc = "" +
@@ -1359,7 +1542,18 @@ const file_user_proto_rawDesc = "" +
 	"\x14UserSessionLogoutReq\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
 	"\tsessionId\x18\x02 \x01(\tR\tsessionId\"\x17\n" +
-	"\x15UserSessionLogoutResp2\xb2\b\n" +
+	"\x15UserSessionLogoutResp\"_\n" +
+	"\x13UserOrgUnitsListReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"M\n" +
+	"\x13UserOrgUnitWithRole\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04role\x18\x03 \x01(\tR\x04role\"\\\n" +
+	"\x14UserOrgUnitsListResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\x12.\n" +
+	"\x05items\x18\x02 \x03(\v2\x18.api.UserOrgUnitWithRoleR\x05items2\xbd\t\n" +
 	"\x04User\x12a\n" +
 	"\bGetUsers\x12\x11.api.UsersListReq\x1a\x12.api.UsersListResp\".\x8a\xb5\x18\f\n" +
 	"\x04user\x1a\x04list\x82\xd3\xe4\x93\x02\x18\x12\x16/api/mytenant/v1/users\x12i\n" +
@@ -1382,7 +1576,9 @@ const file_user_proto_rawDesc = "" +
 	"\x10ListUserSessions\x12\x18.api.UserSessionsListReq\x1a\x19.api.UserSessionsListResp\"9\x8a\xb5\x18\x14\n" +
 	"\x04user\x1a\fget-sessions\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/mytenant/v1/sessions\x12\x90\x01\n" +
 	"\x11LogoutUserSession\x12\x19.api.UserSessionLogoutReq\x1a\x1a.api.UserSessionLogoutResp\"D\x8a\xb5\x18\x0e\n" +
-	"\x04user\x1a\x06logout\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logoutB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\x04user\x1a\x06logout\x82\xd3\xe4\x93\x02,:\x01*\"'/api/mytenant/v1/user/{username}/logout\x12\x88\x01\n" +
+	"\x10ListUserOrgUnits\x12\x18.api.UserOrgUnitsListReq\x1a\x19.api.UserOrgUnitsListResp\"?\x8a\xb5\x18\x0f\n" +
+	"\x04user\x1a\aou-list\x82\xd3\xe4\x93\x02&\x12$/api/mytenant/v1/user/{username}/ousB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -1396,7 +1592,7 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_user_proto_goTypes = []any{
 	(*UsersListReq)(nil),          // 0: api.UsersListReq
 	(*UserListEntry)(nil),         // 1: api.UserListEntry
@@ -1418,33 +1614,39 @@ var file_user_proto_goTypes = []any{
 	(*UserSessionsListResp)(nil),  // 17: api.UserSessionsListResp
 	(*UserSessionLogoutReq)(nil),  // 18: api.UserSessionLogoutReq
 	(*UserSessionLogoutResp)(nil), // 19: api.UserSessionLogoutResp
+	(*UserOrgUnitsListReq)(nil),   // 20: api.UserOrgUnitsListReq
+	(*UserOrgUnitWithRole)(nil),   // 21: api.UserOrgUnitWithRole
+	(*UserOrgUnitsListResp)(nil),  // 22: api.UserOrgUnitsListResp
 }
 var file_user_proto_depIdxs = []int32{
 	1,  // 0: api.UsersListResp.items:type_name -> api.UserListEntry
 	16, // 1: api.UserSessionsListResp.items:type_name -> api.UserSessionInfo
-	0,  // 2: api.User.GetUsers:input_type -> api.UsersListReq
-	3,  // 3: api.User.CreateUser:input_type -> api.UserCreateReq
-	7,  // 4: api.User.GetUser:input_type -> api.UserGetReq
-	11, // 5: api.User.EnableUser:input_type -> api.UserEnableReq
-	13, // 6: api.User.DisableUser:input_type -> api.UserDisableReq
-	9,  // 7: api.User.UpdateUser:input_type -> api.UserUpdateReq
-	5,  // 8: api.User.DeleteUser:input_type -> api.UserDeleteReq
-	15, // 9: api.User.ListUserSessions:input_type -> api.UserSessionsListReq
-	18, // 10: api.User.LogoutUserSession:input_type -> api.UserSessionLogoutReq
-	2,  // 11: api.User.GetUsers:output_type -> api.UsersListResp
-	4,  // 12: api.User.CreateUser:output_type -> api.UserCreateResp
-	8,  // 13: api.User.GetUser:output_type -> api.UserGetResp
-	12, // 14: api.User.EnableUser:output_type -> api.UserEnableResp
-	14, // 15: api.User.DisableUser:output_type -> api.UserDisableResp
-	10, // 16: api.User.UpdateUser:output_type -> api.UserUpdateResp
-	6,  // 17: api.User.DeleteUser:output_type -> api.UserDeleteResp
-	17, // 18: api.User.ListUserSessions:output_type -> api.UserSessionsListResp
-	19, // 19: api.User.LogoutUserSession:output_type -> api.UserSessionLogoutResp
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	21, // 2: api.UserOrgUnitsListResp.items:type_name -> api.UserOrgUnitWithRole
+	0,  // 3: api.User.GetUsers:input_type -> api.UsersListReq
+	3,  // 4: api.User.CreateUser:input_type -> api.UserCreateReq
+	7,  // 5: api.User.GetUser:input_type -> api.UserGetReq
+	11, // 6: api.User.EnableUser:input_type -> api.UserEnableReq
+	13, // 7: api.User.DisableUser:input_type -> api.UserDisableReq
+	9,  // 8: api.User.UpdateUser:input_type -> api.UserUpdateReq
+	5,  // 9: api.User.DeleteUser:input_type -> api.UserDeleteReq
+	15, // 10: api.User.ListUserSessions:input_type -> api.UserSessionsListReq
+	18, // 11: api.User.LogoutUserSession:input_type -> api.UserSessionLogoutReq
+	20, // 12: api.User.ListUserOrgUnits:input_type -> api.UserOrgUnitsListReq
+	2,  // 13: api.User.GetUsers:output_type -> api.UsersListResp
+	4,  // 14: api.User.CreateUser:output_type -> api.UserCreateResp
+	8,  // 15: api.User.GetUser:output_type -> api.UserGetResp
+	12, // 16: api.User.EnableUser:output_type -> api.UserEnableResp
+	14, // 17: api.User.DisableUser:output_type -> api.UserDisableResp
+	10, // 18: api.User.UpdateUser:output_type -> api.UserUpdateResp
+	6,  // 19: api.User.DeleteUser:output_type -> api.UserDeleteResp
+	17, // 20: api.User.ListUserSessions:output_type -> api.UserSessionsListResp
+	19, // 21: api.User.LogoutUserSession:output_type -> api.UserSessionLogoutResp
+	22, // 22: api.User.ListUserOrgUnits:output_type -> api.UserOrgUnitsListResp
+	13, // [13:23] is the sub-list for method output_type
+	3,  // [3:13] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -1458,7 +1660,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

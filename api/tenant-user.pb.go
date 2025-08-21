@@ -1352,6 +1352,198 @@ func (*TenantUserSessionLogoutResp) Descriptor() ([]byte, []int) {
 	return file_tenant_user_proto_rawDescGZIP(), []int{19}
 }
 
+// request for listing org units with user roles for a tenant
+type TenantUserOrgUnitsListReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// tenant id to get org units and roles for
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// username to get org units and roles for
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	// offset from where to start
+	Offset int32 `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	// limit the number of entries in the response
+	Limit         int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantUserOrgUnitsListReq) Reset() {
+	*x = TenantUserOrgUnitsListReq{}
+	mi := &file_tenant_user_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantUserOrgUnitsListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantUserOrgUnitsListReq) ProtoMessage() {}
+
+func (x *TenantUserOrgUnitsListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_user_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantUserOrgUnitsListReq.ProtoReflect.Descriptor instead.
+func (*TenantUserOrgUnitsListReq) Descriptor() ([]byte, []int) {
+	return file_tenant_user_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *TenantUserOrgUnitsListReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+func (x *TenantUserOrgUnitsListReq) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *TenantUserOrgUnitsListReq) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *TenantUserOrgUnitsListReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// org unit entry with user roles
+type TenantUserOrgUnitWithRoles struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// org unit id
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// org unit display name
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// current user's role in this org unit
+	Role          string `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantUserOrgUnitWithRoles) Reset() {
+	*x = TenantUserOrgUnitWithRoles{}
+	mi := &file_tenant_user_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantUserOrgUnitWithRoles) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantUserOrgUnitWithRoles) ProtoMessage() {}
+
+func (x *TenantUserOrgUnitWithRoles) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_user_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantUserOrgUnitWithRoles.ProtoReflect.Descriptor instead.
+func (*TenantUserOrgUnitWithRoles) Descriptor() ([]byte, []int) {
+	return file_tenant_user_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *TenantUserOrgUnitWithRoles) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *TenantUserOrgUnitWithRoles) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TenantUserOrgUnitWithRoles) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+// response for listing org units with user roles
+type TenantUserOrgUnitsListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// total count of org units
+	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	// list of org units with their user roles
+	Items         []*TenantUserOrgUnitWithRoles `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantUserOrgUnitsListResp) Reset() {
+	*x = TenantUserOrgUnitsListResp{}
+	mi := &file_tenant_user_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantUserOrgUnitsListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantUserOrgUnitsListResp) ProtoMessage() {}
+
+func (x *TenantUserOrgUnitsListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_user_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantUserOrgUnitsListResp.ProtoReflect.Descriptor instead.
+func (*TenantUserOrgUnitsListResp) Descriptor() ([]byte, []int) {
+	return file_tenant_user_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *TenantUserOrgUnitsListResp) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *TenantUserOrgUnitsListResp) GetItems() []*TenantUserOrgUnitWithRoles {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_tenant_user_proto protoreflect.FileDescriptor
 
 const file_tenant_user_proto_rawDesc = "" +
@@ -1447,7 +1639,20 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x1c\n" +
 	"\tsessionId\x18\x03 \x01(\tR\tsessionId\"\x1d\n" +
-	"\x1bTenantUserSessionLogoutResp2\xed\b\n" +
+	"\x1bTenantUserSessionLogoutResp\"}\n" +
+	"\x19TenantUserOrgUnitsListReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\"T\n" +
+	"\x1aTenantUserOrgUnitWithRoles\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04role\x18\x03 \x01(\tR\x04role\"i\n" +
+	"\x1aTenantUserOrgUnitsListResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\x125\n" +
+	"\x05items\x18\x02 \x03(\v2\x1f.api.TenantUserOrgUnitWithRolesR\x05items2\x83\n" +
+	"\n" +
 	"\n" +
 	"TenantUser\x12i\n" +
 	"\bGetUsers\x12\x17.api.TenantUsersListReq\x1a\x18.api.TenantUsersListResp\"*\x82\xd3\xe4\x93\x02$\x12\"/api/auth/v1/tenant/{tenant}/users\x12o\n" +
@@ -1462,7 +1667,8 @@ const file_tenant_user_proto_rawDesc = "" +
 	"\n" +
 	"DeleteUser\x12\x18.api.TenantUserDeleteReq\x1a\x19.api.TenantUserDeleteResp\"4\x82\xd3\xe4\x93\x02.*,/api/auth/v1/tenant/{tenant}/user/{username}\x12\x82\x01\n" +
 	"\x10ListUserSessions\x12\x1e.api.TenantUserSessionsListReq\x1a\x1f.api.TenantUserSessionsListResp\"-\x82\xd3\xe4\x93\x02'\x12%/api/auth/v1/tenant/{tenant}/sessions\x12\x96\x01\n" +
-	"\x11LogoutUserSession\x12\x1f.api.TenantUserSessionLogoutReq\x1a .api.TenantUserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logoutB\x98\x01\x92Aj\x12%\n" +
+	"\x11LogoutUserSession\x12\x1f.api.TenantUserSessionLogoutReq\x1a .api.TenantUserSessionLogoutResp\">\x82\xd3\xe4\x93\x028:\x01*\"3/api/auth/v1/tenant/{tenant}/user/{username}/logout\x12\x93\x01\n" +
+	"\x16ListTenantUserOrgUnits\x12\x1e.api.TenantUserOrgUnitsListReq\x1a\x1f.api.TenantUserOrgUnitsListResp\"8\x82\xd3\xe4\x93\x022\x120/api/auth/v1/tenant/{tenant}/user/{username}/ousB\x98\x01\x92Aj\x12%\n" +
 	"\x1eAuth Gateway API Specification2\x031.0rA\n" +
 	"?Auth Gateway API Specification - sample descriptive informationZ)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
@@ -1478,7 +1684,7 @@ func file_tenant_user_proto_rawDescGZIP() []byte {
 	return file_tenant_user_proto_rawDescData
 }
 
-var file_tenant_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_tenant_user_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_tenant_user_proto_goTypes = []any{
 	(*TenantUsersListReq)(nil),          // 0: api.TenantUsersListReq
 	(*TenantUserListEntry)(nil),         // 1: api.TenantUserListEntry
@@ -1500,33 +1706,39 @@ var file_tenant_user_proto_goTypes = []any{
 	(*TenantUserSessionsListResp)(nil),  // 17: api.TenantUserSessionsListResp
 	(*TenantUserSessionLogoutReq)(nil),  // 18: api.TenantUserSessionLogoutReq
 	(*TenantUserSessionLogoutResp)(nil), // 19: api.TenantUserSessionLogoutResp
+	(*TenantUserOrgUnitsListReq)(nil),   // 20: api.TenantUserOrgUnitsListReq
+	(*TenantUserOrgUnitWithRoles)(nil),  // 21: api.TenantUserOrgUnitWithRoles
+	(*TenantUserOrgUnitsListResp)(nil),  // 22: api.TenantUserOrgUnitsListResp
 }
 var file_tenant_user_proto_depIdxs = []int32{
 	1,  // 0: api.TenantUsersListResp.items:type_name -> api.TenantUserListEntry
 	16, // 1: api.TenantUserSessionsListResp.items:type_name -> api.TenantUserSessionInfo
-	0,  // 2: api.TenantUser.GetUsers:input_type -> api.TenantUsersListReq
-	3,  // 3: api.TenantUser.CreateUser:input_type -> api.TenantUserCreateReq
-	7,  // 4: api.TenantUser.GetUser:input_type -> api.TenantUserGetReq
-	11, // 5: api.TenantUser.EnableUser:input_type -> api.TenantUserEnableReq
-	13, // 6: api.TenantUser.DisableUser:input_type -> api.TenantUserDisableReq
-	9,  // 7: api.TenantUser.UpdateUser:input_type -> api.TenantUserUpdateReq
-	5,  // 8: api.TenantUser.DeleteUser:input_type -> api.TenantUserDeleteReq
-	15, // 9: api.TenantUser.ListUserSessions:input_type -> api.TenantUserSessionsListReq
-	18, // 10: api.TenantUser.LogoutUserSession:input_type -> api.TenantUserSessionLogoutReq
-	2,  // 11: api.TenantUser.GetUsers:output_type -> api.TenantUsersListResp
-	4,  // 12: api.TenantUser.CreateUser:output_type -> api.TenantUserCreateResp
-	8,  // 13: api.TenantUser.GetUser:output_type -> api.TenantUserGetResp
-	12, // 14: api.TenantUser.EnableUser:output_type -> api.TenantUserEnableResp
-	14, // 15: api.TenantUser.DisableUser:output_type -> api.TenantUserDisableResp
-	10, // 16: api.TenantUser.UpdateUser:output_type -> api.TenantUserUpdateResp
-	6,  // 17: api.TenantUser.DeleteUser:output_type -> api.TenantUserDeleteResp
-	17, // 18: api.TenantUser.ListUserSessions:output_type -> api.TenantUserSessionsListResp
-	19, // 19: api.TenantUser.LogoutUserSession:output_type -> api.TenantUserSessionLogoutResp
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	21, // 2: api.TenantUserOrgUnitsListResp.items:type_name -> api.TenantUserOrgUnitWithRoles
+	0,  // 3: api.TenantUser.GetUsers:input_type -> api.TenantUsersListReq
+	3,  // 4: api.TenantUser.CreateUser:input_type -> api.TenantUserCreateReq
+	7,  // 5: api.TenantUser.GetUser:input_type -> api.TenantUserGetReq
+	11, // 6: api.TenantUser.EnableUser:input_type -> api.TenantUserEnableReq
+	13, // 7: api.TenantUser.DisableUser:input_type -> api.TenantUserDisableReq
+	9,  // 8: api.TenantUser.UpdateUser:input_type -> api.TenantUserUpdateReq
+	5,  // 9: api.TenantUser.DeleteUser:input_type -> api.TenantUserDeleteReq
+	15, // 10: api.TenantUser.ListUserSessions:input_type -> api.TenantUserSessionsListReq
+	18, // 11: api.TenantUser.LogoutUserSession:input_type -> api.TenantUserSessionLogoutReq
+	20, // 12: api.TenantUser.ListTenantUserOrgUnits:input_type -> api.TenantUserOrgUnitsListReq
+	2,  // 13: api.TenantUser.GetUsers:output_type -> api.TenantUsersListResp
+	4,  // 14: api.TenantUser.CreateUser:output_type -> api.TenantUserCreateResp
+	8,  // 15: api.TenantUser.GetUser:output_type -> api.TenantUserGetResp
+	12, // 16: api.TenantUser.EnableUser:output_type -> api.TenantUserEnableResp
+	14, // 17: api.TenantUser.DisableUser:output_type -> api.TenantUserDisableResp
+	10, // 18: api.TenantUser.UpdateUser:output_type -> api.TenantUserUpdateResp
+	6,  // 19: api.TenantUser.DeleteUser:output_type -> api.TenantUserDeleteResp
+	17, // 20: api.TenantUser.ListUserSessions:output_type -> api.TenantUserSessionsListResp
+	19, // 21: api.TenantUser.LogoutUserSession:output_type -> api.TenantUserSessionLogoutResp
+	22, // 22: api.TenantUser.ListTenantUserOrgUnits:output_type -> api.TenantUserOrgUnitsListResp
+	13, // [13:23] is the sub-list for method output_type
+	3,  // [3:13] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_tenant_user_proto_init() }
@@ -1540,7 +1752,7 @@ func file_tenant_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tenant_user_proto_rawDesc), len(file_tenant_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
