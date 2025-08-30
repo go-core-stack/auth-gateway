@@ -24,6 +24,7 @@ import (
 
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
+	"go.uber.org/zap"
 )
 
 type gwContextKey string
@@ -43,6 +44,7 @@ type gateway struct {
 	ouUserTbl *table.OrgUnitUserTable
 	proxyV1   *httputil.ReverseProxy
 	proxyV2   *httputil.ReverseProxy
+	logger    *zap.Logger
 }
 
 type gatewayReconciler struct {
@@ -345,21 +347,45 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *gateway) handleAccessLog(authInfo *common.AuthInfo, ou string, r *http.Request, status int) {
 	path := r.URL.RawPath
 	if path == "" {
-		// if the path does not contain such explicitly encoded
-		// characters that would be lost during decoding,
-		// RawPath will be an empty string
 		path = r.URL.Path
 	}
-	msg := fmt.Sprintf("[Access Log] Method: %s, Url: %s, Status: %d", r.Method, path, status)
+
+	fields := []zap.Field{
+		zap.String("method", r.Method),
+		zap.Int("status", status),
+	}
+
+	if path != "" {
+		fields = append(fields, zap.String("url", path))
+	}
 	if ou != "" {
-		msg += fmt.Sprintf(", ou: %s", ou)
+		fields = append(fields, zap.String("ou", ou))
 	}
+
 	if authInfo != nil {
-		msg += fmt.Sprintf(", accessed by %s:%s", authInfo.Realm, authInfo.UserName)
+		if authInfo.Realm != "" {
+			fields = append(fields, zap.String("realm", authInfo.Realm))
+		}
+		if authInfo.UserName != "" {
+			fields = append(fields, zap.String("username", authInfo.UserName))
+		}
+		if authInfo.Email != "" {
+			fields = append(fields, zap.String("email", authInfo.Email))
+		}
+		if authInfo.FirstName != "" {
+			fields = append(fields, zap.String("first_name", authInfo.FirstName))
+		}
+		if authInfo.LastName != "" {
+			fields = append(fields, zap.String("last_name", authInfo.LastName))
+		}
+		if authInfo.FullName != "" {
+			fields = append(fields, zap.String("full_name", authInfo.FullName))
+		}
 	} else {
-		msg += ", accessed anonymously"
+		fields = append(fields, zap.String("client", "anonymous"))
 	}
-	log.Println(msg)
+
+	s.logger.Info("access log", fields...)
 }
 
 // currently this is only relevant for logging response
@@ -384,48 +410,46 @@ func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
 
 // Create a new Auth Gateway server, wrapped around
 // locally hosted insecure server
-func New() http.Handler {
+func New(logger *zap.Logger) http.Handler {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
-		log.Panicf("unable to get api keys table: %s", err)
+		logger.Panic("unable to get api keys table", zap.Error(err))
 	}
 
 	userTbl, err := table.GetUserTable()
 	if err != nil {
-		log.Panicf("unable to get user table: %s", err)
+		logger.Panic("unable to get user table", zap.Error(err))
 	}
 
 	routes, err := route.GetRouteTable()
 	if err != nil {
-		log.Panicf("unable to get route table: %s", err)
+		logger.Panic("unable to get route table", zap.Error(err))
 	}
 
 	ouTbl, err := table.GetOrgUnitTable()
 	if err != nil {
-		log.Panicf("unable to get org unit table: %s", err)
+		logger.Panic("unable to get org unit table", zap.Error(err))
 	}
 
 	ouUserTbl, err := table.GetOrgUnitUserTable()
 	if err != nil {
-		log.Panicf("unable to get org unit user table: %s", err)
+		logger.Panic("unable to get org unit user table", zap.Error(err))
 	}
 
 	director := func(req *http.Request) {
-		// we don't use director we will handle request modification
-		// of our own
+		// we don't use director; we handle request modification ourselves
 	}
 
-	// Transport for HTTP/1.1
 	tr1 := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	// Transport for HTTP/2
 	tr2 := &http2.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	gateway := &gateway{
-		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
+		logger:    logger, // set the logger here
+		validator: hash.NewValidator(300),
 		apiKeys:   apiKeys,
 		userTbl:   userTbl,
 		routes:    routes,
@@ -453,7 +477,8 @@ func New() http.Handler {
 
 	err = routes.Register("GatewayController", r)
 	if err != nil {
-		log.Panicf("Failed to register GatewayController: %s", err)
+		logger.Panic("Failed to register GatewayController", zap.Error(err))
 	}
+
 	return gateway
 }

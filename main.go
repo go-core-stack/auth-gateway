@@ -17,6 +17,8 @@ import (
 
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -225,7 +227,7 @@ func handleCORS(h http.Handler) http.Handler {
 	})
 }
 
-func startServerContext(serverCtx *model.GrpcServerContext) {
+func startServerContext(serverCtx *model.GrpcServerContext, logger *zap.Logger) {
 	go func() {
 		lis, err := net.Listen("tcp", GrpcPort)
 		if err != nil {
@@ -243,7 +245,7 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 	}()
 
 	go func() {
-		gw := gateway.New()
+		gw := gateway.New(logger)
 		oa := apidocs.NewApiDocsServer()
 		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, "/apidocs/") {
@@ -285,7 +287,17 @@ func main() {
 	// update cors enabled flag based on config file
 	enableCORS = conf.IsCORSEnabled()
 
-	log.Printf("Got Uri config %s", conf.GetConfigDB().Uri)
+	// ----- Setup structured Zap logger -----
+	cfg := zap.NewProductionConfig()
+	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	logger, err := cfg.Build()
+	if err != nil {
+		log.Panicf("Failed to initialize logger: %s", err)
+	}
+	defer logger.Sync()
+	// ---------------------------------------
+
+	logger.Info("Got Uri config", zap.String("uri", conf.GetConfigDB().Uri))
 
 	// Get mongo configdb database Credentials from environment variables
 	// this is done to ensure that the credentials are not stored in plain
@@ -302,20 +314,20 @@ func main() {
 	// create new client for the mongodb config
 	client, err = db.NewMongoClient(config)
 	if err != nil {
-		log.Panicf("Failed to get handle of mongodb client: %s", err)
+		logger.Panic("Failed to get handle of mongodb client", zap.Error(err))
 	}
 
 	// ensure running heath check to validate that provided mongodb endpoint
 	// is usable
 	err = client.HealthCheck(context.Background())
 	if err != nil {
-		log.Panicf("failed to perform Health check with DB Error: %s", err)
+		logger.Panic("failed to perform Health check with DB Error", zap.Error(err))
 	}
 
 	// initialize the sync owner table
 	err = sync.InitializeOwnerTableDefault(ctx, client, serviceName)
 	if err != nil {
-		log.Panicf("Failed to initialize owner table using default store: %s", err)
+		logger.Panic("Failed to initialize owner table using default store", zap.Error(err))
 	}
 
 	// create the required tables backed by database store
@@ -323,59 +335,59 @@ func main() {
 	// locate the tenant table
 	_, err = table.LocateTenantTable(client)
 	if err != nil {
-		log.Panicf("failed to locate Tenant table: %s", err)
+		logger.Panic("failed to locate Tenant table", zap.Error(err))
 	}
 
 	// locate the users table
 	_, err = table.LocateUserTable(client)
 	if err != nil {
-		log.Panicf("failed to locate user table: %s", err)
+		logger.Panic("failed to locate user table", zap.Error(err))
 	}
 
 	// locate the user preference table
 	_, err = table.LocateUserPreferenceTable(client)
 	if err != nil {
-		log.Panicf("failed to locate user preference table: %s", err)
+		logger.Panic("failed to locate user preference table", zap.Error(err))
 	}
 
 	// locate the api key table
 	_, err = table.LocateApiKeyTable(client)
 	if err != nil {
-		log.Panicf("failed to locate API Key table: %s", err)
+		logger.Panic("failed to locate API Key table", zap.Error(err))
 	}
 
 	// locate the service routes table
 	_, err = route.LocateRouteTable(client)
 	if err != nil {
-		log.Panicf("failed to locate service route table: %s", err)
+		logger.Panic("failed to locate service route table", zap.Error(err))
 	}
 
 	// locate email verification table
 	_, err = table.LocateEmailVerificationTable(client)
 	if err != nil {
-		log.Panicf("failed to locate email verification table: %s", err)
+		logger.Panic("failed to locate email verification table", zap.Error(err))
 	}
 
 	// locate Org Unit table
 	ouTable, err := table.LocateOrgUnitTable(client)
 	if err != nil {
-		log.Panicf("failed to locate Org Unit table: %s", err)
+		logger.Panic("failed to locate Org Unit table", zap.Error(err))
 	}
 
 	err = ouTable.StartEventLogger()
 	if err != nil {
-		log.Panicf("failed to start event logger for Org Unit User table: %s", err)
+		logger.Panic("failed to start event logger for Org Unit User table", zap.Error(err))
 	}
 
 	// locate Org Unit User table
 	ouUserTbl, err := table.LocateOrgUnitUserTable(client)
 	if err != nil {
-		log.Panicf("failed to locate Org Unit User table: %s", err)
+		logger.Panic("failed to locate Org Unit User table", zap.Error(err))
 	}
 
 	err = ouUserTbl.StartEventLogger()
 	if err != nil {
-		log.Panicf("failed to start event logger for Org Unit User table: %s", err)
+		logger.Panic("failed to start event logger for Org Unit User table", zap.Error(err))
 	}
 
 	// ensure that the root tenant exists to work with as the default
@@ -386,7 +398,7 @@ func main() {
 	client, err := keycloak.New(conf.GetKeycloakEndpoint())
 	if err != nil {
 		// failed to create keycloak client, nothing more can be done
-		log.Panicf("failed to create keycloak client: %s", err)
+		logger.Panic("failed to create keycloak client", zap.Error(err))
 	}
 	defer func() {
 		_ = client.Logout(context.Background())
@@ -396,37 +408,37 @@ func main() {
 	// gateway service which in turn will be using auth package
 	err = auth.Initialize(conf.GetKeycloakEndpoint(), "account")
 	if err != nil {
-		log.Panicf("failed to initialize auth package: %s", err)
+		logger.Panic("failed to initialize auth package", zap.Error(err))
 	}
 
 	// Create tenant setup controller
 	_, err = tenant.NewSetupController(client)
 	if err != nil {
-		log.Panicf("failed to create tenant setup controller: %s", err)
+		logger.Panic("failed to create tenant setup controller", zap.Error(err))
 	}
 
 	// Create tenant Roles controller
 	_, err = tenant.NewRoleController(client)
 	if err != nil {
-		log.Panicf("failed to create tenant roles controller: %s", err)
+		logger.Panic("failed to create tenant roles controller", zap.Error(err))
 	}
 
 	// Create tenant Admin controller
 	_, err = tenant.NewAdminController(client)
 	if err != nil {
-		log.Panicf("failed to create tenant admin controller: %s", err)
+		logger.Panic("failed to create tenant admin controller", zap.Error(err))
 	}
 
 	// create user controller
 	_, err = user.NewUserController(client)
 	if err != nil {
-		log.Panicf("failed to create user controller: %s", err)
+		logger.Panic("failed to create user controller", zap.Error(err))
 	}
 
 	// start email verification cleanup controller
 	_, err = request.NewEmailVerificationCleanupController()
 	if err != nil {
-		log.Panicf("failed to create email verification cleanup controller: %s", err)
+		logger.Panic("failed to create email verification cleanup controller", zap.Error(err))
 	}
 
 	// role definition manager
@@ -467,8 +479,8 @@ func main() {
 
 	// once all the servers are added to the list
 	// start server
-	startServerContext(serverCtx)
-	log.Println("Initialization of Auth Gateway completed")
+	startServerContext(serverCtx, logger)
+	logger.Info("Initialization of Auth Gateway completed")
 
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc,
@@ -476,5 +488,5 @@ func main() {
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 	s := <-sigc
-	log.Printf("Terminating Process got signal: %s", s)
+	logger.Info("Terminating Process", zap.String("signal", s.String()))
 }
