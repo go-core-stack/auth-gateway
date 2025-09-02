@@ -51,6 +51,9 @@ type Client struct {
 
 	// mutex for token access
 	tokenMu sync.RWMutex
+
+	// isAdmin indicates if the client is admin client
+	isAdmin bool
 }
 
 // create a new keycloak client for given endpoint
@@ -61,6 +64,7 @@ func New(url string) (*Client, error) {
 		userRealm: MasterRealmName,
 		clientID:  AdminClientID,
 		url:       url,
+		isAdmin:   true,
 	}
 
 	// perform adming login using the provided login credentials and user realm
@@ -166,8 +170,19 @@ func (c *Client) refreshToken() {
 				if err != nil {
 					// failed to refresh token
 					log.Printf("failed to refresh the token, got error: %s", err)
-					c.token = nil
-					return err
+					if c.isAdmin {
+						// for admin client try to re-login
+						// perform adming login using the provided login credentials and user realm
+						token, err = c.LoginAdmin(context.Background(), getKeycloakUsername(),
+							getKeycloakPassword(), c.userRealm)
+						if err != nil {
+							log.Panicf("failed to re-login admin client, got error: %s", err)
+							return err
+						}
+					} else {
+						c.token = nil
+						return err
+					}
 				}
 				c.token = token
 				interval := max(c.token.ExpiresIn-tokenExpirySafeGuard, 1)
