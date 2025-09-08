@@ -7,7 +7,9 @@ require (
 	github.com/go-core-stack/core v0.0.0-20250808174703-793334d9127e
 	github.com/go-core-stack/grpc-core v0.0.0-20250612052530-de9a8693884f
 	github.com/go-core-stack/patricia v0.0.0-20250613164405-ac1bcd231c34
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
+	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.38.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822
 	google.golang.org/grpc v1.73.0
@@ -22,6 +24,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
@@ -32,7 +35,6 @@ require (
 	github.com/coreos/go-oidc/v3 v3.14.1
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/uuid v1.6.0
-	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
