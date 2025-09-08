@@ -8,8 +8,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
+	"os"
 	"slices"
 	"sync"
 	"time"
@@ -24,6 +26,8 @@ import (
 
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type gwContextKey string
@@ -32,6 +36,8 @@ const (
 	authKey gwContextKey = "auth"
 	ouKey   gwContextKey = "ou"
 )
+
+var logger *zap.Logger
 
 type gateway struct {
 	http.Handler
@@ -342,24 +348,49 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// add ip address, user agent --
+
 func (s *gateway) handleAccessLog(authInfo *common.AuthInfo, ou string, r *http.Request, status int) {
 	path := r.URL.RawPath
 	if path == "" {
-		// if the path does not contain such explicitly encoded
-		// characters that would be lost during decoding,
-		// RawPath will be an empty string
 		path = r.URL.Path
 	}
-	msg := fmt.Sprintf("[Access Log] Method: %s, Url: %s, Status: %d", r.Method, path, status)
+
+	fields := []zap.Field{
+		zap.String("method", r.Method),
+		zap.Int("status", status),
+	}
+
+	if path != "" {
+		fields = append(fields, zap.String("url", path))
+	}
 	if ou != "" {
-		msg += fmt.Sprintf(", ou: %s", ou)
+		fields = append(fields, zap.String("ou", ou))
 	}
+	// add ip
+	if r.RemoteAddr != "" {
+		if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+			fields = append(fields, zap.String("ip", host))
+		}
+	}
+
+	// Add User-Agent
+	if ua := r.UserAgent(); ua != "" {
+		fields = append(fields, zap.String("user_agent", ua))
+	}
+
 	if authInfo != nil {
-		msg += fmt.Sprintf(", accessed by %s:%s", authInfo.Realm, authInfo.UserName)
+		if authInfo.UserName != "" {
+			fields = append(fields, zap.String("username", authInfo.UserName))
+		}
+		if authInfo.Email != "" {
+			fields = append(fields, zap.String("email", authInfo.Email))
+		}
 	} else {
-		msg += ", accessed anonymously"
+		fields = append(fields, zap.String("client", "anonymous"))
 	}
-	log.Println(msg)
+
+	logger.Info("access log", fields...)
 }
 
 // currently this is only relevant for logging response
@@ -456,4 +487,39 @@ func New() http.Handler {
 		log.Panicf("Failed to register GatewayController: %s", err)
 	}
 	return gateway
+}
+
+func init() {
+
+	logPath := os.Getenv("LOG_PATH")
+
+	encoderCfg := zap.NewProductionEncoderConfig() //we are using it for more customization
+	//encoderCfg.TimeKey = "timestamp"
+	//encoderCfg.MessageKey = "msg"
+	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	var core zapcore.Core
+
+	if logPath == "" {
+		// Log only to stdout
+		core = zapcore.NewCore(
+			zapcore.NewJSONEncoder(encoderCfg),
+			zapcore.AddSync(os.Stdout),
+			zapcore.InfoLevel,
+		)
+	} else {
+		// Ensure log directory exists (optional)
+		// _ = os.MkdirAll(filepath.Dir(logPath), 0777)
+
+		file, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		if err != nil {
+			panic("Failed to open log file: " + err.Error())
+		}
+
+		core = zapcore.NewTee(
+			zapcore.NewCore(zapcore.NewJSONEncoder(encoderCfg), zapcore.AddSync(file), zapcore.InfoLevel),
+		)
+	}
+
+	logger = zap.New(core)
 }
