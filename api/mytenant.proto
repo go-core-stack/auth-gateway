@@ -63,11 +63,11 @@ message MyPasswordPolicyGetResp {
   // do not allow last x recently used passwords
   int32 recentlyUsed = 7;
 
-  // is username allowed as password
-  bool allowUsername = 8;
+  // do not allow password reuse before x days
+  int32 passwordAge = 8;
 
-  // is email allowed as password
-  bool allowEmail = 9;
+  // expire password after x days, trigger force change
+  int32 forceExpirePasswordChange = 9;
 }
 
 // password policy update request
@@ -93,11 +93,11 @@ message MyPasswordPolicyUpdateReq {
   // do not allow last x recently used passwords
   int32 recentlyUsed = 7;
 
-  // is username allowed as password
-  bool allowUsername = 8;
+  // do not allow password reuse before x days
+  int32 passwordAge = 8;
 
-  // is email allowed as password
-  bool allowEmail = 9;
+  // expire password after x days, trigger force change
+  int32 forceExpirePasswordChange = 9;
 }
 
 // password policy update response

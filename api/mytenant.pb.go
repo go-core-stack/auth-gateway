@@ -80,12 +80,12 @@ type MyPasswordPolicyGetResp struct {
 	MaxLength int32 `protobuf:"varint,6,opt,name=maxLength,proto3" json:"maxLength,omitempty"`
 	// do not allow last x recently used passwords
 	RecentlyUsed int32 `protobuf:"varint,7,opt,name=recentlyUsed,proto3" json:"recentlyUsed,omitempty"`
-	// is username allowed as password
-	AllowUsername bool `protobuf:"varint,8,opt,name=allowUsername,proto3" json:"allowUsername,omitempty"`
-	// is email allowed as password
-	AllowEmail    bool `protobuf:"varint,9,opt,name=allowEmail,proto3" json:"allowEmail,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// do not allow password reuse before x days
+	PasswordAge int32 `protobuf:"varint,8,opt,name=passwordAge,proto3" json:"passwordAge,omitempty"`
+	// expire password after x days, trigger force change
+	ForceExpirePasswordChange int32 `protobuf:"varint,9,opt,name=forceExpirePasswordChange,proto3" json:"forceExpirePasswordChange,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *MyPasswordPolicyGetResp) Reset() {
@@ -167,18 +167,18 @@ func (x *MyPasswordPolicyGetResp) GetRecentlyUsed() int32 {
 	return 0
 }
 
-func (x *MyPasswordPolicyGetResp) GetAllowUsername() bool {
+func (x *MyPasswordPolicyGetResp) GetPasswordAge() int32 {
 	if x != nil {
-		return x.AllowUsername
+		return x.PasswordAge
 	}
-	return false
+	return 0
 }
 
-func (x *MyPasswordPolicyGetResp) GetAllowEmail() bool {
+func (x *MyPasswordPolicyGetResp) GetForceExpirePasswordChange() int32 {
 	if x != nil {
-		return x.AllowEmail
+		return x.ForceExpirePasswordChange
 	}
-	return false
+	return 0
 }
 
 // password policy update request
@@ -198,12 +198,12 @@ type MyPasswordPolicyUpdateReq struct {
 	MaxLength int32 `protobuf:"varint,6,opt,name=maxLength,proto3" json:"maxLength,omitempty"`
 	// do not allow last x recently used passwords
 	RecentlyUsed int32 `protobuf:"varint,7,opt,name=recentlyUsed,proto3" json:"recentlyUsed,omitempty"`
-	// is username allowed as password
-	AllowUsername bool `protobuf:"varint,8,opt,name=allowUsername,proto3" json:"allowUsername,omitempty"`
-	// is email allowed as password
-	AllowEmail    bool `protobuf:"varint,9,opt,name=allowEmail,proto3" json:"allowEmail,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// do not allow password reuse before x days
+	PasswordAge int32 `protobuf:"varint,8,opt,name=passwordAge,proto3" json:"passwordAge,omitempty"`
+	// expire password after x days, trigger force change
+	ForceExpirePasswordChange int32 `protobuf:"varint,9,opt,name=forceExpirePasswordChange,proto3" json:"forceExpirePasswordChange,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *MyPasswordPolicyUpdateReq) Reset() {
@@ -285,18 +285,18 @@ func (x *MyPasswordPolicyUpdateReq) GetRecentlyUsed() int32 {
 	return 0
 }
 
-func (x *MyPasswordPolicyUpdateReq) GetAllowUsername() bool {
+func (x *MyPasswordPolicyUpdateReq) GetPasswordAge() int32 {
 	if x != nil {
-		return x.AllowUsername
+		return x.PasswordAge
 	}
-	return false
+	return 0
 }
 
-func (x *MyPasswordPolicyUpdateReq) GetAllowEmail() bool {
+func (x *MyPasswordPolicyUpdateReq) GetForceExpirePasswordChange() int32 {
 	if x != nil {
-		return x.AllowEmail
+		return x.ForceExpirePasswordChange
 	}
-	return false
+	return 0
 }
 
 // password policy update response
@@ -341,7 +341,7 @@ var File_mytenant_proto protoreflect.FileDescriptor
 const file_mytenant_proto_rawDesc = "" +
 	"\n" +
 	"\x0emytenant.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a\x17coreapis/api/role.proto\"\x18\n" +
-	"\x16MyPasswordPolicyGetReq\"\xb5\x02\n" +
+	"\x16MyPasswordPolicyGetReq\"\xcf\x02\n" +
 	"\x17MyPasswordPolicyGetResp\x12\x1a\n" +
 	"\bminLower\x18\x01 \x01(\x05R\bminLower\x12\x1a\n" +
 	"\bminUpper\x18\x02 \x01(\x05R\bminUpper\x12\x1c\n" +
@@ -351,11 +351,9 @@ const file_mytenant_proto_rawDesc = "" +
 	"minSpecial\x12\x1c\n" +
 	"\tminLength\x18\x05 \x01(\x05R\tminLength\x12\x1c\n" +
 	"\tmaxLength\x18\x06 \x01(\x05R\tmaxLength\x12\"\n" +
-	"\frecentlyUsed\x18\a \x01(\x05R\frecentlyUsed\x12$\n" +
-	"\rallowUsername\x18\b \x01(\bR\rallowUsername\x12\x1e\n" +
-	"\n" +
-	"allowEmail\x18\t \x01(\bR\n" +
-	"allowEmail\"\xb7\x02\n" +
+	"\frecentlyUsed\x18\a \x01(\x05R\frecentlyUsed\x12 \n" +
+	"\vpasswordAge\x18\b \x01(\x05R\vpasswordAge\x12<\n" +
+	"\x19forceExpirePasswordChange\x18\t \x01(\x05R\x19forceExpirePasswordChange\"\xd1\x02\n" +
 	"\x19MyPasswordPolicyUpdateReq\x12\x1a\n" +
 	"\bminLower\x18\x01 \x01(\x05R\bminLower\x12\x1a\n" +
 	"\bminUpper\x18\x02 \x01(\x05R\bminUpper\x12\x1c\n" +
@@ -365,11 +363,9 @@ const file_mytenant_proto_rawDesc = "" +
 	"minSpecial\x12\x1c\n" +
 	"\tminLength\x18\x05 \x01(\x05R\tminLength\x12\x1c\n" +
 	"\tmaxLength\x18\x06 \x01(\x05R\tmaxLength\x12\"\n" +
-	"\frecentlyUsed\x18\a \x01(\x05R\frecentlyUsed\x12$\n" +
-	"\rallowUsername\x18\b \x01(\bR\rallowUsername\x12\x1e\n" +
-	"\n" +
-	"allowEmail\x18\t \x01(\bR\n" +
-	"allowEmail\"\x1c\n" +
+	"\frecentlyUsed\x18\a \x01(\x05R\frecentlyUsed\x12 \n" +
+	"\vpasswordAge\x18\b \x01(\x05R\vpasswordAge\x12<\n" +
+	"\x19forceExpirePasswordChange\x18\t \x01(\x05R\x19forceExpirePasswordChange\"\x1c\n" +
 	"\x1aMyPasswordPolicyUpdateResp2\xc7\x02\n" +
 	"\bMyTenant\x12\x94\x01\n" +
 	"\x13GetMyPasswordPolicy\x12\x1b.api.MyPasswordPolicyGetReq\x1a\x1c.api.MyPasswordPolicyGetResp\"B\x8a\xb5\x18\x16\n" +

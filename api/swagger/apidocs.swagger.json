@@ -2425,13 +2425,15 @@
           "format": "int32",
           "title": "do not allow last x recently used passwords"
         },
-        "allowUsername": {
-          "type": "boolean",
-          "title": "is username allowed as password"
+        "passwordAge": {
+          "type": "integer",
+          "format": "int32",
+          "title": "do not allow password reuse before x days"
         },
-        "allowEmail": {
-          "type": "boolean",
-          "title": "is email allowed as password"
+        "forceExpirePasswordChange": {
+          "type": "integer",
+          "format": "int32",
+          "title": "expire password after x days, trigger force change"
         }
       },
       "title": "password policy get response"
@@ -2474,13 +2476,15 @@
           "format": "int32",
           "title": "do not allow last x recently used passwords"
         },
-        "allowUsername": {
-          "type": "boolean",
-          "title": "is username allowed as password"
+        "passwordAge": {
+          "type": "integer",
+          "format": "int32",
+          "title": "do not allow password reuse before x days"
         },
-        "allowEmail": {
-          "type": "boolean",
-          "title": "is email allowed as password"
+        "forceExpirePasswordChange": {
+          "type": "integer",
+          "format": "int32",
+          "title": "expire password after x days, trigger force change"
         }
       },
       "title": "password policy update request"
