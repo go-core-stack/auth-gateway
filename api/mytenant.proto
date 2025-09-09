@@ -1,0 +1,105 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
+
+option go_package = "github.com/go-core-stack/auth-gateway/api";
+
+// service provided to manage tenant configuration
+service MyTenant {
+  // Get Password policy configuration
+  rpc GetMyPasswordPolicy(MyPasswordPolicyGetReq) returns (MyPasswordPolicyGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/password-policy"
+    };
+    option (api.role) = {
+      resource: "password-policy"
+      verb: "get"
+    };
+  }
+
+  // Update Password policy configuration
+  rpc UpdateMyPasswordPolicy(MyPasswordPolicyUpdateReq) returns (MyPasswordPolicyUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/password-policy"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "password-policy"
+      verb: "update"
+    };
+  }
+}
+
+// password policy get request
+message MyPasswordPolicyGetReq {
+}
+
+// password policy get response
+message MyPasswordPolicyGetResp {
+  // minimum number of lower case characters in password
+  int32 minLower = 1;
+
+  // minimum number of upper case characters in password
+  int32 minUpper = 2;
+
+  // minimum number of digits in password
+  int32 minDigits = 3;
+
+  // minimum number of special characters in password
+  int32 minSpecial = 4;
+
+  // minimum length of password
+  int32 minLength = 5;
+
+  // maximum length of password
+  int32 maxLength = 6;
+
+  // do not allow last x recently used passwords
+  int32 recentlyUsed = 7;
+
+  // is username allowed as password
+  bool allowUsername = 8;
+
+  // is email allowed as password
+  bool allowEmail = 9;
+}
+
+// password policy update request
+message MyPasswordPolicyUpdateReq {
+  // minimum number of lower case characters in password
+  int32 minLower = 1;
+
+  // minimum number of upper case characters in password
+  int32 minUpper = 2;
+
+  // minimum number of digits in password
+  int32 minDigits = 3;
+
+  // minimum number of special characters in password
+  int32 minSpecial = 4;
+
+  // minimum length of password
+  int32 minLength = 5;
+
+  // maximum length of password
+  int32 maxLength = 6;
+
+  // do not allow last x recently used passwords
+  int32 recentlyUsed = 7;
+
+  // is username allowed as password
+  bool allowUsername = 8;
+
+  // is email allowed as password
+  bool allowEmail = 9;
+}
+
+// password policy update response
+message MyPasswordPolicyUpdateResp {
+}
