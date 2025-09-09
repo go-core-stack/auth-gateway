@@ -457,6 +457,9 @@ func main() {
 	// setup myaccount server
 	_ = server.NewMyAccountServer(serverCtx, client, APIEndpoint)
 
+	// setup mytenant server
+	_ = server.NewMyTenantServer(serverCtx, client, APIEndpoint)
+
 	// setup registeration server
 	_ = server.NewRegistrationServer(serverCtx, APIEndpoint)
 

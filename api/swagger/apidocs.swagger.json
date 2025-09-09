@@ -12,6 +12,9 @@
       "name": "Customer"
     },
     {
+      "name": "MyTenant"
+    },
+    {
       "name": "OrgUnit"
     },
     {
@@ -1536,6 +1539,60 @@
         ]
       }
     },
+    "/api/mytenant/v1/password-policy": {
+      "get": {
+        "summary": "Get Password policy configuration",
+        "operationId": "MyTenant_GetMyPasswordPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMyPasswordPolicyGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyTenant"
+        ]
+      },
+      "put": {
+        "summary": "Update Password policy configuration",
+        "operationId": "MyTenant_UpdateMyPasswordPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMyPasswordPolicyUpdateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiMyPasswordPolicyUpdateReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      }
+    },
     "/api/mytenant/v1/sessions": {
       "get": {
         "summary": "List Active sessions, filter by user if provided",
@@ -2329,6 +2386,108 @@
           "title": "list of available org units for user\ninclusive of default Org unit"
         }
       }
+    },
+    "apiMyPasswordPolicyGetResp": {
+      "type": "object",
+      "properties": {
+        "minLower": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum number of lower case characters in password"
+        },
+        "minUpper": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum number of upper case characters in password"
+        },
+        "minDigits": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum number of digits in password"
+        },
+        "minSpecial": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum number of special characters in password"
+        },
+        "minLength": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum length of password"
+        },
+        "maxLength": {
+          "type": "integer",
+          "format": "int32",
+          "title": "maximum length of password"
+        },
+        "recentlyUsed": {
+          "type": "integer",
+          "format": "int32",
+          "title": "do not allow last x recently used passwords"
+        },
+        "allowUsername": {
+          "type": "boolean",
+          "title": "is username allowed as password"
+        },
+        "allowEmail": {
+          "type": "boolean",
+          "title": "is email allowed as password"
+        }
+      },
+      "title": "password policy get response"
+    },
+    "apiMyPasswordPolicyUpdateReq": {
+      "type": "object",
+      "properties": {
+        "minLower": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum number of lower case characters in password"
+        },
+        "minUpper": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum number of upper case characters in password"
+        },
+        "minDigits": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum number of digits in password"
+        },
+        "minSpecial": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum number of special characters in password"
+        },
+        "minLength": {
+          "type": "integer",
+          "format": "int32",
+          "title": "minimum length of password"
+        },
+        "maxLength": {
+          "type": "integer",
+          "format": "int32",
+          "title": "maximum length of password"
+        },
+        "recentlyUsed": {
+          "type": "integer",
+          "format": "int32",
+          "title": "do not allow last x recently used passwords"
+        },
+        "allowUsername": {
+          "type": "boolean",
+          "title": "is username allowed as password"
+        },
+        "allowEmail": {
+          "type": "boolean",
+          "title": "is email allowed as password"
+        }
+      },
+      "title": "password policy update request"
+    },
+    "apiMyPasswordPolicyUpdateResp": {
+      "type": "object",
+      "title": "password policy update response"
     },
     "apiMyRegionsListEntry": {
       "type": "object",
