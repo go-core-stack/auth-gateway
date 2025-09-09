@@ -247,6 +247,10 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 		oa := apidocs.NewApiDocsServer()
 		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, "/apidocs/") {
+				// remove the auth context header to ensure we do not
+				// allow it to be passed on to backend services without
+				// processing the authentication
+				r.Header.Del(common.HttpClientAuthContext)
 				oa.ServeHTTP(w, r)
 			} else {
 				// all APIs are handled via GRPC gateway
