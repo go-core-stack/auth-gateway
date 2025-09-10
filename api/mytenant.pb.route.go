@@ -21,4 +21,40 @@ func init() {
 	route.Resource = "password-policy"
 	route.Verb = "update"
 	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for GetIdentityProviderTypes RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider-types", "GET")
+	route.Resource = "tenant-idp"
+	route.Verb = "list"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for CreateIdentityProviderInstance RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider", "POST")
+	route.Resource = "tenant-idp"
+	route.Verb = "create"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for ListIdentityProviderInstances RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider", "GET")
+	route.Resource = "tenant-idp"
+	route.Verb = "list"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for GetIdentityProviderInstance RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider/{key}", "GET")
+	route.Resource = "tenant-idp"
+	route.Verb = "get"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for UpdateIdentityProviderInstance RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider/{key}", "PUT")
+	route.Resource = "tenant-idp"
+	route.Verb = "update"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for DeleteIdentityProviderInstance RPC
+	route = model.NewRoute("/api/mytenant/v1/identity-provider/{key}", "DELETE")
+	route.Resource = "tenant-idp"
+	route.Verb = "delete"
+	RoutesMyTenant = append(RoutesMyTenant, route)
 }
