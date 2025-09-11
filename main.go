@@ -483,5 +483,5 @@ func main() {
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 	s := <-sigc
-	log.Printf("Terminating Process got signal: %s", s)
+	log1.Printf("Terminating Process got signal: %s", s)
 }
