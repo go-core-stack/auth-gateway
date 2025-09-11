@@ -8,11 +8,19 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
+	"os"
 	"slices"
+	"strings"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"golang.org/x/net/http2"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	common "github.com/go-core-stack/auth/context"
 	"github.com/go-core-stack/auth/hash"
@@ -20,7 +28,6 @@ import (
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/reconciler"
 	"github.com/go-core-stack/core/utils"
-	"golang.org/x/net/http2"
 
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
@@ -32,6 +39,8 @@ const (
 	authKey gwContextKey = "auth"
 	ouKey   gwContextKey = "ou"
 )
+
+var logger *zap.Logger
 
 type gateway struct {
 	http.Handler
@@ -342,24 +351,71 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// getClientIP currently assumes that the gateway is always behind a
+// trusted proxy (nginx/UI pod) that sets X-Forwarded-For and X-Real-Ip
+// headers if such headers are not present, it falls back to RemoteAddr
+// which may not be reliable if the gateway is directly exposed to the
+// internet.
+// TODO(prabhjot) enhance this to support trusted proxy list
+func getClientIP(r *http.Request) string {
+	// Try X-Forwarded-For first
+	xForwardedFor := r.Header.Get("X-Forwarded-For")
+	if xForwardedFor != "" {
+		// The header is a comma-separated list: client, proxy1, proxy2, ...
+		ips := strings.Split(xForwardedFor, ",")
+		return strings.TrimSpace(ips[0])
+	}
+	// Try X-Real-Ip if present
+	if realIP := r.Header.Get("X-Real-Ip"); realIP != "" {
+		return realIP
+	}
+	// Fallback to RemoteAddr
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil {
+		return host
+	}
+	return r.RemoteAddr
+}
+
+// add ip address, user agent --
 func (s *gateway) handleAccessLog(authInfo *common.AuthInfo, ou string, r *http.Request, status int) {
 	path := r.URL.RawPath
 	if path == "" {
-		// if the path does not contain such explicitly encoded
-		// characters that would be lost during decoding,
-		// RawPath will be an empty string
 		path = r.URL.Path
 	}
-	msg := fmt.Sprintf("[Access Log] Method: %s, Url: %s, Status: %d", r.Method, path, status)
+
+	fields := []zap.Field{
+		zap.String("method", r.Method),
+		zap.Int("status", status),
+	}
+
+	if path != "" {
+		fields = append(fields, zap.String("url", path))
+	}
 	if ou != "" {
-		msg += fmt.Sprintf(", ou: %s", ou)
+		fields = append(fields, zap.String("ou", ou))
 	}
+	// add ip
+	fields = append(fields, zap.String("ip", getClientIP(r)))
+
+	// Add User-Agent
+	if ua := r.UserAgent(); ua != "" {
+		fields = append(fields, zap.String("user_agent", ua))
+	}
+
 	if authInfo != nil {
-		msg += fmt.Sprintf(", accessed by %s:%s", authInfo.Realm, authInfo.UserName)
-	} else {
-		msg += ", accessed anonymously"
+		if authInfo.UserName != "" {
+			fields = append(fields, zap.String("username", authInfo.UserName))
+		}
+		if authInfo.Email != "" {
+			fields = append(fields, zap.String("email", authInfo.Email))
+		}
+		if authInfo.Realm != "" {
+			fields = append(fields, zap.String("tenant", authInfo.Realm))
+		}
 	}
-	log.Println(msg)
+
+	logger.Info("", fields...)
 }
 
 // currently this is only relevant for logging response
@@ -456,4 +512,49 @@ func New() http.Handler {
 		log.Panicf("Failed to register GatewayController: %s", err)
 	}
 	return gateway
+}
+
+func init() {
+	logDir := os.Getenv("LOGS_DIR")
+
+	// ensure that a trailing slash is available
+	if len(logDir) > 0 && logDir[len(logDir)-1] != '/' {
+		logDir += "/"
+	}
+
+	encoderCfg := zap.NewProductionEncoderConfig() //we are using it for more customization
+	//encoderCfg.TimeKey = "timestamp"
+	//encoderCfg.MessageKey = "msg"
+	//encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+	encoderCfg.EncodeTime = zapcore.EpochTimeEncoder
+
+	var core zapcore.Core
+
+	if logDir == "" {
+		// Log only to stdout
+		core = zapcore.NewCore(
+			zapcore.NewJSONEncoder(encoderCfg),
+			zapcore.AddSync(os.Stdout),
+			zapcore.InfoLevel,
+		)
+	} else {
+		// Ensure log directory exists (optional)
+		// _ = os.MkdirAll(filepath.Dir(logPath), 0777)
+
+		lumberjackLogger := &lumberjack.Logger{
+			Filename:   logDir + "access.log", // Log file path
+			MaxSize:    10,                    // Max size in MB before rotation
+			MaxBackups: 5,                     // Max number of old log files to keep
+			MaxAge:     30,                    // Max age in days to keep a log file
+			Compress:   true,                  // Compress old logs
+		}
+
+		core = zapcore.NewCore(
+			zapcore.NewJSONEncoder(encoderCfg),
+			zapcore.AddSync(lumberjackLogger),
+			zapcore.InfoLevel,
+		)
+	}
+
+	logger = zap.New(core).With(zap.String("_type", "AccessLog"))
 }
