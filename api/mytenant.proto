@@ -34,6 +34,29 @@ service MyTenant {
       verb: "update"
     };
   }
+
+  // Get Session configuration
+  rpc GetMySessionConfig(GetMySessionConfigReq) returns (GetMySessionConfigResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/session-config"
+    };
+    option (api.role) = {
+      resource: "session-config"
+      verb: "get"
+    };
+  }
+
+  // Update Session configuration
+  rpc UpdateMySessionConfig(UpdateMySessionConfigReq) returns (UpdateMySessionConfigResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/session-config"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "session-config"
+      verb: "update"
+    };
+  }
 }
 
 // password policy get request
@@ -102,4 +125,47 @@ message MyPasswordPolicyUpdateReq {
 
 // password policy update response
 message MyPasswordPolicyUpdateResp {
+}
+
+// action to take when max concurrent sessions limit is exceeded
+enum SessionLimitAction {
+  // terminate the oldest active session
+  TERMINATE_OLDEST = 0;
+  // deny the new session creation
+  DENY_NEW = 1;
+}
+
+// session configuration for tenant
+message SessionConfig {
+  // maximum number of concurrent sessions per user (0 or -1 means no limit)
+  int32 max_concurrent_sessions = 1;
+  
+  // action to take when session limit is exceeded
+  SessionLimitAction on_max_sessions_exceeded = 2;
+  
+  // session idle timeout in seconds (0 means no timeout)
+  int32 session_idle_timeout_seconds = 3;
+  
+  // session maximum lifespan in seconds (0 means no limit)
+  int32 session_max_lifespan_seconds = 4;
+}
+
+// get session configuration request
+message GetMySessionConfigReq {
+}
+
+// get session configuration response
+message GetMySessionConfigResp {
+  // session configuration for the tenant
+  SessionConfig config = 1;
+}
+
+// update session configuration request
+message UpdateMySessionConfigReq {
+  // session configuration to update
+  SessionConfig config = 1;
+}
+
+// update session configuration response
+message UpdateMySessionConfigResp {
 }

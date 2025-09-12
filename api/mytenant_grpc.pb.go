@@ -24,6 +24,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	MyTenant_GetMyPasswordPolicy_FullMethodName    = "/api.MyTenant/GetMyPasswordPolicy"
 	MyTenant_UpdateMyPasswordPolicy_FullMethodName = "/api.MyTenant/UpdateMyPasswordPolicy"
+	MyTenant_GetMySessionConfig_FullMethodName     = "/api.MyTenant/GetMySessionConfig"
+	MyTenant_UpdateMySessionConfig_FullMethodName  = "/api.MyTenant/UpdateMySessionConfig"
 )
 
 // MyTenantClient is the client API for MyTenant service.
@@ -36,6 +38,10 @@ type MyTenantClient interface {
 	GetMyPasswordPolicy(ctx context.Context, in *MyPasswordPolicyGetReq, opts ...grpc.CallOption) (*MyPasswordPolicyGetResp, error)
 	// Update Password policy configuration
 	UpdateMyPasswordPolicy(ctx context.Context, in *MyPasswordPolicyUpdateReq, opts ...grpc.CallOption) (*MyPasswordPolicyUpdateResp, error)
+	// Get Session configuration
+	GetMySessionConfig(ctx context.Context, in *GetMySessionConfigReq, opts ...grpc.CallOption) (*GetMySessionConfigResp, error)
+	// Update Session configuration
+	UpdateMySessionConfig(ctx context.Context, in *UpdateMySessionConfigReq, opts ...grpc.CallOption) (*UpdateMySessionConfigResp, error)
 }
 
 type myTenantClient struct {
@@ -66,6 +72,26 @@ func (c *myTenantClient) UpdateMyPasswordPolicy(ctx context.Context, in *MyPassw
 	return out, nil
 }
 
+func (c *myTenantClient) GetMySessionConfig(ctx context.Context, in *GetMySessionConfigReq, opts ...grpc.CallOption) (*GetMySessionConfigResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMySessionConfigResp)
+	err := c.cc.Invoke(ctx, MyTenant_GetMySessionConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myTenantClient) UpdateMySessionConfig(ctx context.Context, in *UpdateMySessionConfigReq, opts ...grpc.CallOption) (*UpdateMySessionConfigResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateMySessionConfigResp)
+	err := c.cc.Invoke(ctx, MyTenant_UpdateMySessionConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MyTenantServer is the server API for MyTenant service.
 // All implementations must embed UnimplementedMyTenantServer
 // for forward compatibility.
@@ -76,6 +102,10 @@ type MyTenantServer interface {
 	GetMyPasswordPolicy(context.Context, *MyPasswordPolicyGetReq) (*MyPasswordPolicyGetResp, error)
 	// Update Password policy configuration
 	UpdateMyPasswordPolicy(context.Context, *MyPasswordPolicyUpdateReq) (*MyPasswordPolicyUpdateResp, error)
+	// Get Session configuration
+	GetMySessionConfig(context.Context, *GetMySessionConfigReq) (*GetMySessionConfigResp, error)
+	// Update Session configuration
+	UpdateMySessionConfig(context.Context, *UpdateMySessionConfigReq) (*UpdateMySessionConfigResp, error)
 	mustEmbedUnimplementedMyTenantServer()
 }
 
@@ -91,6 +121,12 @@ func (UnimplementedMyTenantServer) GetMyPasswordPolicy(context.Context, *MyPassw
 }
 func (UnimplementedMyTenantServer) UpdateMyPasswordPolicy(context.Context, *MyPasswordPolicyUpdateReq) (*MyPasswordPolicyUpdateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMyPasswordPolicy not implemented")
+}
+func (UnimplementedMyTenantServer) GetMySessionConfig(context.Context, *GetMySessionConfigReq) (*GetMySessionConfigResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMySessionConfig not implemented")
+}
+func (UnimplementedMyTenantServer) UpdateMySessionConfig(context.Context, *UpdateMySessionConfigReq) (*UpdateMySessionConfigResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMySessionConfig not implemented")
 }
 func (UnimplementedMyTenantServer) mustEmbedUnimplementedMyTenantServer() {}
 func (UnimplementedMyTenantServer) testEmbeddedByValue()                  {}
@@ -149,6 +185,42 @@ func _MyTenant_UpdateMyPasswordPolicy_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MyTenant_GetMySessionConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMySessionConfigReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).GetMySessionConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_GetMySessionConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).GetMySessionConfig(ctx, req.(*GetMySessionConfigReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyTenant_UpdateMySessionConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateMySessionConfigReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).UpdateMySessionConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_UpdateMySessionConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).UpdateMySessionConfig(ctx, req.(*UpdateMySessionConfigReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MyTenant_ServiceDesc is the grpc.ServiceDesc for MyTenant service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -163,6 +235,14 @@ var MyTenant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateMyPasswordPolicy",
 			Handler:    _MyTenant_UpdateMyPasswordPolicy_Handler,
+		},
+		{
+			MethodName: "GetMySessionConfig",
+			Handler:    _MyTenant_GetMySessionConfig_Handler,
+		},
+		{
+			MethodName: "UpdateMySessionConfig",
+			Handler:    _MyTenant_UpdateMySessionConfig_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

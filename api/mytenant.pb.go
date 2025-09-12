@@ -26,6 +26,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// action to take when max concurrent sessions limit is exceeded
+type SessionLimitAction int32
+
+const (
+	// terminate the oldest active session
+	SessionLimitAction_TERMINATE_OLDEST SessionLimitAction = 0
+	// deny the new session creation
+	SessionLimitAction_DENY_NEW SessionLimitAction = 1
+)
+
+// Enum value maps for SessionLimitAction.
+var (
+	SessionLimitAction_name = map[int32]string{
+		0: "TERMINATE_OLDEST",
+		1: "DENY_NEW",
+	}
+	SessionLimitAction_value = map[string]int32{
+		"TERMINATE_OLDEST": 0,
+		"DENY_NEW":         1,
+	}
+)
+
+func (x SessionLimitAction) Enum() *SessionLimitAction {
+	p := new(SessionLimitAction)
+	*p = x
+	return p
+}
+
+func (x SessionLimitAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SessionLimitAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_mytenant_proto_enumTypes[0].Descriptor()
+}
+
+func (SessionLimitAction) Type() protoreflect.EnumType {
+	return &file_mytenant_proto_enumTypes[0]
+}
+
+func (x SessionLimitAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SessionLimitAction.Descriptor instead.
+func (SessionLimitAction) EnumDescriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{0}
+}
+
 // password policy get request
 type MyPasswordPolicyGetReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -336,6 +385,245 @@ func (*MyPasswordPolicyUpdateResp) Descriptor() ([]byte, []int) {
 	return file_mytenant_proto_rawDescGZIP(), []int{3}
 }
 
+// session configuration for tenant
+type SessionConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// maximum number of concurrent sessions per user (0 or -1 means no limit)
+	MaxConcurrentSessions int32 `protobuf:"varint,1,opt,name=max_concurrent_sessions,json=maxConcurrentSessions,proto3" json:"max_concurrent_sessions,omitempty"`
+	// action to take when session limit is exceeded
+	OnMaxSessionsExceeded SessionLimitAction `protobuf:"varint,2,opt,name=on_max_sessions_exceeded,json=onMaxSessionsExceeded,proto3,enum=api.SessionLimitAction" json:"on_max_sessions_exceeded,omitempty"`
+	// session idle timeout in seconds (0 means no timeout)
+	SessionIdleTimeoutSeconds int32 `protobuf:"varint,3,opt,name=session_idle_timeout_seconds,json=sessionIdleTimeoutSeconds,proto3" json:"session_idle_timeout_seconds,omitempty"`
+	// session maximum lifespan in seconds (0 means no limit)
+	SessionMaxLifespanSeconds int32 `protobuf:"varint,4,opt,name=session_max_lifespan_seconds,json=sessionMaxLifespanSeconds,proto3" json:"session_max_lifespan_seconds,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *SessionConfig) Reset() {
+	*x = SessionConfig{}
+	mi := &file_mytenant_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SessionConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SessionConfig) ProtoMessage() {}
+
+func (x *SessionConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SessionConfig.ProtoReflect.Descriptor instead.
+func (*SessionConfig) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SessionConfig) GetMaxConcurrentSessions() int32 {
+	if x != nil {
+		return x.MaxConcurrentSessions
+	}
+	return 0
+}
+
+func (x *SessionConfig) GetOnMaxSessionsExceeded() SessionLimitAction {
+	if x != nil {
+		return x.OnMaxSessionsExceeded
+	}
+	return SessionLimitAction_TERMINATE_OLDEST
+}
+
+func (x *SessionConfig) GetSessionIdleTimeoutSeconds() int32 {
+	if x != nil {
+		return x.SessionIdleTimeoutSeconds
+	}
+	return 0
+}
+
+func (x *SessionConfig) GetSessionMaxLifespanSeconds() int32 {
+	if x != nil {
+		return x.SessionMaxLifespanSeconds
+	}
+	return 0
+}
+
+// get session configuration request
+type GetMySessionConfigReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMySessionConfigReq) Reset() {
+	*x = GetMySessionConfigReq{}
+	mi := &file_mytenant_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMySessionConfigReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMySessionConfigReq) ProtoMessage() {}
+
+func (x *GetMySessionConfigReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMySessionConfigReq.ProtoReflect.Descriptor instead.
+func (*GetMySessionConfigReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{5}
+}
+
+// get session configuration response
+type GetMySessionConfigResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// session configuration for the tenant
+	Config        *SessionConfig `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMySessionConfigResp) Reset() {
+	*x = GetMySessionConfigResp{}
+	mi := &file_mytenant_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMySessionConfigResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMySessionConfigResp) ProtoMessage() {}
+
+func (x *GetMySessionConfigResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMySessionConfigResp.ProtoReflect.Descriptor instead.
+func (*GetMySessionConfigResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetMySessionConfigResp) GetConfig() *SessionConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+// update session configuration request
+type UpdateMySessionConfigReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// session configuration to update
+	Config        *SessionConfig `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateMySessionConfigReq) Reset() {
+	*x = UpdateMySessionConfigReq{}
+	mi := &file_mytenant_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateMySessionConfigReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateMySessionConfigReq) ProtoMessage() {}
+
+func (x *UpdateMySessionConfigReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateMySessionConfigReq.ProtoReflect.Descriptor instead.
+func (*UpdateMySessionConfigReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateMySessionConfigReq) GetConfig() *SessionConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+// update session configuration response
+type UpdateMySessionConfigResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateMySessionConfigResp) Reset() {
+	*x = UpdateMySessionConfigResp{}
+	mi := &file_mytenant_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateMySessionConfigResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateMySessionConfigResp) ProtoMessage() {}
+
+func (x *UpdateMySessionConfigResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateMySessionConfigResp.ProtoReflect.Descriptor instead.
+func (*UpdateMySessionConfigResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{8}
+}
+
 var File_mytenant_proto protoreflect.FileDescriptor
 
 const file_mytenant_proto_rawDesc = "" +
@@ -366,12 +654,30 @@ const file_mytenant_proto_rawDesc = "" +
 	"\frecentlyUsed\x18\a \x01(\x05R\frecentlyUsed\x12 \n" +
 	"\vpasswordAge\x18\b \x01(\x05R\vpasswordAge\x12<\n" +
 	"\x19forceExpirePasswordChange\x18\t \x01(\x05R\x19forceExpirePasswordChange\"\x1c\n" +
-	"\x1aMyPasswordPolicyUpdateResp2\xc7\x02\n" +
+	"\x1aMyPasswordPolicyUpdateResp\"\x9b\x02\n" +
+	"\rSessionConfig\x126\n" +
+	"\x17max_concurrent_sessions\x18\x01 \x01(\x05R\x15maxConcurrentSessions\x12P\n" +
+	"\x18on_max_sessions_exceeded\x18\x02 \x01(\x0e2\x17.api.SessionLimitActionR\x15onMaxSessionsExceeded\x12?\n" +
+	"\x1csession_idle_timeout_seconds\x18\x03 \x01(\x05R\x19sessionIdleTimeoutSeconds\x12?\n" +
+	"\x1csession_max_lifespan_seconds\x18\x04 \x01(\x05R\x19sessionMaxLifespanSeconds\"\x17\n" +
+	"\x15GetMySessionConfigReq\"D\n" +
+	"\x16GetMySessionConfigResp\x12*\n" +
+	"\x06config\x18\x01 \x01(\v2\x12.api.SessionConfigR\x06config\"F\n" +
+	"\x18UpdateMySessionConfigReq\x12*\n" +
+	"\x06config\x18\x01 \x01(\v2\x12.api.SessionConfigR\x06config\"\x1b\n" +
+	"\x19UpdateMySessionConfigResp*8\n" +
+	"\x12SessionLimitAction\x12\x14\n" +
+	"\x10TERMINATE_OLDEST\x10\x00\x12\f\n" +
+	"\bDENY_NEW\x10\x012\xfa\x04\n" +
 	"\bMyTenant\x12\x94\x01\n" +
 	"\x13GetMyPasswordPolicy\x12\x1b.api.MyPasswordPolicyGetReq\x1a\x1c.api.MyPasswordPolicyGetResp\"B\x8a\xb5\x18\x16\n" +
 	"\x0fpassword-policy\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/mytenant/v1/password-policy\x12\xa3\x01\n" +
 	"\x16UpdateMyPasswordPolicy\x12\x1e.api.MyPasswordPolicyUpdateReq\x1a\x1f.api.MyPasswordPolicyUpdateResp\"H\x8a\xb5\x18\x19\n" +
-	"\x0fpassword-policy\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/mytenant/v1/password-policyB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\x0fpassword-policy\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/mytenant/v1/password-policy\x12\x8f\x01\n" +
+	"\x12GetMySessionConfig\x12\x1a.api.GetMySessionConfigReq\x1a\x1b.api.GetMySessionConfigResp\"@\x8a\xb5\x18\x15\n" +
+	"\x0esession-config\x1a\x03get\x82\xd3\xe4\x93\x02!\x12\x1f/api/mytenant/v1/session-config\x12\x9e\x01\n" +
+	"\x15UpdateMySessionConfig\x12\x1d.api.UpdateMySessionConfigReq\x1a\x1e.api.UpdateMySessionConfigResp\"F\x8a\xb5\x18\x18\n" +
+	"\x0esession-config\x1a\x06update\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/mytenant/v1/session-configB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_mytenant_proto_rawDescOnce sync.Once
@@ -385,23 +691,37 @@ func file_mytenant_proto_rawDescGZIP() []byte {
 	return file_mytenant_proto_rawDescData
 }
 
-var file_mytenant_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_mytenant_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_mytenant_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_mytenant_proto_goTypes = []any{
-	(*MyPasswordPolicyGetReq)(nil),     // 0: api.MyPasswordPolicyGetReq
-	(*MyPasswordPolicyGetResp)(nil),    // 1: api.MyPasswordPolicyGetResp
-	(*MyPasswordPolicyUpdateReq)(nil),  // 2: api.MyPasswordPolicyUpdateReq
-	(*MyPasswordPolicyUpdateResp)(nil), // 3: api.MyPasswordPolicyUpdateResp
+	(SessionLimitAction)(0),            // 0: api.SessionLimitAction
+	(*MyPasswordPolicyGetReq)(nil),     // 1: api.MyPasswordPolicyGetReq
+	(*MyPasswordPolicyGetResp)(nil),    // 2: api.MyPasswordPolicyGetResp
+	(*MyPasswordPolicyUpdateReq)(nil),  // 3: api.MyPasswordPolicyUpdateReq
+	(*MyPasswordPolicyUpdateResp)(nil), // 4: api.MyPasswordPolicyUpdateResp
+	(*SessionConfig)(nil),              // 5: api.SessionConfig
+	(*GetMySessionConfigReq)(nil),      // 6: api.GetMySessionConfigReq
+	(*GetMySessionConfigResp)(nil),     // 7: api.GetMySessionConfigResp
+	(*UpdateMySessionConfigReq)(nil),   // 8: api.UpdateMySessionConfigReq
+	(*UpdateMySessionConfigResp)(nil),  // 9: api.UpdateMySessionConfigResp
 }
 var file_mytenant_proto_depIdxs = []int32{
-	0, // 0: api.MyTenant.GetMyPasswordPolicy:input_type -> api.MyPasswordPolicyGetReq
-	2, // 1: api.MyTenant.UpdateMyPasswordPolicy:input_type -> api.MyPasswordPolicyUpdateReq
-	1, // 2: api.MyTenant.GetMyPasswordPolicy:output_type -> api.MyPasswordPolicyGetResp
-	3, // 3: api.MyTenant.UpdateMyPasswordPolicy:output_type -> api.MyPasswordPolicyUpdateResp
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: api.SessionConfig.on_max_sessions_exceeded:type_name -> api.SessionLimitAction
+	5, // 1: api.GetMySessionConfigResp.config:type_name -> api.SessionConfig
+	5, // 2: api.UpdateMySessionConfigReq.config:type_name -> api.SessionConfig
+	1, // 3: api.MyTenant.GetMyPasswordPolicy:input_type -> api.MyPasswordPolicyGetReq
+	3, // 4: api.MyTenant.UpdateMyPasswordPolicy:input_type -> api.MyPasswordPolicyUpdateReq
+	6, // 5: api.MyTenant.GetMySessionConfig:input_type -> api.GetMySessionConfigReq
+	8, // 6: api.MyTenant.UpdateMySessionConfig:input_type -> api.UpdateMySessionConfigReq
+	2, // 7: api.MyTenant.GetMyPasswordPolicy:output_type -> api.MyPasswordPolicyGetResp
+	4, // 8: api.MyTenant.UpdateMyPasswordPolicy:output_type -> api.MyPasswordPolicyUpdateResp
+	7, // 9: api.MyTenant.GetMySessionConfig:output_type -> api.GetMySessionConfigResp
+	9, // 10: api.MyTenant.UpdateMySessionConfig:output_type -> api.UpdateMySessionConfigResp
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_mytenant_proto_init() }
@@ -414,13 +734,14 @@ func file_mytenant_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_mytenant_proto_rawDesc), len(file_mytenant_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_mytenant_proto_goTypes,
 		DependencyIndexes: file_mytenant_proto_depIdxs,
+		EnumInfos:         file_mytenant_proto_enumTypes,
 		MessageInfos:      file_mytenant_proto_msgTypes,
 	}.Build()
 	File_mytenant_proto = out.File

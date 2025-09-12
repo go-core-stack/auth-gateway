@@ -1593,6 +1593,60 @@
         ]
       }
     },
+    "/api/mytenant/v1/session-config": {
+      "get": {
+        "summary": "Get Session configuration",
+        "operationId": "MyTenant_GetMySessionConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiGetMySessionConfigResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyTenant"
+        ]
+      },
+      "put": {
+        "summary": "Update Session configuration",
+        "operationId": "MyTenant_UpdateMySessionConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUpdateMySessionConfigResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiUpdateMySessionConfigReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      }
+    },
     "/api/mytenant/v1/sessions": {
       "get": {
         "summary": "List Active sessions, filter by user if provided",
@@ -2310,6 +2364,16 @@
     "apiDefaultOrgUnitResp": {
       "type": "object"
     },
+    "apiGetMySessionConfigResp": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/apiSessionConfig",
+          "title": "session configuration for the tenant"
+        }
+      },
+      "title": "get session configuration response"
+    },
     "apiMyAzsListEntry": {
       "type": "object",
       "properties": {
@@ -2806,6 +2870,41 @@
       },
       "title": "resource get response"
     },
+    "apiSessionConfig": {
+      "type": "object",
+      "properties": {
+        "maxConcurrentSessions": {
+          "type": "integer",
+          "format": "int32",
+          "title": "maximum number of concurrent sessions per user (0 or -1 means no limit)"
+        },
+        "onMaxSessionsExceeded": {
+          "$ref": "#/definitions/apiSessionLimitAction",
+          "title": "action to take when session limit is exceeded"
+        },
+        "sessionIdleTimeoutSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "title": "session idle timeout in seconds (0 means no timeout)"
+        },
+        "sessionMaxLifespanSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "title": "session maximum lifespan in seconds (0 means no limit)"
+        }
+      },
+      "title": "session configuration for tenant"
+    },
+    "apiSessionLimitAction": {
+      "type": "string",
+      "enum": [
+        "TERMINATE_OLDEST",
+        "DENY_NEW"
+      ],
+      "default": "TERMINATE_OLDEST",
+      "description": "- TERMINATE_OLDEST: terminate the oldest active session\n - DENY_NEW: deny the new session creation",
+      "title": "action to take when max concurrent sessions limit is exceeded"
+    },
     "apiTenantAdminCreateConfig": {
       "type": "object",
       "properties": {
@@ -3197,6 +3296,20 @@
         }
       },
       "title": "tenant list response"
+    },
+    "apiUpdateMySessionConfigReq": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/apiSessionConfig",
+          "title": "session configuration to update"
+        }
+      },
+      "title": "update session configuration request"
+    },
+    "apiUpdateMySessionConfigResp": {
+      "type": "object",
+      "title": "update session configuration response"
     },
     "apiUserCreateReq": {
       "type": "object",

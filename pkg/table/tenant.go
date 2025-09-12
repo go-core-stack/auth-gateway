@@ -142,6 +142,27 @@ type TenantAuthClientStatus struct {
 	ClientId string `bson:"clientID,omitempty"`
 }
 
+type SessionLimitAction int32
+
+const (
+	TerminateOldest SessionLimitAction = iota
+	DenyNew
+)
+
+type TenantSessionConfig struct {
+	// maximum number of concurrent sessions per user (0 or -1 means no limit)
+	MaxConcurrentSessions int32 `bson:"maxConcurrentSessions,omitempty"`
+
+	// action to take when session limit is exceeded
+	OnMaxSessionsExceeded SessionLimitAction `bson:"onMaxSessionsExceeded,omitempty"`
+
+	// session idle timeout in seconds (0 means no timeout)
+	SessionIdleTimeoutSeconds int32 `bson:"sessionIdleTimeoutSeconds,omitempty"`
+
+	// session maximum lifespan in seconds (0 means no limit)
+	SessionMaxLifespanSeconds int32 `bson:"sessionMaxLifespanSeconds,omitempty"`
+}
+
 type TenantRoleStatus struct {
 	// time when last updated
 	UpdateTime int64 `bson:"updateTime,omitempty"`
@@ -173,6 +194,9 @@ type TenantEntry struct {
 
 	// auth client status
 	AuthClient *TenantAuthClientStatus `bson:"authClient,omitempty"`
+
+	// session configuration for the tenant
+	SessionConfig *TenantSessionConfig `bson:"sessionConfig,omitempty"`
 }
 
 type TenantTable struct {

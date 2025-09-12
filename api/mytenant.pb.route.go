@@ -21,4 +21,16 @@ func init() {
 	route.Resource = "password-policy"
 	route.Verb = "update"
 	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for GetMySessionConfig RPC
+	route = model.NewRoute("/api/mytenant/v1/session-config", "GET")
+	route.Resource = "session-config"
+	route.Verb = "get"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for UpdateMySessionConfig RPC
+	route = model.NewRoute("/api/mytenant/v1/session-config", "PUT")
+	route.Resource = "session-config"
+	route.Verb = "update"
+	RoutesMyTenant = append(RoutesMyTenant, route)
 }
