@@ -15,6 +15,7 @@ import (
 	"github.com/go-core-stack/auth-gateway/api"
 	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
 	"github.com/go-core-stack/auth-gateway/pkg/model"
+	"github.com/go-core-stack/auth-gateway/pkg/table"
 	auth "github.com/go-core-stack/auth/context"
 	"github.com/go-core-stack/auth/route"
 	"google.golang.org/grpc/codes"
@@ -23,7 +24,8 @@ import (
 
 type MyTenantServer struct {
 	api.UnimplementedMyTenantServer
-	client *keycloak.Client
+	client    *keycloak.Client
+	tenantTbl *table.TenantTable
 }
 
 func (s *MyTenantServer) GetMyPasswordPolicy(ctx context.Context, req *api.MyPasswordPolicyGetReq) (*api.MyPasswordPolicyGetResp, error) {
@@ -151,12 +153,148 @@ func (s *MyTenantServer) UpdateMyPasswordPolicy(ctx context.Context, req *api.My
 	return &api.MyPasswordPolicyUpdateResp{}, nil
 }
 
+func (s *MyTenantServer) GetMySessionConfig(ctx context.Context, req *api.GetMySessionConfigReq) (*api.GetMySessionConfigResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	tenantKey := &table.TenantKey{
+		Name: authInfo.Realm,
+	}
+
+	tenant, err := s.tenantTbl.Find(ctx, tenantKey)
+	if err != nil {
+		log.Printf("failed to get tenant %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	resp := &api.GetMySessionConfigResp{
+		Config: &api.SessionConfig{
+			MaxConcurrentSessions:     0,
+			OnMaxSessionsExceeded:     api.SessionLimitAction_TERMINATE_OLDEST,
+			SessionIdleTimeoutSeconds: 0,
+			SessionMaxLifespanSeconds: 0,
+		},
+	}
+
+	if tenant.SessionConfig != nil {
+		resp.Config.MaxConcurrentSessions = tenant.SessionConfig.MaxConcurrentSessions
+		resp.Config.SessionIdleTimeoutSeconds = tenant.SessionConfig.SessionIdleTimeoutSeconds
+		resp.Config.SessionMaxLifespanSeconds = tenant.SessionConfig.SessionMaxLifespanSeconds
+
+		switch tenant.SessionConfig.OnMaxSessionsExceeded {
+		case table.DenyNew:
+			resp.Config.OnMaxSessionsExceeded = api.SessionLimitAction_DENY_NEW
+		default:
+			resp.Config.OnMaxSessionsExceeded = api.SessionLimitAction_TERMINATE_OLDEST
+		}
+	}
+
+	return resp, nil
+}
+
+func (s *MyTenantServer) UpdateMySessionConfig(ctx context.Context, req *api.UpdateMySessionConfigReq) (*api.UpdateMySessionConfigResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	if req.Config == nil {
+		return nil, status.Errorf(codes.InvalidArgument, "session config is required")
+	}
+
+	// Validate input parameters
+	if req.Config.MaxConcurrentSessions < -1 {
+		return nil, status.Errorf(codes.InvalidArgument, "max concurrent sessions must be >= -1")
+	}
+
+	if req.Config.SessionIdleTimeoutSeconds < 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "session idle timeout must be >= 0")
+	}
+
+	if req.Config.SessionMaxLifespanSeconds < 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "session max lifespan must be >= 0")
+	}
+
+	tenantKey := &table.TenantKey{
+		Name: authInfo.Realm,
+	}
+
+	_, err := s.tenantTbl.Find(ctx, tenantKey)
+	if err != nil {
+		log.Printf("failed to get tenant %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	// Convert API enum to table enum
+	var action table.SessionLimitAction
+	switch req.Config.OnMaxSessionsExceeded {
+	case api.SessionLimitAction_DENY_NEW:
+		action = table.DenyNew
+	default:
+		action = table.TerminateOldest
+	}
+
+	// Update tenant session configuration
+	update := &table.TenantEntry{
+		SessionConfig: &table.TenantSessionConfig{
+			MaxConcurrentSessions:     req.Config.MaxConcurrentSessions,
+			OnMaxSessionsExceeded:     action,
+			SessionIdleTimeoutSeconds: req.Config.SessionIdleTimeoutSeconds,
+			SessionMaxLifespanSeconds: req.Config.SessionMaxLifespanSeconds,
+		},
+	}
+
+	err = s.tenantTbl.Update(ctx, tenantKey, update)
+	if err != nil {
+		log.Printf("failed to update session config for tenant %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	// Update Keycloak realm settings for session timeouts
+	if req.Config.SessionIdleTimeoutSeconds > 0 || req.Config.SessionMaxLifespanSeconds > 0 {
+		token, _ := s.client.GetAccessToken()
+		_, err := s.client.GetRealm(ctx, token, authInfo.Realm)
+		if err != nil {
+			log.Printf("failed to get realm %s for session timeout update: %s", authInfo.Realm, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+		}
+
+		realmUpdate := gocloak.RealmRepresentation{
+			Realm: gocloak.StringP(authInfo.Realm),
+		}
+
+		if req.Config.SessionIdleTimeoutSeconds > 0 {
+			realmUpdate.SsoSessionIdleTimeout = gocloak.IntP(int(req.Config.SessionIdleTimeoutSeconds))
+		}
+
+		if req.Config.SessionMaxLifespanSeconds > 0 {
+			realmUpdate.SsoSessionMaxLifespan = gocloak.IntP(int(req.Config.SessionMaxLifespanSeconds))
+		}
+
+		err = s.client.UpdateRealm(ctx, token, realmUpdate)
+		if err != nil {
+			log.Printf("failed to update session timeouts in Keycloak for realm %s: %s", authInfo.Realm, err)
+			return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+		}
+	}
+
+	return &api.UpdateMySessionConfigResp{}, nil
+}
+
 func NewMyTenantServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *MyTenantServer {
+	tenantTbl, err := table.GetTenantTable()
+	if err != nil {
+		log.Panicf("failed to get tenant table: %s", err)
+	}
+
 	srv := &MyTenantServer{
-		client: client,
+		client:    client,
+		tenantTbl: tenantTbl,
 	}
 	api.RegisterMyTenantServer(ctx.Server, srv)
-	err := api.RegisterMyTenantHandler(context.Background(), ctx.Mux, ctx.Conn)
+	err = api.RegisterMyTenantHandler(context.Background(), ctx.Mux, ctx.Conn)
 	if err != nil {
 		log.Panicf("failed to register handler: %s", err)
 	}

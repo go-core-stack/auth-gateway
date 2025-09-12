@@ -13,6 +13,7 @@ import (
 	"net/http/httputil"
 	"os"
 	"slices"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -22,6 +23,7 @@ import (
 	"golang.org/x/net/http2"
 	"gopkg.in/natefinch/lumberjack.v2"
 
+	"github.com/Nerzal/gocloak/v13"
 	common "github.com/go-core-stack/auth/context"
 	"github.com/go-core-stack/auth/hash"
 	"github.com/go-core-stack/auth/route"
@@ -30,6 +32,7 @@ import (
 	"github.com/go-core-stack/core/utils"
 
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
+	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
@@ -38,20 +41,80 @@ type gwContextKey string
 const (
 	authKey gwContextKey = "auth"
 	ouKey   gwContextKey = "ou"
+
+	// sessionCheckCacheDuration defines how long to cache session checks (30 seconds)
+	sessionCheckCacheDuration = 30 * time.Second
 )
+
+// sessionCheckCache represents cached session check result
+type sessionCheckCache struct {
+	lastCheck time.Time
+	mu        sync.RWMutex
+}
+
+// sessionCheckMap is a thread-safe map for caching session checks per user
+type sessionCheckMap struct {
+	cache map[string]*sessionCheckCache
+	mu    sync.RWMutex
+}
+
+// newSessionCheckMap creates a new session check cache map
+func newSessionCheckMap() *sessionCheckMap {
+	return &sessionCheckMap{
+		cache: make(map[string]*sessionCheckCache),
+	}
+}
+
+// shouldCheckSessions determines if we should check sessions for a user
+func (scm *sessionCheckMap) shouldCheckSessions(tenant, username string) bool {
+	key := fmt.Sprintf("%s:%s", tenant, username)
+
+	scm.mu.RLock()
+	entry, exists := scm.cache[key]
+	scm.mu.RUnlock()
+
+	if !exists {
+		return true
+	}
+
+	entry.mu.RLock()
+	defer entry.mu.RUnlock()
+	return time.Since(entry.lastCheck) > sessionCheckCacheDuration
+}
+
+// updateLastCheck updates the last check time for a user
+func (scm *sessionCheckMap) updateLastCheck(tenant, username string) {
+	key := fmt.Sprintf("%s:%s", tenant, username)
+
+	scm.mu.Lock()
+	if entry, exists := scm.cache[key]; exists {
+		scm.mu.Unlock()
+		entry.mu.Lock()
+		entry.lastCheck = time.Now()
+		entry.mu.Unlock()
+	} else {
+		scm.cache[key] = &sessionCheckCache{
+			lastCheck: time.Now(),
+		}
+		scm.mu.Unlock()
+	}
+}
 
 var logger *zap.Logger
 
 type gateway struct {
 	http.Handler
-	validator hash.Validator
-	apiKeys   *table.ApiKeyTable
-	userTbl   *table.UserTable
-	routes    *route.RouteTable
-	ouTbl     *table.OrgUnitTable
-	ouUserTbl *table.OrgUnitUserTable
-	proxyV1   *httputil.ReverseProxy
-	proxyV2   *httputil.ReverseProxy
+	validator       hash.Validator
+	apiKeys         *table.ApiKeyTable
+	userTbl         *table.UserTable
+	routes          *route.RouteTable
+	ouTbl           *table.OrgUnitTable
+	ouUserTbl       *table.OrgUnitUserTable
+	tenantTbl       *table.TenantTable
+	keycloakClient  *keycloak.Client
+	sessionCheckMap *sessionCheckMap
+	proxyV1         *httputil.ReverseProxy
+	proxyV2         *httputil.ReverseProxy
 }
 
 type gatewayReconciler struct {
@@ -196,12 +259,137 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 		return nil, errors.Wrapf(errors.Unauthorized, "User %s is disabled in tenant %s", authInfo.UserName, authInfo.Realm)
 	}
 
+	// Enforce session limits only for non-API key authentication
+	if keyId == "" {
+		err = s.enforceSessionLimits(r.Context(), authInfo)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Add Auth info for the backend server
 	err = common.SetAuthInfoHeader(r, authInfo)
 	if err != nil {
 		return nil, errors.Wrapf(errors.Unauthorized, "Failed to process auth information: %s", err)
 	}
 	return authInfo, nil
+}
+
+// enforceSessionLimits checks and enforces session limits for the authenticated user
+func (s *gateway) enforceSessionLimits(ctx context.Context, authInfo *common.AuthInfo) error {
+	// Skip if Keycloak client is not available
+	if s.keycloakClient == nil {
+		return nil
+	}
+
+	// Check if we should perform session limit check (use cache to avoid frequent checks)
+	if !s.sessionCheckMap.shouldCheckSessions(authInfo.Realm, authInfo.UserName) {
+		return nil
+	}
+
+	// Get tenant configuration
+	tenantKey := &table.TenantKey{
+		Name: authInfo.Realm,
+	}
+
+	tenant, err := s.tenantTbl.Find(ctx, tenantKey)
+	if err != nil {
+		log.Printf("failed to get tenant %s for session enforcement: %s", authInfo.Realm, err)
+		// Don't fail the request due to tenant lookup error
+		return nil
+	}
+
+	// Check if session limits are configured
+	if tenant.SessionConfig == nil || tenant.SessionConfig.MaxConcurrentSessions <= 0 {
+		return nil
+	}
+
+	// Get user's active sessions from Keycloak
+	token, err := s.keycloakClient.GetAccessToken()
+	if err != nil {
+		log.Printf("failed to get Keycloak access token for session enforcement: %s", err)
+		return nil
+	}
+
+	params := gocloak.GetUsersParams{
+		Username: gocloak.StringP(authInfo.UserName),
+	}
+	users, err := s.keycloakClient.GetUsers(ctx, token, authInfo.Realm, params)
+	if err != nil || len(users) == 0 {
+		log.Printf("failed to get user %s from Keycloak for session enforcement: %s", authInfo.UserName, err)
+		return nil
+	}
+
+	// Validate exact match for username
+	if *users[0].Username != authInfo.UserName {
+		log.Printf("username mismatch in Keycloak lookup for session enforcement")
+		return nil
+	}
+
+	sessions, err := s.keycloakClient.GetUserSessions(ctx, token, authInfo.Realm, *users[0].ID)
+	if err != nil {
+		log.Printf("failed to get user sessions for %s: %s", authInfo.UserName, err)
+		return nil
+	}
+
+	// Update cache to indicate we've checked recently
+	s.sessionCheckMap.updateLastCheck(authInfo.Realm, authInfo.UserName)
+
+	// Check if session limit is exceeded
+	if int32(len(sessions)) > tenant.SessionConfig.MaxConcurrentSessions {
+		switch tenant.SessionConfig.OnMaxSessionsExceeded {
+		case table.TerminateOldest:
+			// Sort sessions by start time and terminate the oldest
+			sort.Slice(sessions, func(i, j int) bool {
+				iStart := int64(0)
+				jStart := int64(0)
+				if sessions[i].Start != nil {
+					iStart = *sessions[i].Start
+				}
+				if sessions[j].Start != nil {
+					jStart = *sessions[j].Start
+				}
+				return iStart < jStart
+			})
+
+			// Terminate the oldest session
+			if len(sessions) > 0 && sessions[0].ID != nil {
+				err = s.keycloakClient.LogoutUserSession(ctx, token, authInfo.Realm, *sessions[0].ID)
+				if err != nil {
+					log.Printf("failed to terminate oldest session for user %s: %s", authInfo.UserName, err)
+				} else {
+					log.Printf("terminated oldest session for user %s due to session limit", authInfo.UserName)
+				}
+			}
+
+		case table.DenyNew:
+			// Find and terminate the newest session (which is likely the current one)
+			sort.Slice(sessions, func(i, j int) bool {
+				iStart := int64(0)
+				jStart := int64(0)
+				if sessions[i].Start != nil {
+					iStart = *sessions[i].Start
+				}
+				if sessions[j].Start != nil {
+					jStart = *sessions[j].Start
+				}
+				return iStart > jStart // Sort in descending order (newest first)
+			})
+
+			// Terminate the newest session
+			if len(sessions) > 0 && sessions[0].ID != nil {
+				err = s.keycloakClient.LogoutUserSession(ctx, token, authInfo.Realm, *sessions[0].ID)
+				if err != nil {
+					log.Printf("failed to terminate newest session for user %s: %s", authInfo.UserName, err)
+				} else {
+					log.Printf("terminated newest session for user %s due to session limit", authInfo.UserName)
+				}
+			}
+			return errors.Wrapf(errors.Unauthorized, "Session limit exceeded. New session denied.")
+		}
+	}
+
+	return nil
 }
 
 // performOrgUnitRoleCheck checks if the Org unit role associated with the user
@@ -466,6 +654,24 @@ func New() http.Handler {
 		log.Panicf("unable to get org unit user table: %s", err)
 	}
 
+	tenantTbl, err := table.GetTenantTable()
+	if err != nil {
+		log.Panicf("unable to get tenant table: %s", err)
+	}
+
+	// For session enforcement, we need an admin Keycloak client
+	// We'll use the same endpoint configuration as main.go
+	keycloakBaseURL := os.Getenv("KEYCLOAK_BASE_URL")
+	if keycloakBaseURL == "" {
+		keycloakBaseURL = "http://localhost:8080" // fallback
+	}
+
+	keycloakClient, err := keycloak.New(keycloakBaseURL)
+	if err != nil {
+		log.Printf("failed to create Keycloak admin client for session enforcement: %s", err)
+		keycloakClient = nil // Continue without session enforcement
+	}
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -481,12 +687,15 @@ func New() http.Handler {
 	}
 
 	gateway := &gateway{
-		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
-		apiKeys:   apiKeys,
-		userTbl:   userTbl,
-		routes:    routes,
-		ouTbl:     ouTbl,
-		ouUserTbl: ouUserTbl,
+		validator:       hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
+		apiKeys:         apiKeys,
+		userTbl:         userTbl,
+		routes:          routes,
+		ouTbl:           ouTbl,
+		ouUserTbl:       ouUserTbl,
+		tenantTbl:       tenantTbl,
+		keycloakClient:  keycloakClient,
+		sessionCheckMap: newSessionCheckMap(),
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,
