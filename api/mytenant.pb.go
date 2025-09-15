@@ -27,59 +27,56 @@ const (
 )
 
 // Identity Provider types
-type IdpProviderType int32
+type IdentityProviderDefs_Type int32
 
 const (
-	IdpProviderType_IdentityProviderUnspecified IdpProviderType = 0
-	IdpProviderType_Google                      IdpProviderType = 1
-	IdpProviderType_Microsoft                   IdpProviderType = 2
-	IdpProviderType_OIDC                        IdpProviderType = 3
-	IdpProviderType_SAML                        IdpProviderType = 4
+	// Unspecified IDP
+	IdentityProviderDefs_IdentityProviderUnspecified IdentityProviderDefs_Type = 0
+	// Identity Provider - Google
+	IdentityProviderDefs_Google IdentityProviderDefs_Type = 1
+	// Identity Provider - Microsoft
+	IdentityProviderDefs_Microsoft IdentityProviderDefs_Type = 2
 )
 
-// Enum value maps for IdpProviderType.
+// Enum value maps for IdentityProviderDefs_Type.
 var (
-	IdpProviderType_name = map[int32]string{
+	IdentityProviderDefs_Type_name = map[int32]string{
 		0: "IdentityProviderUnspecified",
 		1: "Google",
 		2: "Microsoft",
-		3: "OIDC",
-		4: "SAML",
 	}
-	IdpProviderType_value = map[string]int32{
+	IdentityProviderDefs_Type_value = map[string]int32{
 		"IdentityProviderUnspecified": 0,
 		"Google":                      1,
 		"Microsoft":                   2,
-		"OIDC":                        3,
-		"SAML":                        4,
 	}
 )
 
-func (x IdpProviderType) Enum() *IdpProviderType {
-	p := new(IdpProviderType)
+func (x IdentityProviderDefs_Type) Enum() *IdentityProviderDefs_Type {
+	p := new(IdentityProviderDefs_Type)
 	*p = x
 	return p
 }
 
-func (x IdpProviderType) String() string {
+func (x IdentityProviderDefs_Type) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (IdpProviderType) Descriptor() protoreflect.EnumDescriptor {
+func (IdentityProviderDefs_Type) Descriptor() protoreflect.EnumDescriptor {
 	return file_mytenant_proto_enumTypes[0].Descriptor()
 }
 
-func (IdpProviderType) Type() protoreflect.EnumType {
+func (IdentityProviderDefs_Type) Type() protoreflect.EnumType {
 	return &file_mytenant_proto_enumTypes[0]
 }
 
-func (x IdpProviderType) Number() protoreflect.EnumNumber {
+func (x IdentityProviderDefs_Type) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use IdpProviderType.Descriptor instead.
-func (IdpProviderType) EnumDescriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use IdentityProviderDefs_Type.Descriptor instead.
+func (IdentityProviderDefs_Type) EnumDescriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{4, 0}
 }
 
 // password policy get request
@@ -392,6 +389,42 @@ func (*MyPasswordPolicyUpdateResp) Descriptor() ([]byte, []int) {
 	return file_mytenant_proto_rawDescGZIP(), []int{3}
 }
 
+type IdentityProviderDefs struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IdentityProviderDefs) Reset() {
+	*x = IdentityProviderDefs{}
+	mi := &file_mytenant_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IdentityProviderDefs) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IdentityProviderDefs) ProtoMessage() {}
+
+func (x *IdentityProviderDefs) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IdentityProviderDefs.ProtoReflect.Descriptor instead.
+func (*IdentityProviderDefs) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{4}
+}
+
 // Configuration field metadata for validation
 type IdpConfigField struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -408,7 +441,7 @@ type IdpConfigField struct {
 
 func (x *IdpConfigField) Reset() {
 	*x = IdpConfigField{}
-	mi := &file_mytenant_proto_msgTypes[4]
+	mi := &file_mytenant_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -420,7 +453,7 @@ func (x *IdpConfigField) String() string {
 func (*IdpConfigField) ProtoMessage() {}
 
 func (x *IdpConfigField) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[4]
+	mi := &file_mytenant_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -433,7 +466,7 @@ func (x *IdpConfigField) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IdpConfigField.ProtoReflect.Descriptor instead.
 func (*IdpConfigField) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{4}
+	return file_mytenant_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *IdpConfigField) GetName() string {
@@ -485,122 +518,27 @@ func (x *IdpConfigField) GetValidation() string {
 	return ""
 }
 
-// Provider metadata
-type IdpProviderMetadata struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	ProviderType    IdpProviderType        `protobuf:"varint,1,opt,name=provider_type,json=providerType,proto3,enum=api.IdpProviderType" json:"provider_type,omitempty"`
-	DisplayName     string                 `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	Description     string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	ConfigFields    []*IdpConfigField      `protobuf:"bytes,4,rep,name=config_fields,json=configFields,proto3" json:"config_fields,omitempty"`
-	SupportedScopes []string               `protobuf:"bytes,5,rep,name=supported_scopes,json=supportedScopes,proto3" json:"supported_scopes,omitempty"`
-	DefaultScopes   []string               `protobuf:"bytes,6,rep,name=default_scopes,json=defaultScopes,proto3" json:"default_scopes,omitempty"`
-	Documentation   string                 `protobuf:"bytes,7,opt,name=documentation,proto3" json:"documentation,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *IdpProviderMetadata) Reset() {
-	*x = IdpProviderMetadata{}
-	mi := &file_mytenant_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IdpProviderMetadata) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IdpProviderMetadata) ProtoMessage() {}
-
-func (x *IdpProviderMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IdpProviderMetadata.ProtoReflect.Descriptor instead.
-func (*IdpProviderMetadata) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *IdpProviderMetadata) GetProviderType() IdpProviderType {
-	if x != nil {
-		return x.ProviderType
-	}
-	return IdpProviderType_IdentityProviderUnspecified
-}
-
-func (x *IdpProviderMetadata) GetDisplayName() string {
-	if x != nil {
-		return x.DisplayName
-	}
-	return ""
-}
-
-func (x *IdpProviderMetadata) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *IdpProviderMetadata) GetConfigFields() []*IdpConfigField {
-	if x != nil {
-		return x.ConfigFields
-	}
-	return nil
-}
-
-func (x *IdpProviderMetadata) GetSupportedScopes() []string {
-	if x != nil {
-		return x.SupportedScopes
-	}
-	return nil
-}
-
-func (x *IdpProviderMetadata) GetDefaultScopes() []string {
-	if x != nil {
-		return x.DefaultScopes
-	}
-	return nil
-}
-
-func (x *IdpProviderMetadata) GetDocumentation() string {
-	if x != nil {
-		return x.Documentation
-	}
-	return ""
-}
-
 // Identity provider providers request (list supported provider types)
-type IdpProvidersReq struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional filter by provider type
-	ProviderType  *IdpProviderType `protobuf:"varint,1,opt,name=providerType,proto3,enum=api.IdpProviderType,oneof" json:"providerType,omitempty"`
+type IdentityProviderTypesGetReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpProvidersReq) Reset() {
-	*x = IdpProvidersReq{}
+func (x *IdentityProviderTypesGetReq) Reset() {
+	*x = IdentityProviderTypesGetReq{}
 	mi := &file_mytenant_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpProvidersReq) String() string {
+func (x *IdentityProviderTypesGetReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpProvidersReq) ProtoMessage() {}
+func (*IdentityProviderTypesGetReq) ProtoMessage() {}
 
-func (x *IdpProvidersReq) ProtoReflect() protoreflect.Message {
+func (x *IdentityProviderTypesGetReq) ProtoReflect() protoreflect.Message {
 	mi := &file_mytenant_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -612,41 +550,33 @@ func (x *IdpProvidersReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpProvidersReq.ProtoReflect.Descriptor instead.
-func (*IdpProvidersReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use IdentityProviderTypesGetReq.ProtoReflect.Descriptor instead.
+func (*IdentityProviderTypesGetReq) Descriptor() ([]byte, []int) {
 	return file_mytenant_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *IdpProvidersReq) GetProviderType() IdpProviderType {
-	if x != nil && x.ProviderType != nil {
-		return *x.ProviderType
-	}
-	return IdpProviderType_IdentityProviderUnspecified
-}
-
-// Identity provider providers response
-type IdpProvidersResp struct {
+type IdentityProviderTypesListEntry struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Available provider types and their metadata
-	Providers     []*IdpProviderMetadata `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"`
+	// type value for the list entry
+	Type          string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpProvidersResp) Reset() {
-	*x = IdpProvidersResp{}
+func (x *IdentityProviderTypesListEntry) Reset() {
+	*x = IdentityProviderTypesListEntry{}
 	mi := &file_mytenant_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpProvidersResp) String() string {
+func (x *IdentityProviderTypesListEntry) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpProvidersResp) ProtoMessage() {}
+func (*IdentityProviderTypesListEntry) ProtoMessage() {}
 
-func (x *IdpProvidersResp) ProtoReflect() protoreflect.Message {
+func (x *IdentityProviderTypesListEntry) ProtoReflect() protoreflect.Message {
 	mi := &file_mytenant_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -658,52 +588,92 @@ func (x *IdpProvidersResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpProvidersResp.ProtoReflect.Descriptor instead.
-func (*IdpProvidersResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use IdentityProviderTypesListEntry.ProtoReflect.Descriptor instead.
+func (*IdentityProviderTypesListEntry) Descriptor() ([]byte, []int) {
 	return file_mytenant_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *IdpProvidersResp) GetProviders() []*IdpProviderMetadata {
+func (x *IdentityProviderTypesListEntry) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+// Identity provider providers response
+type IdentityProviderTypesGetResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Available provider types
+	Providers     []*IdentityProviderTypesListEntry `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IdentityProviderTypesGetResp) Reset() {
+	*x = IdentityProviderTypesGetResp{}
+	mi := &file_mytenant_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IdentityProviderTypesGetResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IdentityProviderTypesGetResp) ProtoMessage() {}
+
+func (x *IdentityProviderTypesGetResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IdentityProviderTypesGetResp.ProtoReflect.Descriptor instead.
+func (*IdentityProviderTypesGetResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *IdentityProviderTypesGetResp) GetProviders() []*IdentityProviderTypesListEntry {
 	if x != nil {
 		return x.Providers
 	}
 	return nil
 }
 
-// Identity provider instance create request
-type IdpInstanceCreateReq struct {
+type GoogleIDPConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identity provider key (unique per tenant)
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Display name
-	DisplayName string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	// Provider type
-	ProviderType IdpProviderType `protobuf:"varint,3,opt,name=provider_type,json=providerType,proto3,enum=api.IdpProviderType" json:"provider_type,omitempty"`
-	// Whether configuration is enabled
-	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// Display order for UI
-	DisplayOrder int32 `protobuf:"varint,5,opt,name=display_order,json=displayOrder,proto3" json:"display_order,omitempty"`
-	// Provider configuration (including sensitive fields)
-	Configuration string `protobuf:"bytes,6,opt,name=configuration,proto3" json:"configuration,omitempty"`
+	// client id from google SSO config, where controller
+	// is enabled as client
+	ClientId string `protobuf:"bytes,1,opt,name=clientId,proto3" json:"clientId,omitempty"`
+	// client secret to validate ourself with google
+	ClientSecret string `protobuf:"bytes,2,opt,name=clientSecret,proto3" json:"clientSecret,omitempty"`
+	// Hosted Domain for allowing users only from specific domain
+	HostedDomain  string `protobuf:"bytes,3,opt,name=hostedDomain,proto3" json:"hostedDomain,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceCreateReq) Reset() {
-	*x = IdpInstanceCreateReq{}
-	mi := &file_mytenant_proto_msgTypes[8]
+func (x *GoogleIDPConfig) Reset() {
+	*x = GoogleIDPConfig{}
+	mi := &file_mytenant_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceCreateReq) String() string {
+func (x *GoogleIDPConfig) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceCreateReq) ProtoMessage() {}
+func (*GoogleIDPConfig) ProtoMessage() {}
 
-func (x *IdpInstanceCreateReq) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[8]
+func (x *GoogleIDPConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -714,79 +684,211 @@ func (x *IdpInstanceCreateReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceCreateReq.ProtoReflect.Descriptor instead.
-func (*IdpInstanceCreateReq) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{8}
+// Deprecated: Use GoogleIDPConfig.ProtoReflect.Descriptor instead.
+func (*GoogleIDPConfig) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *IdpInstanceCreateReq) GetKey() string {
+func (x *GoogleIDPConfig) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *GoogleIDPConfig) GetClientSecret() string {
+	if x != nil {
+		return x.ClientSecret
+	}
+	return ""
+}
+
+func (x *GoogleIDPConfig) GetHostedDomain() string {
+	if x != nil {
+		return x.HostedDomain
+	}
+	return ""
+}
+
+type MicrosoftIDPConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// client id from microsoft SSO config, where controller
+	// is enabled as client
+	ClientId string `protobuf:"bytes,1,opt,name=clientId,proto3" json:"clientId,omitempty"`
+	// client secret to validate ourself with microsoft
+	ClientSecret string `protobuf:"bytes,2,opt,name=clientSecret,proto3" json:"clientSecret,omitempty"`
+	// tenant id to ensure allowing users only from specific
+	// microsoft tenant
+	TenantId      string `protobuf:"bytes,3,opt,name=tenantId,proto3" json:"tenantId,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MicrosoftIDPConfig) Reset() {
+	*x = MicrosoftIDPConfig{}
+	mi := &file_mytenant_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MicrosoftIDPConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MicrosoftIDPConfig) ProtoMessage() {}
+
+func (x *MicrosoftIDPConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MicrosoftIDPConfig.ProtoReflect.Descriptor instead.
+func (*MicrosoftIDPConfig) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *MicrosoftIDPConfig) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *MicrosoftIDPConfig) GetClientSecret() string {
+	if x != nil {
+		return x.ClientSecret
+	}
+	return ""
+}
+
+func (x *MicrosoftIDPConfig) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+// Identity provider create request
+type MyIdentityProviderCreateReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identity provider key (unique per tenant), also used for
+	// hosting SSO broker endpoint
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Display name
+	DispName string `protobuf:"bytes,2,opt,name=dispName,proto3" json:"dispName,omitempty"`
+	// Provider type
+	Type IdentityProviderDefs_Type `protobuf:"varint,3,opt,name=type,proto3,enum=api.IdentityProviderDefs_Type" json:"type,omitempty"`
+	// Whether configuration is enabled
+	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// configuration for Google Identity Provider
+	Google *GoogleIDPConfig `protobuf:"bytes,5,opt,name=google,proto3" json:"google,omitempty"`
+	// configuration for Microsoft Identity Provider
+	Microsoft     *MicrosoftIDPConfig `protobuf:"bytes,6,opt,name=microsoft,proto3" json:"microsoft,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyIdentityProviderCreateReq) Reset() {
+	*x = MyIdentityProviderCreateReq{}
+	mi := &file_mytenant_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyIdentityProviderCreateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyIdentityProviderCreateReq) ProtoMessage() {}
+
+func (x *MyIdentityProviderCreateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyIdentityProviderCreateReq.ProtoReflect.Descriptor instead.
+func (*MyIdentityProviderCreateReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *MyIdentityProviderCreateReq) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-func (x *IdpInstanceCreateReq) GetDisplayName() string {
+func (x *MyIdentityProviderCreateReq) GetDispName() string {
 	if x != nil {
-		return x.DisplayName
+		return x.DispName
 	}
 	return ""
 }
 
-func (x *IdpInstanceCreateReq) GetProviderType() IdpProviderType {
+func (x *MyIdentityProviderCreateReq) GetType() IdentityProviderDefs_Type {
 	if x != nil {
-		return x.ProviderType
+		return x.Type
 	}
-	return IdpProviderType_IdentityProviderUnspecified
+	return IdentityProviderDefs_IdentityProviderUnspecified
 }
 
-func (x *IdpInstanceCreateReq) GetEnabled() bool {
+func (x *MyIdentityProviderCreateReq) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-func (x *IdpInstanceCreateReq) GetDisplayOrder() int32 {
+func (x *MyIdentityProviderCreateReq) GetGoogle() *GoogleIDPConfig {
 	if x != nil {
-		return x.DisplayOrder
+		return x.Google
 	}
-	return 0
+	return nil
 }
 
-func (x *IdpInstanceCreateReq) GetConfiguration() string {
+func (x *MyIdentityProviderCreateReq) GetMicrosoft() *MicrosoftIDPConfig {
 	if x != nil {
-		return x.Configuration
+		return x.Microsoft
 	}
-	return ""
+	return nil
 }
 
-// Identity provider instance create response
-type IdpInstanceCreateResp struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Created identity provider key
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Success message
-	Message       string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+// Identity provider create response
+type MyIdentityProviderCreateResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceCreateResp) Reset() {
-	*x = IdpInstanceCreateResp{}
-	mi := &file_mytenant_proto_msgTypes[9]
+func (x *MyIdentityProviderCreateResp) Reset() {
+	*x = MyIdentityProviderCreateResp{}
+	mi := &file_mytenant_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceCreateResp) String() string {
+func (x *MyIdentityProviderCreateResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceCreateResp) ProtoMessage() {}
+func (*MyIdentityProviderCreateResp) ProtoMessage() {}
 
-func (x *IdpInstanceCreateResp) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[9]
+func (x *MyIdentityProviderCreateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -797,30 +899,16 @@ func (x *IdpInstanceCreateResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceCreateResp.ProtoReflect.Descriptor instead.
-func (*IdpInstanceCreateResp) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{9}
+// Deprecated: Use MyIdentityProviderCreateResp.ProtoReflect.Descriptor instead.
+func (*MyIdentityProviderCreateResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *IdpInstanceCreateResp) GetKey() string {
-	if x != nil {
-		return x.Key
-	}
-	return ""
-}
-
-func (x *IdpInstanceCreateResp) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-// Identity provider instance list request
-type IdpInstanceListReq struct {
+// Identity provider list request
+type MyIdentityProvidersListReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional filter by provider type
-	ProviderType *IdpProviderType `protobuf:"varint,1,opt,name=provider_type,json=providerType,proto3,enum=api.IdpProviderType,oneof" json:"provider_type,omitempty"`
+	Type *IdentityProviderDefs_Type `protobuf:"varint,1,opt,name=type,proto3,enum=api.IdentityProviderDefs_Type,oneof" json:"type,omitempty"`
 	// Optional filter by enabled status
 	Enabled *bool `protobuf:"varint,2,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// Optional pagination limit
@@ -831,21 +919,21 @@ type IdpInstanceListReq struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceListReq) Reset() {
-	*x = IdpInstanceListReq{}
-	mi := &file_mytenant_proto_msgTypes[10]
+func (x *MyIdentityProvidersListReq) Reset() {
+	*x = MyIdentityProvidersListReq{}
+	mi := &file_mytenant_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceListReq) String() string {
+func (x *MyIdentityProvidersListReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceListReq) ProtoMessage() {}
+func (*MyIdentityProvidersListReq) ProtoMessage() {}
 
-func (x *IdpInstanceListReq) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[10]
+func (x *MyIdentityProvidersListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -856,130 +944,71 @@ func (x *IdpInstanceListReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceListReq.ProtoReflect.Descriptor instead.
-func (*IdpInstanceListReq) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{10}
+// Deprecated: Use MyIdentityProvidersListReq.ProtoReflect.Descriptor instead.
+func (*MyIdentityProvidersListReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *IdpInstanceListReq) GetProviderType() IdpProviderType {
-	if x != nil && x.ProviderType != nil {
-		return *x.ProviderType
+func (x *MyIdentityProvidersListReq) GetType() IdentityProviderDefs_Type {
+	if x != nil && x.Type != nil {
+		return *x.Type
 	}
-	return IdpProviderType_IdentityProviderUnspecified
+	return IdentityProviderDefs_IdentityProviderUnspecified
 }
 
-func (x *IdpInstanceListReq) GetEnabled() bool {
+func (x *MyIdentityProvidersListReq) GetEnabled() bool {
 	if x != nil && x.Enabled != nil {
 		return *x.Enabled
 	}
 	return false
 }
 
-func (x *IdpInstanceListReq) GetLimit() int32 {
+func (x *MyIdentityProvidersListReq) GetLimit() int32 {
 	if x != nil && x.Limit != nil {
 		return *x.Limit
 	}
 	return 0
 }
 
-func (x *IdpInstanceListReq) GetOffset() int32 {
+func (x *MyIdentityProvidersListReq) GetOffset() int32 {
 	if x != nil && x.Offset != nil {
 		return *x.Offset
 	}
 	return 0
 }
 
-// Identity provider instance list response
-type IdpInstanceListResp struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// List of identity provider instances
-	Instances []*IdpInstanceSummary `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
-	// Total count of instances (for pagination)
-	TotalCount    int32 `protobuf:"varint,2,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IdpInstanceListResp) Reset() {
-	*x = IdpInstanceListResp{}
-	mi := &file_mytenant_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IdpInstanceListResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IdpInstanceListResp) ProtoMessage() {}
-
-func (x *IdpInstanceListResp) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IdpInstanceListResp.ProtoReflect.Descriptor instead.
-func (*IdpInstanceListResp) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *IdpInstanceListResp) GetInstances() []*IdpInstanceSummary {
-	if x != nil {
-		return x.Instances
-	}
-	return nil
-}
-
-func (x *IdpInstanceListResp) GetTotalCount() int32 {
-	if x != nil {
-		return x.TotalCount
-	}
-	return 0
-}
-
-// Identity provider instance summary (for list responses)
-type IdpInstanceSummary struct {
+// Identity provider list entry
+type MyIdentityProvidersListEntry struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Identity provider key
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	// Display name
-	DisplayName string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	DispName string `protobuf:"bytes,2,opt,name=dispName,proto3" json:"dispName,omitempty"`
 	// Provider type
-	ProviderType IdpProviderType `protobuf:"varint,3,opt,name=provider_type,json=providerType,proto3,enum=api.IdpProviderType" json:"provider_type,omitempty"`
+	Type IdentityProviderDefs_Type `protobuf:"varint,3,opt,name=type,proto3,enum=api.IdentityProviderDefs_Type" json:"type,omitempty"`
 	// Whether configuration is enabled
 	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// Display order for UI
-	DisplayOrder int32 `protobuf:"varint,5,opt,name=display_order,json=displayOrder,proto3" json:"display_order,omitempty"`
 	// Created timestamp
-	Created int64 `protobuf:"varint,6,opt,name=created,proto3" json:"created,omitempty"`
-	// Updated timestamp
-	Updated       int64 `protobuf:"varint,7,opt,name=updated,proto3" json:"updated,omitempty"`
+	Created       int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceSummary) Reset() {
-	*x = IdpInstanceSummary{}
-	mi := &file_mytenant_proto_msgTypes[12]
+func (x *MyIdentityProvidersListEntry) Reset() {
+	*x = MyIdentityProvidersListEntry{}
+	mi := &file_mytenant_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceSummary) String() string {
+func (x *MyIdentityProvidersListEntry) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceSummary) ProtoMessage() {}
+func (*MyIdentityProvidersListEntry) ProtoMessage() {}
 
-func (x *IdpInstanceSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[12]
+func (x *MyIdentityProvidersListEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -990,62 +1019,103 @@ func (x *IdpInstanceSummary) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceSummary.ProtoReflect.Descriptor instead.
-func (*IdpInstanceSummary) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{12}
+// Deprecated: Use MyIdentityProvidersListEntry.ProtoReflect.Descriptor instead.
+func (*MyIdentityProvidersListEntry) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *IdpInstanceSummary) GetKey() string {
+func (x *MyIdentityProvidersListEntry) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-func (x *IdpInstanceSummary) GetDisplayName() string {
+func (x *MyIdentityProvidersListEntry) GetDispName() string {
 	if x != nil {
-		return x.DisplayName
+		return x.DispName
 	}
 	return ""
 }
 
-func (x *IdpInstanceSummary) GetProviderType() IdpProviderType {
+func (x *MyIdentityProvidersListEntry) GetType() IdentityProviderDefs_Type {
 	if x != nil {
-		return x.ProviderType
+		return x.Type
 	}
-	return IdpProviderType_IdentityProviderUnspecified
+	return IdentityProviderDefs_IdentityProviderUnspecified
 }
 
-func (x *IdpInstanceSummary) GetEnabled() bool {
+func (x *MyIdentityProvidersListEntry) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-func (x *IdpInstanceSummary) GetDisplayOrder() int32 {
-	if x != nil {
-		return x.DisplayOrder
-	}
-	return 0
-}
-
-func (x *IdpInstanceSummary) GetCreated() int64 {
+func (x *MyIdentityProvidersListEntry) GetCreated() int64 {
 	if x != nil {
 		return x.Created
 	}
 	return 0
 }
 
-func (x *IdpInstanceSummary) GetUpdated() int64 {
+// Identity provider instance list response
+type MyIdentityProvidersListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Count of IDP available
+	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	// List of identity providers
+	Items         []*MyIdentityProvidersListEntry `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MyIdentityProvidersListResp) Reset() {
+	*x = MyIdentityProvidersListResp{}
+	mi := &file_mytenant_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MyIdentityProvidersListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyIdentityProvidersListResp) ProtoMessage() {}
+
+func (x *MyIdentityProvidersListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[15]
 	if x != nil {
-		return x.Updated
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyIdentityProvidersListResp.ProtoReflect.Descriptor instead.
+func (*MyIdentityProvidersListResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *MyIdentityProvidersListResp) GetCount() int32 {
+	if x != nil {
+		return x.Count
 	}
 	return 0
 }
 
-// Identity provider instance get request
-type IdpInstanceGetReq struct {
+func (x *MyIdentityProvidersListResp) GetItems() []*MyIdentityProvidersListEntry {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+// Identity provider get request
+type MyIdentityProviderGetReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Identity provider key
 	Key           string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
@@ -1053,21 +1123,21 @@ type IdpInstanceGetReq struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceGetReq) Reset() {
-	*x = IdpInstanceGetReq{}
-	mi := &file_mytenant_proto_msgTypes[13]
+func (x *MyIdentityProviderGetReq) Reset() {
+	*x = MyIdentityProviderGetReq{}
+	mi := &file_mytenant_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceGetReq) String() string {
+func (x *MyIdentityProviderGetReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceGetReq) ProtoMessage() {}
+func (*MyIdentityProviderGetReq) ProtoMessage() {}
 
-func (x *IdpInstanceGetReq) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[13]
+func (x *MyIdentityProviderGetReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1078,60 +1148,56 @@ func (x *IdpInstanceGetReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceGetReq.ProtoReflect.Descriptor instead.
-func (*IdpInstanceGetReq) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{13}
+// Deprecated: Use MyIdentityProviderGetReq.ProtoReflect.Descriptor instead.
+func (*MyIdentityProviderGetReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *IdpInstanceGetReq) GetKey() string {
+func (x *MyIdentityProviderGetReq) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-// Identity provider instance get response
-type IdpInstanceGetResp struct {
+// Identity provider get response
+type MyIdentityProviderGetResp struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Identity provider key
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	// Display name
-	DisplayName string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	DispName string `protobuf:"bytes,2,opt,name=dispName,proto3" json:"dispName,omitempty"`
 	// Provider type
-	ProviderType IdpProviderType `protobuf:"varint,3,opt,name=provider_type,json=providerType,proto3,enum=api.IdpProviderType" json:"provider_type,omitempty"`
+	Type IdentityProviderDefs_Type `protobuf:"varint,3,opt,name=type,proto3,enum=api.IdentityProviderDefs_Type" json:"type,omitempty"`
 	// Whether configuration is enabled
 	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// Display order for UI
-	DisplayOrder int32 `protobuf:"varint,5,opt,name=display_order,json=displayOrder,proto3" json:"display_order,omitempty"`
-	// Provider configuration (non-sensitive fields only)
-	Configuration string `protobuf:"bytes,6,opt,name=configuration,proto3" json:"configuration,omitempty"`
 	// Created timestamp
-	Created int64 `protobuf:"varint,7,opt,name=created,proto3" json:"created,omitempty"`
-	// Updated timestamp
-	Updated int64 `protobuf:"varint,8,opt,name=updated,proto3" json:"updated,omitempty"`
+	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
 	// Created by user
-	CreatedBy string `protobuf:"bytes,9,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	// Updated by user
-	UpdatedBy     string `protobuf:"bytes,10,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
+	CreatedBy string `protobuf:"bytes,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// configuration for Google Identity Provider
+	Google *GoogleIDPConfig `protobuf:"bytes,7,opt,name=google,proto3" json:"google,omitempty"`
+	// configuration for Microsoft Identity Provider
+	Microsoft     *MicrosoftIDPConfig `protobuf:"bytes,8,opt,name=microsoft,proto3" json:"microsoft,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceGetResp) Reset() {
-	*x = IdpInstanceGetResp{}
-	mi := &file_mytenant_proto_msgTypes[14]
+func (x *MyIdentityProviderGetResp) Reset() {
+	*x = MyIdentityProviderGetResp{}
+	mi := &file_mytenant_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceGetResp) String() string {
+func (x *MyIdentityProviderGetResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceGetResp) ProtoMessage() {}
+func (*MyIdentityProviderGetResp) ProtoMessage() {}
 
-func (x *IdpInstanceGetResp) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[14]
+func (x *MyIdentityProviderGetResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1142,113 +1208,101 @@ func (x *IdpInstanceGetResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceGetResp.ProtoReflect.Descriptor instead.
-func (*IdpInstanceGetResp) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{14}
+// Deprecated: Use MyIdentityProviderGetResp.ProtoReflect.Descriptor instead.
+func (*MyIdentityProviderGetResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{17}
 }
 
-func (x *IdpInstanceGetResp) GetKey() string {
+func (x *MyIdentityProviderGetResp) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-func (x *IdpInstanceGetResp) GetDisplayName() string {
+func (x *MyIdentityProviderGetResp) GetDispName() string {
 	if x != nil {
-		return x.DisplayName
+		return x.DispName
 	}
 	return ""
 }
 
-func (x *IdpInstanceGetResp) GetProviderType() IdpProviderType {
+func (x *MyIdentityProviderGetResp) GetType() IdentityProviderDefs_Type {
 	if x != nil {
-		return x.ProviderType
+		return x.Type
 	}
-	return IdpProviderType_IdentityProviderUnspecified
+	return IdentityProviderDefs_IdentityProviderUnspecified
 }
 
-func (x *IdpInstanceGetResp) GetEnabled() bool {
+func (x *MyIdentityProviderGetResp) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-func (x *IdpInstanceGetResp) GetDisplayOrder() int32 {
-	if x != nil {
-		return x.DisplayOrder
-	}
-	return 0
-}
-
-func (x *IdpInstanceGetResp) GetConfiguration() string {
-	if x != nil {
-		return x.Configuration
-	}
-	return ""
-}
-
-func (x *IdpInstanceGetResp) GetCreated() int64 {
+func (x *MyIdentityProviderGetResp) GetCreated() int64 {
 	if x != nil {
 		return x.Created
 	}
 	return 0
 }
 
-func (x *IdpInstanceGetResp) GetUpdated() int64 {
-	if x != nil {
-		return x.Updated
-	}
-	return 0
-}
-
-func (x *IdpInstanceGetResp) GetCreatedBy() string {
+func (x *MyIdentityProviderGetResp) GetCreatedBy() string {
 	if x != nil {
 		return x.CreatedBy
 	}
 	return ""
 }
 
-func (x *IdpInstanceGetResp) GetUpdatedBy() string {
+func (x *MyIdentityProviderGetResp) GetGoogle() *GoogleIDPConfig {
 	if x != nil {
-		return x.UpdatedBy
+		return x.Google
 	}
-	return ""
+	return nil
 }
 
-// Identity provider instance update request
-type IdpInstanceUpdateReq struct {
+func (x *MyIdentityProviderGetResp) GetMicrosoft() *MicrosoftIDPConfig {
+	if x != nil {
+		return x.Microsoft
+	}
+	return nil
+}
+
+// Identity provider update request
+type MyIdentityProviderUpdateReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Identity provider key
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	// Display name
-	DisplayName string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	DispName string `protobuf:"bytes,2,opt,name=dispName,proto3" json:"dispName,omitempty"`
 	// Whether configuration is enabled
 	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// Display order for UI
-	DisplayOrder int32 `protobuf:"varint,4,opt,name=display_order,json=displayOrder,proto3" json:"display_order,omitempty"`
-	// Provider configuration (including sensitive fields)
-	Configuration string `protobuf:"bytes,5,opt,name=configuration,proto3" json:"configuration,omitempty"`
+	// Provider type
+	Type IdentityProviderDefs_Type `protobuf:"varint,4,opt,name=type,proto3,enum=api.IdentityProviderDefs_Type" json:"type,omitempty"`
+	// configuration for Google Identity Provider
+	Google *GoogleIDPConfig `protobuf:"bytes,5,opt,name=google,proto3" json:"google,omitempty"`
+	// configuration for Microsoft Identity Provider
+	Microsoft     *MicrosoftIDPConfig `protobuf:"bytes,6,opt,name=microsoft,proto3" json:"microsoft,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceUpdateReq) Reset() {
-	*x = IdpInstanceUpdateReq{}
-	mi := &file_mytenant_proto_msgTypes[15]
+func (x *MyIdentityProviderUpdateReq) Reset() {
+	*x = MyIdentityProviderUpdateReq{}
+	mi := &file_mytenant_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceUpdateReq) String() string {
+func (x *MyIdentityProviderUpdateReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceUpdateReq) ProtoMessage() {}
+func (*MyIdentityProviderUpdateReq) ProtoMessage() {}
 
-func (x *IdpInstanceUpdateReq) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[15]
+func (x *MyIdentityProviderUpdateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1259,70 +1313,75 @@ func (x *IdpInstanceUpdateReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceUpdateReq.ProtoReflect.Descriptor instead.
-func (*IdpInstanceUpdateReq) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{15}
+// Deprecated: Use MyIdentityProviderUpdateReq.ProtoReflect.Descriptor instead.
+func (*MyIdentityProviderUpdateReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *IdpInstanceUpdateReq) GetKey() string {
+func (x *MyIdentityProviderUpdateReq) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-func (x *IdpInstanceUpdateReq) GetDisplayName() string {
+func (x *MyIdentityProviderUpdateReq) GetDispName() string {
 	if x != nil {
-		return x.DisplayName
+		return x.DispName
 	}
 	return ""
 }
 
-func (x *IdpInstanceUpdateReq) GetEnabled() bool {
+func (x *MyIdentityProviderUpdateReq) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-func (x *IdpInstanceUpdateReq) GetDisplayOrder() int32 {
+func (x *MyIdentityProviderUpdateReq) GetType() IdentityProviderDefs_Type {
 	if x != nil {
-		return x.DisplayOrder
+		return x.Type
 	}
-	return 0
+	return IdentityProviderDefs_IdentityProviderUnspecified
 }
 
-func (x *IdpInstanceUpdateReq) GetConfiguration() string {
+func (x *MyIdentityProviderUpdateReq) GetGoogle() *GoogleIDPConfig {
 	if x != nil {
-		return x.Configuration
+		return x.Google
 	}
-	return ""
+	return nil
 }
 
-// Identity provider instance update response
-type IdpInstanceUpdateResp struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Success message
-	Message       string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+func (x *MyIdentityProviderUpdateReq) GetMicrosoft() *MicrosoftIDPConfig {
+	if x != nil {
+		return x.Microsoft
+	}
+	return nil
+}
+
+// Identity provider update response
+type MyIdentityProviderUpdateResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceUpdateResp) Reset() {
-	*x = IdpInstanceUpdateResp{}
-	mi := &file_mytenant_proto_msgTypes[16]
+func (x *MyIdentityProviderUpdateResp) Reset() {
+	*x = MyIdentityProviderUpdateResp{}
+	mi := &file_mytenant_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceUpdateResp) String() string {
+func (x *MyIdentityProviderUpdateResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceUpdateResp) ProtoMessage() {}
+func (*MyIdentityProviderUpdateResp) ProtoMessage() {}
 
-func (x *IdpInstanceUpdateResp) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[16]
+func (x *MyIdentityProviderUpdateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1333,20 +1392,13 @@ func (x *IdpInstanceUpdateResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceUpdateResp.ProtoReflect.Descriptor instead.
-func (*IdpInstanceUpdateResp) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{16}
+// Deprecated: Use MyIdentityProviderUpdateResp.ProtoReflect.Descriptor instead.
+func (*MyIdentityProviderUpdateResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *IdpInstanceUpdateResp) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-// Identity provider instance delete request
-type IdpInstanceDeleteReq struct {
+// Identity provider delete request
+type MyIdentityProviderDeleteReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Identity provider key
 	Key           string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
@@ -1354,21 +1406,21 @@ type IdpInstanceDeleteReq struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceDeleteReq) Reset() {
-	*x = IdpInstanceDeleteReq{}
-	mi := &file_mytenant_proto_msgTypes[17]
+func (x *MyIdentityProviderDeleteReq) Reset() {
+	*x = MyIdentityProviderDeleteReq{}
+	mi := &file_mytenant_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceDeleteReq) String() string {
+func (x *MyIdentityProviderDeleteReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceDeleteReq) ProtoMessage() {}
+func (*MyIdentityProviderDeleteReq) ProtoMessage() {}
 
-func (x *IdpInstanceDeleteReq) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[17]
+func (x *MyIdentityProviderDeleteReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1379,42 +1431,40 @@ func (x *IdpInstanceDeleteReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceDeleteReq.ProtoReflect.Descriptor instead.
-func (*IdpInstanceDeleteReq) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{17}
+// Deprecated: Use MyIdentityProviderDeleteReq.ProtoReflect.Descriptor instead.
+func (*MyIdentityProviderDeleteReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *IdpInstanceDeleteReq) GetKey() string {
+func (x *MyIdentityProviderDeleteReq) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-// Identity provider instance delete response
-type IdpInstanceDeleteResp struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Success message
-	Message       string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+// Identity provider delete response
+type MyIdentityProviderDeleteResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *IdpInstanceDeleteResp) Reset() {
-	*x = IdpInstanceDeleteResp{}
-	mi := &file_mytenant_proto_msgTypes[18]
+func (x *MyIdentityProviderDeleteResp) Reset() {
+	*x = MyIdentityProviderDeleteResp{}
+	mi := &file_mytenant_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *IdpInstanceDeleteResp) String() string {
+func (x *MyIdentityProviderDeleteResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*IdpInstanceDeleteResp) ProtoMessage() {}
+func (*MyIdentityProviderDeleteResp) ProtoMessage() {}
 
-func (x *IdpInstanceDeleteResp) ProtoReflect() protoreflect.Message {
-	mi := &file_mytenant_proto_msgTypes[18]
+func (x *MyIdentityProviderDeleteResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1425,16 +1475,9 @@ func (x *IdpInstanceDeleteResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use IdpInstanceDeleteResp.ProtoReflect.Descriptor instead.
-func (*IdpInstanceDeleteResp) Descriptor() ([]byte, []int) {
-	return file_mytenant_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *IdpInstanceDeleteResp) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
+// Deprecated: Use MyIdentityProviderDeleteResp.ProtoReflect.Descriptor instead.
+func (*MyIdentityProviderDeleteResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{21}
 }
 
 var File_mytenant_proto protoreflect.FileDescriptor
@@ -1467,7 +1510,13 @@ const file_mytenant_proto_rawDesc = "" +
 	"\frecentlyUsed\x18\a \x01(\x05R\frecentlyUsed\x12 \n" +
 	"\vpasswordAge\x18\b \x01(\x05R\vpasswordAge\x12<\n" +
 	"\x19forceExpirePasswordChange\x18\t \x01(\x05R\x19forceExpirePasswordChange\"\x1c\n" +
-	"\x1aMyPasswordPolicyUpdateResp\"\xd9\x01\n" +
+	"\x1aMyPasswordPolicyUpdateResp\"Z\n" +
+	"\x14IdentityProviderDefs\"B\n" +
+	"\x04Type\x12\x1f\n" +
+	"\x1bIdentityProviderUnspecified\x10\x00\x12\n" +
+	"\n" +
+	"\x06Google\x10\x01\x12\r\n" +
+	"\tMicrosoft\x10\x02\"\xd9\x01\n" +
 	"\x0eIdpConfigField\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1a\n" +
@@ -1477,108 +1526,93 @@ const file_mytenant_proto_rawDesc = "" +
 	"\rdefault_value\x18\x06 \x01(\tR\fdefaultValue\x12\x1e\n" +
 	"\n" +
 	"validation\x18\a \x01(\tR\n" +
-	"validation\"\xc7\x02\n" +
-	"\x13IdpProviderMetadata\x129\n" +
-	"\rprovider_type\x18\x01 \x01(\x0e2\x14.api.IdpProviderTypeR\fproviderType\x12!\n" +
-	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x128\n" +
-	"\rconfig_fields\x18\x04 \x03(\v2\x13.api.IdpConfigFieldR\fconfigFields\x12)\n" +
-	"\x10supported_scopes\x18\x05 \x03(\tR\x0fsupportedScopes\x12%\n" +
-	"\x0edefault_scopes\x18\x06 \x03(\tR\rdefaultScopes\x12$\n" +
-	"\rdocumentation\x18\a \x01(\tR\rdocumentation\"a\n" +
-	"\x0fIdpProvidersReq\x12=\n" +
-	"\fproviderType\x18\x01 \x01(\x0e2\x14.api.IdpProviderTypeH\x00R\fproviderType\x88\x01\x01B\x0f\n" +
-	"\r_providerType\"J\n" +
-	"\x10IdpProvidersResp\x126\n" +
-	"\tproviders\x18\x01 \x03(\v2\x18.api.IdpProviderMetadataR\tproviders\"\xeb\x01\n" +
-	"\x14IdpInstanceCreateReq\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12!\n" +
-	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x129\n" +
-	"\rprovider_type\x18\x03 \x01(\x0e2\x14.api.IdpProviderTypeR\fproviderType\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\x12#\n" +
-	"\rdisplay_order\x18\x05 \x01(\x05R\fdisplayOrder\x12$\n" +
-	"\rconfiguration\x18\x06 \x01(\tR\rconfiguration\"C\n" +
-	"\x15IdpInstanceCreateResp\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xde\x01\n" +
-	"\x12IdpInstanceListReq\x12>\n" +
-	"\rprovider_type\x18\x01 \x01(\x0e2\x14.api.IdpProviderTypeH\x00R\fproviderType\x88\x01\x01\x12\x1d\n" +
+	"validation\"\x1d\n" +
+	"\x1bIdentityProviderTypesGetReq\"4\n" +
+	"\x1eIdentityProviderTypesListEntry\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\"a\n" +
+	"\x1cIdentityProviderTypesGetResp\x12A\n" +
+	"\tproviders\x18\x01 \x03(\v2#.api.IdentityProviderTypesListEntryR\tproviders\"u\n" +
+	"\x0fGoogleIDPConfig\x12\x1a\n" +
+	"\bclientId\x18\x01 \x01(\tR\bclientId\x12\"\n" +
+	"\fclientSecret\x18\x02 \x01(\tR\fclientSecret\x12\"\n" +
+	"\fhostedDomain\x18\x03 \x01(\tR\fhostedDomain\"p\n" +
+	"\x12MicrosoftIDPConfig\x12\x1a\n" +
+	"\bclientId\x18\x01 \x01(\tR\bclientId\x12\"\n" +
+	"\fclientSecret\x18\x02 \x01(\tR\fclientSecret\x12\x1a\n" +
+	"\btenantId\x18\x03 \x01(\tR\btenantId\"\xfe\x01\n" +
+	"\x1bMyIdentityProviderCreateReq\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\bdispName\x18\x02 \x01(\tR\bdispName\x122\n" +
+	"\x04type\x18\x03 \x01(\x0e2\x1e.api.IdentityProviderDefs.TypeR\x04type\x12\x18\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12,\n" +
+	"\x06google\x18\x05 \x01(\v2\x14.api.GoogleIDPConfigR\x06google\x125\n" +
+	"\tmicrosoft\x18\x06 \x01(\v2\x17.api.MicrosoftIDPConfigR\tmicrosoft\"\x1e\n" +
+	"\x1cMyIdentityProviderCreateResp\"\xd6\x01\n" +
+	"\x1aMyIdentityProvidersListReq\x127\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x1e.api.IdentityProviderDefs.TypeH\x00R\x04type\x88\x01\x01\x12\x1d\n" +
 	"\aenabled\x18\x02 \x01(\bH\x01R\aenabled\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x03 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06offset\x18\x04 \x01(\x05H\x03R\x06offset\x88\x01\x01B\x10\n" +
-	"\x0e_provider_typeB\n" +
+	"\x06offset\x18\x04 \x01(\x05H\x03R\x06offset\x88\x01\x01B\a\n" +
+	"\x05_typeB\n" +
 	"\n" +
 	"\b_enabledB\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_offset\"m\n" +
-	"\x13IdpInstanceListResp\x125\n" +
-	"\tinstances\x18\x01 \x03(\v2\x17.api.IdpInstanceSummaryR\tinstances\x12\x1f\n" +
-	"\vtotal_count\x18\x02 \x01(\x05R\n" +
-	"totalCount\"\xf7\x01\n" +
-	"\x12IdpInstanceSummary\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12!\n" +
-	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x129\n" +
-	"\rprovider_type\x18\x03 \x01(\x0e2\x14.api.IdpProviderTypeR\fproviderType\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\x12#\n" +
-	"\rdisplay_order\x18\x05 \x01(\x05R\fdisplayOrder\x12\x18\n" +
-	"\acreated\x18\x06 \x01(\x03R\acreated\x12\x18\n" +
-	"\aupdated\x18\a \x01(\x03R\aupdated\"%\n" +
-	"\x11IdpInstanceGetReq\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\"\xdb\x02\n" +
-	"\x12IdpInstanceGetResp\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12!\n" +
-	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x129\n" +
-	"\rprovider_type\x18\x03 \x01(\x0e2\x14.api.IdpProviderTypeR\fproviderType\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\x12#\n" +
-	"\rdisplay_order\x18\x05 \x01(\x05R\fdisplayOrder\x12$\n" +
-	"\rconfiguration\x18\x06 \x01(\tR\rconfiguration\x12\x18\n" +
-	"\acreated\x18\a \x01(\x03R\acreated\x12\x18\n" +
-	"\aupdated\x18\b \x01(\x03R\aupdated\x12\x1d\n" +
+	"\a_offset\"\xb4\x01\n" +
+	"\x1cMyIdentityProvidersListEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\bdispName\x18\x02 \x01(\tR\bdispName\x122\n" +
+	"\x04type\x18\x03 \x01(\x0e2\x1e.api.IdentityProviderDefs.TypeR\x04type\x12\x18\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\"l\n" +
+	"\x1bMyIdentityProvidersListResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\x127\n" +
+	"\x05items\x18\x02 \x03(\v2!.api.MyIdentityProvidersListEntryR\x05items\",\n" +
+	"\x18MyIdentityProviderGetReq\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\"\xb5\x02\n" +
+	"\x19MyIdentityProviderGetResp\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\bdispName\x18\x02 \x01(\tR\bdispName\x122\n" +
+	"\x04type\x18\x03 \x01(\x0e2\x1e.api.IdentityProviderDefs.TypeR\x04type\x12\x18\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1d\n" +
 	"\n" +
-	"created_by\x18\t \x01(\tR\tcreatedBy\x12\x1d\n" +
+	"created_by\x18\x06 \x01(\tR\tcreatedBy\x12,\n" +
+	"\x06google\x18\a \x01(\v2\x14.api.GoogleIDPConfigR\x06google\x125\n" +
+	"\tmicrosoft\x18\b \x01(\v2\x17.api.MicrosoftIDPConfigR\tmicrosoft\"\xfe\x01\n" +
+	"\x1bMyIdentityProviderUpdateReq\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\bdispName\x18\x02 \x01(\tR\bdispName\x12\x18\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\x122\n" +
+	"\x04type\x18\x04 \x01(\x0e2\x1e.api.IdentityProviderDefs.TypeR\x04type\x12,\n" +
+	"\x06google\x18\x05 \x01(\v2\x14.api.GoogleIDPConfigR\x06google\x125\n" +
+	"\tmicrosoft\x18\x06 \x01(\v2\x17.api.MicrosoftIDPConfigR\tmicrosoft\"\x1e\n" +
+	"\x1cMyIdentityProviderUpdateResp\"/\n" +
+	"\x1bMyIdentityProviderDeleteReq\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\"\x1e\n" +
+	"\x1cMyIdentityProviderDeleteResp2\xbf\n" +
 	"\n" +
-	"updated_by\x18\n" +
-	" \x01(\tR\tupdatedBy\"\xb0\x01\n" +
-	"\x14IdpInstanceUpdateReq\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12!\n" +
-	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\x12\x18\n" +
-	"\aenabled\x18\x03 \x01(\bR\aenabled\x12#\n" +
-	"\rdisplay_order\x18\x04 \x01(\x05R\fdisplayOrder\x12$\n" +
-	"\rconfiguration\x18\x05 \x01(\tR\rconfiguration\"1\n" +
-	"\x15IdpInstanceUpdateResp\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"(\n" +
-	"\x14IdpInstanceDeleteReq\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\"1\n" +
-	"\x15IdpInstanceDeleteResp\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage*a\n" +
-	"\x0fIdpProviderType\x12\x1f\n" +
-	"\x1bIdentityProviderUnspecified\x10\x00\x12\n" +
-	"\n" +
-	"\x06Google\x10\x01\x12\r\n" +
-	"\tMicrosoft\x10\x02\x12\b\n" +
-	"\x04OIDC\x10\x03\x12\b\n" +
-	"\x04SAML\x10\x042\xf4\t\n" +
 	"\bMyTenant\x12\x94\x01\n" +
 	"\x13GetMyPasswordPolicy\x12\x1b.api.MyPasswordPolicyGetReq\x1a\x1c.api.MyPasswordPolicyGetResp\"B\x8a\xb5\x18\x16\n" +
 	"\x0fpassword-policy\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/mytenant/v1/password-policy\x12\xa3\x01\n" +
 	"\x16UpdateMyPasswordPolicy\x12\x1e.api.MyPasswordPolicyUpdateReq\x1a\x1f.api.MyPasswordPolicyUpdateResp\"H\x8a\xb5\x18\x19\n" +
-	"\x0fpassword-policy\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/mytenant/v1/password-policy\x12\x8f\x01\n" +
-	"\x18GetIdentityProviderTypes\x12\x14.api.IdpProvidersReq\x1a\x15.api.IdpProvidersResp\"F\x8a\xb5\x18\x12\n" +
+	"\x0fpassword-policy\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/mytenant/v1/password-policy\x12\xaf\x01\n" +
+	"\x1aGetMyIdentityProviderTypes\x12 .api.IdentityProviderTypesGetReq\x1a!.api.IdentityProviderTypesGetResp\"L\x8a\xb5\x18\x18\n" +
 	"\n" +
-	"tenant-idp\x1a\x04list\x82\xd3\xe4\x93\x02*\x12(/api/mytenant/v1/identity-provider-types\x12\x9e\x01\n" +
-	"\x1eCreateIdentityProviderInstance\x12\x19.api.IdpInstanceCreateReq\x1a\x1a.api.IdpInstanceCreateResp\"E\x8a\xb5\x18\x14\n" +
+	"tenant-idp\x1a\n" +
+	"list-types\x82\xd3\xe4\x93\x02*\x12(/api/mytenant/v1/identity-provider-types\x12\xa6\x01\n" +
+	"\x18CreateMyIdentityProvider\x12 .api.MyIdentityProviderCreateReq\x1a!.api.MyIdentityProviderCreateResp\"E\x8a\xb5\x18\x14\n" +
 	"\n" +
-	"tenant-idp\x1a\x06create\x82\xd3\xe4\x93\x02':\x01*\"\"/api/mytenant/v1/identity-provider\x12\x94\x01\n" +
-	"\x1dListIdentityProviderInstances\x12\x17.api.IdpInstanceListReq\x1a\x18.api.IdpInstanceListResp\"@\x8a\xb5\x18\x12\n" +
+	"tenant-idp\x1a\x06create\x82\xd3\xe4\x93\x02':\x01*\"\"/api/mytenant/v1/identity-provider\x12\x9f\x01\n" +
+	"\x17ListMyIdentityProviders\x12\x1f.api.MyIdentityProvidersListReq\x1a .api.MyIdentityProvidersListResp\"A\x8a\xb5\x18\x12\n" +
 	"\n" +
-	"tenant-idp\x1a\x04list\x82\xd3\xe4\x93\x02$\x12\"/api/mytenant/v1/identity-provider\x12\x95\x01\n" +
-	"\x1bGetIdentityProviderInstance\x12\x16.api.IdpInstanceGetReq\x1a\x17.api.IdpInstanceGetResp\"E\x8a\xb5\x18\x11\n" +
+	"tenant-idp\x1a\x04list\x82\xd3\xe4\x93\x02%\x12#/api/mytenant/v1/identity-providers\x12\x9d\x01\n" +
+	"\x15GetMyIdentityProvider\x12\x1d.api.MyIdentityProviderGetReq\x1a\x1e.api.MyIdentityProviderGetResp\"E\x8a\xb5\x18\x11\n" +
 	"\n" +
-	"tenant-idp\x1a\x03get\x82\xd3\xe4\x93\x02*\x12(/api/mytenant/v1/identity-provider/{key}\x12\xa4\x01\n" +
-	"\x1eUpdateIdentityProviderInstance\x12\x19.api.IdpInstanceUpdateReq\x1a\x1a.api.IdpInstanceUpdateResp\"K\x8a\xb5\x18\x14\n" +
+	"tenant-idp\x1a\x03get\x82\xd3\xe4\x93\x02*\x12(/api/mytenant/v1/identity-provider/{key}\x12\xac\x01\n" +
+	"\x18UpdateMyIdentityProvider\x12 .api.MyIdentityProviderUpdateReq\x1a!.api.MyIdentityProviderUpdateResp\"K\x8a\xb5\x18\x14\n" +
 	"\n" +
-	"tenant-idp\x1a\x06update\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/mytenant/v1/identity-provider/{key}\x12\xa1\x01\n" +
-	"\x1eDeleteIdentityProviderInstance\x12\x19.api.IdpInstanceDeleteReq\x1a\x1a.api.IdpInstanceDeleteResp\"H\x8a\xb5\x18\x14\n" +
+	"tenant-idp\x1a\x06update\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/mytenant/v1/identity-provider/{key}\x12\xa9\x01\n" +
+	"\x18DeleteMyIdentityProvider\x12 .api.MyIdentityProviderDeleteReq\x1a!.api.MyIdentityProviderDeleteResp\"H\x8a\xb5\x18\x14\n" +
 	"\n" +
 	"tenant-idp\x1a\x06delete\x82\xd3\xe4\x93\x02**(/api/mytenant/v1/identity-provider/{key}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
@@ -1595,60 +1629,67 @@ func file_mytenant_proto_rawDescGZIP() []byte {
 }
 
 var file_mytenant_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_mytenant_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_mytenant_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_mytenant_proto_goTypes = []any{
-	(IdpProviderType)(0),               // 0: api.IdpProviderType
-	(*MyPasswordPolicyGetReq)(nil),     // 1: api.MyPasswordPolicyGetReq
-	(*MyPasswordPolicyGetResp)(nil),    // 2: api.MyPasswordPolicyGetResp
-	(*MyPasswordPolicyUpdateReq)(nil),  // 3: api.MyPasswordPolicyUpdateReq
-	(*MyPasswordPolicyUpdateResp)(nil), // 4: api.MyPasswordPolicyUpdateResp
-	(*IdpConfigField)(nil),             // 5: api.IdpConfigField
-	(*IdpProviderMetadata)(nil),        // 6: api.IdpProviderMetadata
-	(*IdpProvidersReq)(nil),            // 7: api.IdpProvidersReq
-	(*IdpProvidersResp)(nil),           // 8: api.IdpProvidersResp
-	(*IdpInstanceCreateReq)(nil),       // 9: api.IdpInstanceCreateReq
-	(*IdpInstanceCreateResp)(nil),      // 10: api.IdpInstanceCreateResp
-	(*IdpInstanceListReq)(nil),         // 11: api.IdpInstanceListReq
-	(*IdpInstanceListResp)(nil),        // 12: api.IdpInstanceListResp
-	(*IdpInstanceSummary)(nil),         // 13: api.IdpInstanceSummary
-	(*IdpInstanceGetReq)(nil),          // 14: api.IdpInstanceGetReq
-	(*IdpInstanceGetResp)(nil),         // 15: api.IdpInstanceGetResp
-	(*IdpInstanceUpdateReq)(nil),       // 16: api.IdpInstanceUpdateReq
-	(*IdpInstanceUpdateResp)(nil),      // 17: api.IdpInstanceUpdateResp
-	(*IdpInstanceDeleteReq)(nil),       // 18: api.IdpInstanceDeleteReq
-	(*IdpInstanceDeleteResp)(nil),      // 19: api.IdpInstanceDeleteResp
+	(IdentityProviderDefs_Type)(0),         // 0: api.IdentityProviderDefs.Type
+	(*MyPasswordPolicyGetReq)(nil),         // 1: api.MyPasswordPolicyGetReq
+	(*MyPasswordPolicyGetResp)(nil),        // 2: api.MyPasswordPolicyGetResp
+	(*MyPasswordPolicyUpdateReq)(nil),      // 3: api.MyPasswordPolicyUpdateReq
+	(*MyPasswordPolicyUpdateResp)(nil),     // 4: api.MyPasswordPolicyUpdateResp
+	(*IdentityProviderDefs)(nil),           // 5: api.IdentityProviderDefs
+	(*IdpConfigField)(nil),                 // 6: api.IdpConfigField
+	(*IdentityProviderTypesGetReq)(nil),    // 7: api.IdentityProviderTypesGetReq
+	(*IdentityProviderTypesListEntry)(nil), // 8: api.IdentityProviderTypesListEntry
+	(*IdentityProviderTypesGetResp)(nil),   // 9: api.IdentityProviderTypesGetResp
+	(*GoogleIDPConfig)(nil),                // 10: api.GoogleIDPConfig
+	(*MicrosoftIDPConfig)(nil),             // 11: api.MicrosoftIDPConfig
+	(*MyIdentityProviderCreateReq)(nil),    // 12: api.MyIdentityProviderCreateReq
+	(*MyIdentityProviderCreateResp)(nil),   // 13: api.MyIdentityProviderCreateResp
+	(*MyIdentityProvidersListReq)(nil),     // 14: api.MyIdentityProvidersListReq
+	(*MyIdentityProvidersListEntry)(nil),   // 15: api.MyIdentityProvidersListEntry
+	(*MyIdentityProvidersListResp)(nil),    // 16: api.MyIdentityProvidersListResp
+	(*MyIdentityProviderGetReq)(nil),       // 17: api.MyIdentityProviderGetReq
+	(*MyIdentityProviderGetResp)(nil),      // 18: api.MyIdentityProviderGetResp
+	(*MyIdentityProviderUpdateReq)(nil),    // 19: api.MyIdentityProviderUpdateReq
+	(*MyIdentityProviderUpdateResp)(nil),   // 20: api.MyIdentityProviderUpdateResp
+	(*MyIdentityProviderDeleteReq)(nil),    // 21: api.MyIdentityProviderDeleteReq
+	(*MyIdentityProviderDeleteResp)(nil),   // 22: api.MyIdentityProviderDeleteResp
 }
 var file_mytenant_proto_depIdxs = []int32{
-	0,  // 0: api.IdpProviderMetadata.provider_type:type_name -> api.IdpProviderType
-	5,  // 1: api.IdpProviderMetadata.config_fields:type_name -> api.IdpConfigField
-	0,  // 2: api.IdpProvidersReq.providerType:type_name -> api.IdpProviderType
-	6,  // 3: api.IdpProvidersResp.providers:type_name -> api.IdpProviderMetadata
-	0,  // 4: api.IdpInstanceCreateReq.provider_type:type_name -> api.IdpProviderType
-	0,  // 5: api.IdpInstanceListReq.provider_type:type_name -> api.IdpProviderType
-	13, // 6: api.IdpInstanceListResp.instances:type_name -> api.IdpInstanceSummary
-	0,  // 7: api.IdpInstanceSummary.provider_type:type_name -> api.IdpProviderType
-	0,  // 8: api.IdpInstanceGetResp.provider_type:type_name -> api.IdpProviderType
-	1,  // 9: api.MyTenant.GetMyPasswordPolicy:input_type -> api.MyPasswordPolicyGetReq
-	3,  // 10: api.MyTenant.UpdateMyPasswordPolicy:input_type -> api.MyPasswordPolicyUpdateReq
-	7,  // 11: api.MyTenant.GetIdentityProviderTypes:input_type -> api.IdpProvidersReq
-	9,  // 12: api.MyTenant.CreateIdentityProviderInstance:input_type -> api.IdpInstanceCreateReq
-	11, // 13: api.MyTenant.ListIdentityProviderInstances:input_type -> api.IdpInstanceListReq
-	14, // 14: api.MyTenant.GetIdentityProviderInstance:input_type -> api.IdpInstanceGetReq
-	16, // 15: api.MyTenant.UpdateIdentityProviderInstance:input_type -> api.IdpInstanceUpdateReq
-	18, // 16: api.MyTenant.DeleteIdentityProviderInstance:input_type -> api.IdpInstanceDeleteReq
-	2,  // 17: api.MyTenant.GetMyPasswordPolicy:output_type -> api.MyPasswordPolicyGetResp
-	4,  // 18: api.MyTenant.UpdateMyPasswordPolicy:output_type -> api.MyPasswordPolicyUpdateResp
-	8,  // 19: api.MyTenant.GetIdentityProviderTypes:output_type -> api.IdpProvidersResp
-	10, // 20: api.MyTenant.CreateIdentityProviderInstance:output_type -> api.IdpInstanceCreateResp
-	12, // 21: api.MyTenant.ListIdentityProviderInstances:output_type -> api.IdpInstanceListResp
-	15, // 22: api.MyTenant.GetIdentityProviderInstance:output_type -> api.IdpInstanceGetResp
-	17, // 23: api.MyTenant.UpdateIdentityProviderInstance:output_type -> api.IdpInstanceUpdateResp
-	19, // 24: api.MyTenant.DeleteIdentityProviderInstance:output_type -> api.IdpInstanceDeleteResp
-	17, // [17:25] is the sub-list for method output_type
-	9,  // [9:17] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	8,  // 0: api.IdentityProviderTypesGetResp.providers:type_name -> api.IdentityProviderTypesListEntry
+	0,  // 1: api.MyIdentityProviderCreateReq.type:type_name -> api.IdentityProviderDefs.Type
+	10, // 2: api.MyIdentityProviderCreateReq.google:type_name -> api.GoogleIDPConfig
+	11, // 3: api.MyIdentityProviderCreateReq.microsoft:type_name -> api.MicrosoftIDPConfig
+	0,  // 4: api.MyIdentityProvidersListReq.type:type_name -> api.IdentityProviderDefs.Type
+	0,  // 5: api.MyIdentityProvidersListEntry.type:type_name -> api.IdentityProviderDefs.Type
+	15, // 6: api.MyIdentityProvidersListResp.items:type_name -> api.MyIdentityProvidersListEntry
+	0,  // 7: api.MyIdentityProviderGetResp.type:type_name -> api.IdentityProviderDefs.Type
+	10, // 8: api.MyIdentityProviderGetResp.google:type_name -> api.GoogleIDPConfig
+	11, // 9: api.MyIdentityProviderGetResp.microsoft:type_name -> api.MicrosoftIDPConfig
+	0,  // 10: api.MyIdentityProviderUpdateReq.type:type_name -> api.IdentityProviderDefs.Type
+	10, // 11: api.MyIdentityProviderUpdateReq.google:type_name -> api.GoogleIDPConfig
+	11, // 12: api.MyIdentityProviderUpdateReq.microsoft:type_name -> api.MicrosoftIDPConfig
+	1,  // 13: api.MyTenant.GetMyPasswordPolicy:input_type -> api.MyPasswordPolicyGetReq
+	3,  // 14: api.MyTenant.UpdateMyPasswordPolicy:input_type -> api.MyPasswordPolicyUpdateReq
+	7,  // 15: api.MyTenant.GetMyIdentityProviderTypes:input_type -> api.IdentityProviderTypesGetReq
+	12, // 16: api.MyTenant.CreateMyIdentityProvider:input_type -> api.MyIdentityProviderCreateReq
+	14, // 17: api.MyTenant.ListMyIdentityProviders:input_type -> api.MyIdentityProvidersListReq
+	17, // 18: api.MyTenant.GetMyIdentityProvider:input_type -> api.MyIdentityProviderGetReq
+	19, // 19: api.MyTenant.UpdateMyIdentityProvider:input_type -> api.MyIdentityProviderUpdateReq
+	21, // 20: api.MyTenant.DeleteMyIdentityProvider:input_type -> api.MyIdentityProviderDeleteReq
+	2,  // 21: api.MyTenant.GetMyPasswordPolicy:output_type -> api.MyPasswordPolicyGetResp
+	4,  // 22: api.MyTenant.UpdateMyPasswordPolicy:output_type -> api.MyPasswordPolicyUpdateResp
+	9,  // 23: api.MyTenant.GetMyIdentityProviderTypes:output_type -> api.IdentityProviderTypesGetResp
+	13, // 24: api.MyTenant.CreateMyIdentityProvider:output_type -> api.MyIdentityProviderCreateResp
+	16, // 25: api.MyTenant.ListMyIdentityProviders:output_type -> api.MyIdentityProvidersListResp
+	18, // 26: api.MyTenant.GetMyIdentityProvider:output_type -> api.MyIdentityProviderGetResp
+	20, // 27: api.MyTenant.UpdateMyIdentityProvider:output_type -> api.MyIdentityProviderUpdateResp
+	22, // 28: api.MyTenant.DeleteMyIdentityProvider:output_type -> api.MyIdentityProviderDeleteResp
+	21, // [21:29] is the sub-list for method output_type
+	13, // [13:21] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_mytenant_proto_init() }
@@ -1656,15 +1697,14 @@ func file_mytenant_proto_init() {
 	if File_mytenant_proto != nil {
 		return
 	}
-	file_mytenant_proto_msgTypes[6].OneofWrappers = []any{}
-	file_mytenant_proto_msgTypes[10].OneofWrappers = []any{}
+	file_mytenant_proto_msgTypes[13].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_mytenant_proto_rawDesc), len(file_mytenant_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   19,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

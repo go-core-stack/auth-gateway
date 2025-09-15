@@ -36,18 +36,18 @@ service MyTenant {
   }
 
   // List supported identity provider types (like Keycloak providers endpoint)
-  rpc GetIdentityProviderTypes(IdpProvidersReq) returns (IdpProvidersResp) {
+  rpc GetMyIdentityProviderTypes(IdentityProviderTypesGetReq) returns (IdentityProviderTypesGetResp) {
     option (google.api.http) = {
       get: "/api/mytenant/v1/identity-provider-types"
     };
     option (api.role) = {
       resource: "tenant-idp"
-      verb: "list"
+      verb: "list-types"
     };
   }
 
   // Create identity provider instance (like Keycloak instances endpoint)
-  rpc CreateIdentityProviderInstance(IdpInstanceCreateReq) returns (IdpInstanceCreateResp) {
+  rpc CreateMyIdentityProvider(MyIdentityProviderCreateReq) returns (MyIdentityProviderCreateResp) {
     option (google.api.http) = {
       post: "/api/mytenant/v1/identity-provider"
       body: "*"
@@ -59,9 +59,9 @@ service MyTenant {
   }
 
   // List all configured identity provider instances for the tenant
-  rpc ListIdentityProviderInstances(IdpInstanceListReq) returns (IdpInstanceListResp) {
+  rpc ListMyIdentityProviders(MyIdentityProvidersListReq) returns (MyIdentityProvidersListResp) {
     option (google.api.http) = {
-      get: "/api/mytenant/v1/identity-provider"
+      get: "/api/mytenant/v1/identity-providers"
     };
     option (api.role) = {
       resource: "tenant-idp"
@@ -69,8 +69,8 @@ service MyTenant {
     };
   }
 
-  // Get identity provider instance configuration (like Keycloak instances endpoint)
-  rpc GetIdentityProviderInstance(IdpInstanceGetReq) returns (IdpInstanceGetResp) {
+  // Get identity provider configuration (like Keycloak instances endpoint)
+  rpc GetMyIdentityProvider(MyIdentityProviderGetReq) returns (MyIdentityProviderGetResp) {
     option (google.api.http) = {
       get: "/api/mytenant/v1/identity-provider/{key}"
     };
@@ -80,8 +80,8 @@ service MyTenant {
     };
   }
 
-  // Update identity provider instance configuration (like Keycloak instances endpoint)
-  rpc UpdateIdentityProviderInstance(IdpInstanceUpdateReq) returns (IdpInstanceUpdateResp) {
+  // Update identity provider configuration (like Keycloak instances endpoint)
+  rpc UpdateMyIdentityProvider(MyIdentityProviderUpdateReq) returns (MyIdentityProviderUpdateResp) {
     option (google.api.http) = {
       put: "/api/mytenant/v1/identity-provider/{key}"
       body: "*"
@@ -92,8 +92,8 @@ service MyTenant {
     };
   }
 
-  // Delete identity provider instance (like Keycloak instances endpoint)
-  rpc DeleteIdentityProviderInstance(IdpInstanceDeleteReq) returns (IdpInstanceDeleteResp) {
+  // Delete identity provider (like Keycloak instances endpoint)
+  rpc DeleteMyIdentityProvider(MyIdentityProviderDeleteReq) returns (MyIdentityProviderDeleteResp) {
     option (google.api.http) = {
       delete: "/api/mytenant/v1/identity-provider/{key}"
     };
@@ -172,13 +172,18 @@ message MyPasswordPolicyUpdateReq {
 message MyPasswordPolicyUpdateResp {
 }
 
-// Identity Provider types
-enum IdpProviderType {
-  IdentityProviderUnspecified = 0;
-  Google = 1;
-  Microsoft = 2;
-  OIDC = 3;
-  SAML = 4;
+message IdentityProviderDefs {
+  // Identity Provider types
+  enum Type {
+    // Unspecified IDP
+    IdentityProviderUnspecified = 0;
+
+    // Identity Provider - Google
+    Google = 1;
+
+    // Identity Provider - Microsoft
+    Microsoft = 2;
+  }
 }
 
 // Configuration field metadata for validation
@@ -192,63 +197,76 @@ message IdpConfigField {
   string validation = 7;
 }
 
-// Provider metadata
-message IdpProviderMetadata {
-  IdpProviderType provider_type = 1;
-  string display_name = 2;
-  string description = 3;
-  repeated IdpConfigField config_fields = 4;
-  repeated string supported_scopes = 5;
-  repeated string default_scopes = 6;
-  string documentation = 7;
+// Identity provider providers request (list supported provider types)
+message IdentityProviderTypesGetReq {
 }
 
-// Identity provider providers request (list supported provider types)
-message IdpProvidersReq {
-  // Optional filter by provider type
-  optional IdpProviderType providerType = 1;
+message IdentityProviderTypesListEntry {
+  // type value for the list entry
+  string type = 1;
 }
 
 // Identity provider providers response
-message IdpProvidersResp {
-  // Available provider types and their metadata
-  repeated IdpProviderMetadata providers = 1;
+message IdentityProviderTypesGetResp {
+  // Available provider types
+  repeated IdentityProviderTypesListEntry providers = 1;
 }
 
-// Identity provider instance create request
-message IdpInstanceCreateReq {
-  // Identity provider key (unique per tenant)
+message GoogleIDPConfig {
+  // client id from google SSO config, where controller
+  // is enabled as client
+  string clientId = 1;
+
+  // client secret to validate ourself with google
+  string clientSecret = 2;
+
+  // Hosted Domain for allowing users only from specific domain
+  string hostedDomain = 3;
+}
+
+message MicrosoftIDPConfig {
+  // client id from microsoft SSO config, where controller
+  // is enabled as client
+  string clientId = 1;
+
+  // client secret to validate ourself with microsoft
+  string clientSecret = 2;
+
+  // tenant id to ensure allowing users only from specific
+  // microsoft tenant
+  string tenantId = 3;
+}
+
+// Identity provider create request
+message MyIdentityProviderCreateReq {
+  // Identity provider key (unique per tenant), also used for
+  // hosting SSO broker endpoint
   string key = 1;
 
   // Display name
-  string display_name = 2;
+  string dispName = 2;
 
   // Provider type
-  IdpProviderType provider_type = 3;
+  IdentityProviderDefs.Type type = 3;
 
   // Whether configuration is enabled
   bool enabled = 4;
 
-  // Display order for UI
-  int32 display_order = 5;
+  // configuration for Google Identity Provider
+  GoogleIDPConfig google = 5;
 
-  // Provider configuration (including sensitive fields)
-  string configuration = 6;
+  // configuration for Microsoft Identity Provider
+  MicrosoftIDPConfig microsoft = 6;
 }
 
-// Identity provider instance create response
-message IdpInstanceCreateResp {
-  // Created identity provider key
-  string key = 1;
-
-  // Success message
-  string message = 2;
+// Identity provider create response
+message MyIdentityProviderCreateResp {
 }
 
-// Identity provider instance list request
-message IdpInstanceListReq {
+// Identity provider list request
+message MyIdentityProvidersListReq {
   // Optional filter by provider type
-  optional IdpProviderType provider_type = 1;
+  optional IdentityProviderDefs.Type type = 1;
 
   // Optional filter by enabled status
   optional bool enabled = 2;
@@ -260,110 +278,97 @@ message IdpInstanceListReq {
   optional int32 offset = 4;
 }
 
+// Identity provider list entry
+message MyIdentityProvidersListEntry {
+  // Identity provider key
+  string key = 1;
+
+  // Display name
+  string dispName = 2;
+
+  // Provider type
+  IdentityProviderDefs.Type type = 3;
+
+  // Whether configuration is enabled
+  bool enabled = 4;
+
+  // Created timestamp
+  int64 created = 5;
+}
+
 // Identity provider instance list response
-message IdpInstanceListResp {
-  // List of identity provider instances
-  repeated IdpInstanceSummary instances = 1;
+message MyIdentityProvidersListResp {
+  // Count of IDP available
+  int32 count = 1;
 
-  // Total count of instances (for pagination)
-  int32 total_count = 2;
+  // List of identity providers
+  repeated MyIdentityProvidersListEntry items = 2;
 }
 
-// Identity provider instance summary (for list responses)
-message IdpInstanceSummary {
+// Identity provider get request
+message MyIdentityProviderGetReq {
+  // Identity provider key
+  string key = 1;
+}
+
+// Identity provider get response
+message MyIdentityProviderGetResp {
   // Identity provider key
   string key = 1;
 
   // Display name
-  string display_name = 2;
+  string dispName = 2;
 
   // Provider type
-  IdpProviderType provider_type = 3;
+  IdentityProviderDefs.Type type = 3;
 
   // Whether configuration is enabled
   bool enabled = 4;
 
-  // Display order for UI
-  int32 display_order = 5;
-
   // Created timestamp
-  int64 created = 6;
-
-  // Updated timestamp
-  int64 updated = 7;
-}
-
-// Identity provider instance get request
-message IdpInstanceGetReq {
-  // Identity provider key
-  string key = 1;
-}
-
-// Identity provider instance get response
-message IdpInstanceGetResp {
-  // Identity provider key
-  string key = 1;
-
-  // Display name
-  string display_name = 2;
-
-  // Provider type
-  IdpProviderType provider_type = 3;
-
-  // Whether configuration is enabled
-  bool enabled = 4;
-
-  // Display order for UI
-  int32 display_order = 5;
-
-  // Provider configuration (non-sensitive fields only)
-  string configuration = 6;
-
-  // Created timestamp
-  int64 created = 7;
-
-  // Updated timestamp
-  int64 updated = 8;
+  int64 created = 5;
 
   // Created by user
-  string created_by = 9;
+  string created_by = 6;
 
-  // Updated by user
-  string updated_by = 10;
+  // configuration for Google Identity Provider
+  GoogleIDPConfig google = 7;
+
+  // configuration for Microsoft Identity Provider
+  MicrosoftIDPConfig microsoft = 8;
 }
 
-// Identity provider instance update request
-message IdpInstanceUpdateReq {
+// Identity provider update request
+message MyIdentityProviderUpdateReq {
   // Identity provider key
   string key = 1;
 
   // Display name
-  string display_name = 2;
+  string dispName = 2;
 
   // Whether configuration is enabled
   bool enabled = 3;
 
-  // Display order for UI
-  int32 display_order = 4;
+  // Provider type
+  IdentityProviderDefs.Type type = 4;
 
-  // Provider configuration (including sensitive fields)
-  string configuration = 5;
+  // configuration for Google Identity Provider
+  GoogleIDPConfig google = 5;
+
+  // configuration for Microsoft Identity Provider
+  MicrosoftIDPConfig microsoft = 6;
 }
 
-// Identity provider instance update response
-message IdpInstanceUpdateResp {
-  // Success message
-  string message = 1;
+// Identity provider update response
+message MyIdentityProviderUpdateResp {
 }
 
-// Identity provider instance delete request
-message IdpInstanceDeleteReq {
+// Identity provider delete request
+message MyIdentityProviderDeleteReq {
   // Identity provider key
   string key = 1;
 }
 
-// Identity provider instance delete response
-message IdpInstanceDeleteResp {
-  // Success message
-  string message = 1;
+// Identity provider delete response
+message MyIdentityProviderDeleteResp {
 }
