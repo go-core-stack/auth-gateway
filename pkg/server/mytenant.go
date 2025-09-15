@@ -155,150 +155,23 @@ func (s *MyTenantServer) UpdateMyPasswordPolicy(ctx context.Context, req *api.My
 
 // Identity Provider Management Methods - STUB IMPLEMENTATIONS
 
-func (s *MyTenantServer) GetIdentityProviderTypes(ctx context.Context, req *api.IdpProvidersReq) (*api.IdpProvidersResp, error) {
+func (s *MyTenantServer) GetMyIdentityProviderTypes(ctx context.Context, req *api.IdentityProviderTypesGetReq) (*api.IdentityProviderTypesGetResp, error) {
 	// Return available provider types metadata
-	allProviders := []*api.IdpProviderMetadata{
+	allProviders := []*api.IdentityProviderTypesListEntry{
 		{
-			ProviderType: api.IdpProviderType_Google,
-			DisplayName:  "Google OAuth2",
-			Description:  "Google OAuth2 identity provider for Gmail and Google Workspace accounts",
-			ConfigFields: []*api.IdpConfigField{
-				{
-					Name:        "client_id",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   false,
-					Description: "OAuth2 client ID from Google Console",
-				},
-				{
-					Name:        "client_secret",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   true,
-					Description: "OAuth2 client secret from Google Console",
-				},
-			},
-			SupportedScopes: []string{"openid", "email", "profile"},
-			DefaultScopes:   []string{"openid", "email", "profile"},
-			Documentation:   "https://developers.google.com/identity/protocols/oauth2",
+			Type: "google",
 		},
 		{
-			ProviderType: api.IdpProviderType_Microsoft,
-			DisplayName:  "Microsoft OAuth2",
-			Description:  "Microsoft OAuth2 identity provider for Azure AD and Office 365 accounts",
-			ConfigFields: []*api.IdpConfigField{
-				{
-					Name:        "client_id",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   false,
-					Description: "Application (client) ID from Azure portal",
-				},
-				{
-					Name:        "client_secret",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   true,
-					Description: "Client secret from Azure portal",
-				},
-				{
-					Name:         "tenant_id",
-					Type:         "string",
-					Required:     false,
-					Sensitive:    false,
-					Description:  "Azure AD tenant ID (optional, defaults to common)",
-					DefaultValue: "common",
-				},
-			},
-			SupportedScopes: []string{"openid", "email", "profile", "User.Read"},
-			DefaultScopes:   []string{"openid", "email", "profile"},
-			Documentation:   "https://docs.microsoft.com/en-us/azure/active-directory/develop/",
-		},
-		{
-			ProviderType: api.IdpProviderType_OIDC,
-			DisplayName:  "OpenID Connect",
-			Description:  "Generic OpenID Connect identity provider",
-			ConfigFields: []*api.IdpConfigField{
-				{
-					Name:        "issuer_url",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   false,
-					Description: "OpenID Connect issuer URL",
-				},
-				{
-					Name:        "client_id",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   false,
-					Description: "OpenID Connect client ID",
-				},
-				{
-					Name:        "client_secret",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   true,
-					Description: "OpenID Connect client secret",
-				},
-			},
-			SupportedScopes: []string{"openid", "email", "profile"},
-			DefaultScopes:   []string{"openid", "email", "profile"},
-			Documentation:   "https://openid.net/connect/",
-		},
-		{
-			ProviderType: api.IdpProviderType_SAML,
-			DisplayName:  "SAML 2.0",
-			Description:  "SAML 2.0 identity provider",
-			ConfigFields: []*api.IdpConfigField{
-				{
-					Name:        "sso_url",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   false,
-					Description: "SAML SSO URL",
-				},
-				{
-					Name:        "entity_id",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   false,
-					Description: "SAML entity ID",
-				},
-				{
-					Name:        "certificate",
-					Type:        "string",
-					Required:    true,
-					Sensitive:   false,
-					Description: "X.509 certificate for signature verification",
-				},
-			},
-			SupportedScopes: []string{},
-			DefaultScopes:   []string{},
-			Documentation:   "https://en.wikipedia.org/wiki/SAML_2.0",
+			Type: "microsoft",
 		},
 	}
 
-	// Filter providers if a specific type is requested
-	var providers []*api.IdpProviderMetadata
-	if req.GetProviderType() != api.IdpProviderType_IdentityProviderUnspecified {
-		// Find the specific provider type
-		for _, provider := range allProviders {
-			if provider.ProviderType == req.GetProviderType() {
-				providers = append(providers, provider)
-				break
-			}
-		}
-	} else {
-		// Return all providers if no filter specified
-		providers = allProviders
-	}
-
-	return &api.IdpProvidersResp{
-		Providers: providers,
+	return &api.IdentityProviderTypesGetResp{
+		Providers: allProviders,
 	}, nil
 }
 
-func (s *MyTenantServer) CreateIdentityProviderInstance(ctx context.Context, req *api.IdpInstanceCreateReq) (*api.IdpInstanceCreateResp, error) {
+func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderCreateReq) (*api.MyIdentityProviderCreateResp, error) {
 	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
 	if authInfo == nil {
 		return nil, status.Error(codes.Unauthenticated, "authentication required")
@@ -309,58 +182,51 @@ func (s *MyTenantServer) CreateIdentityProviderInstance(ctx context.Context, req
 		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
 	}
 
-	if req.ProviderType == api.IdpProviderType_IdentityProviderUnspecified {
+	if req.Type == api.IdentityProviderDefs_IdentityProviderUnspecified {
 		return nil, status.Error(codes.InvalidArgument, "provider type is required")
 	}
 
 	// STUB: Just return success without actual creation
-	return &api.IdpInstanceCreateResp{
-		Key:     req.Key,
-		Message: fmt.Sprintf("Identity provider '%s' would be created successfully (STUB)", req.Key),
-	}, nil
+	return &api.MyIdentityProviderCreateResp{}, nil
 }
 
-func (s *MyTenantServer) ListIdentityProviderInstances(ctx context.Context, req *api.IdpInstanceListReq) (*api.IdpInstanceListResp, error) {
+func (s *MyTenantServer) ListMyIdentityProviders(ctx context.Context, req *api.MyIdentityProvidersListReq) (*api.MyIdentityProvidersListResp, error) {
 	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
 	if authInfo == nil {
 		return nil, status.Error(codes.Unauthenticated, "authentication required")
 	}
 
 	// STUB: Return mock data
-	mockInstances := []*api.IdpInstanceSummary{
+	mockInstances := []*api.MyIdentityProvidersListEntry{
 		{
-			Key:          "google-sso",
-			DisplayName:  "Google SSO",
-			ProviderType: api.IdpProviderType_Google,
-			Enabled:      true,
-			DisplayOrder: 1,
-			Created:      time.Now().Unix() - 86400, // 1 day ago
-			Updated:      time.Now().Unix(),
+			Key:      "google-sso",
+			DispName: "Google SSO",
+			Type:     api.IdentityProviderDefs_Google,
+			Enabled:  true,
+			Created:  time.Now().Unix() - 86400, // 1 day ago
 		},
 		{
-			Key:          "microsoft-sso",
-			DisplayName:  "Microsoft SSO",
-			ProviderType: api.IdpProviderType_Microsoft,
-			Enabled:      false,
-			DisplayOrder: 2,
-			Created:      time.Now().Unix() - 7200, // 2 hours ago
-			Updated:      time.Now().Unix() - 3600, // 1 hour ago
+			Key:      "microsoft-sso",
+			DispName: "Microsoft SSO",
+			Type:     api.IdentityProviderDefs_Microsoft,
+			Enabled:  false,
+			Created:  time.Now().Unix() - 7200, // 2 hours ago
 		},
 	}
 
 	// Apply filters if provided
-	var filteredInstances []*api.IdpInstanceSummary
+	var filteredInstances []*api.MyIdentityProvidersListEntry
 	for _, instance := range mockInstances {
 		// Filter by provider type
-		if req.GetProviderType() != api.IdpProviderType_IdentityProviderUnspecified {
-			if instance.ProviderType != req.GetProviderType() {
+		if req.Type != nil {
+			if instance.Type != *req.Type {
 				continue
 			}
 		}
 
 		// Filter by enabled status
 		if req.Enabled != nil {
-			if instance.Enabled != req.GetEnabled() {
+			if instance.Enabled != *req.Enabled {
 				continue
 			}
 		}
@@ -389,13 +255,13 @@ func (s *MyTenantServer) ListIdentityProviderInstances(ctx context.Context, req 
 
 	pagedInstances := filteredInstances[start:end]
 
-	return &api.IdpInstanceListResp{
-		Instances:  pagedInstances,
-		TotalCount: int32(totalCount),
+	return &api.MyIdentityProvidersListResp{
+		Items: pagedInstances,
+		Count: int32(totalCount),
 	}, nil
 }
 
-func (s *MyTenantServer) GetIdentityProviderInstance(ctx context.Context, req *api.IdpInstanceGetReq) (*api.IdpInstanceGetResp, error) {
+func (s *MyTenantServer) GetMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderGetReq) (*api.MyIdentityProviderGetResp, error) {
 	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
 	if authInfo == nil {
 		return nil, status.Error(codes.Unauthenticated, "authentication required")
@@ -408,37 +274,39 @@ func (s *MyTenantServer) GetIdentityProviderInstance(ctx context.Context, req *a
 	// STUB: Return mock data based on key
 	switch req.Key {
 	case "google-sso":
-		return &api.IdpInstanceGetResp{
-			Key:           "google-sso",
-			DisplayName:   "Google SSO",
-			ProviderType:  api.IdpProviderType_Google,
-			Enabled:       true,
-			DisplayOrder:  1,
-			Configuration: `{"client_id":"stub-google-client-id","redirect_uri":"https://example.com/auth/callback"}`,
-			Created:       time.Now().Unix() - 86400,
-			Updated:       time.Now().Unix(),
-			CreatedBy:     "admin",
-			UpdatedBy:     "admin",
+		return &api.MyIdentityProviderGetResp{
+			Key:       "google-sso",
+			DispName:  "Google SSO",
+			Type:      api.IdentityProviderDefs_Google,
+			Enabled:   true,
+			Created:   time.Now().Unix() - 86400,
+			CreatedBy: "admin",
+			Google: &api.GoogleIDPConfig{
+				ClientId:     "stub-google-client-id",
+				ClientSecret: "stub-google-client-secret",
+				HostedDomain: "example.com",
+			},
 		}, nil
 	case "microsoft-sso":
-		return &api.IdpInstanceGetResp{
-			Key:           "microsoft-sso",
-			DisplayName:   "Microsoft SSO",
-			ProviderType:  api.IdpProviderType_Microsoft,
-			Enabled:       false,
-			DisplayOrder:  2,
-			Configuration: `{"client_id":"stub-microsoft-client-id","tenant_id":"common"}`,
-			Created:       time.Now().Unix() - 7200,
-			Updated:       time.Now().Unix() - 3600,
-			CreatedBy:     "admin",
-			UpdatedBy:     "admin",
+		return &api.MyIdentityProviderGetResp{
+			Key:       "microsoft-sso",
+			DispName:  "Microsoft SSO",
+			Type:      api.IdentityProviderDefs_Microsoft,
+			Enabled:   false,
+			Created:   time.Now().Unix() - 7200,
+			CreatedBy: "admin",
+			Microsoft: &api.MicrosoftIDPConfig{
+				ClientId:     "stub-microsoft-client-id",
+				ClientSecret: "stub-microsoft-client-secret",
+				TenantId:     "common",
+			},
 		}, nil
 	default:
 		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found (STUB)", req.Key)
 	}
 }
 
-func (s *MyTenantServer) UpdateIdentityProviderInstance(ctx context.Context, req *api.IdpInstanceUpdateReq) (*api.IdpInstanceUpdateResp, error) {
+func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderUpdateReq) (*api.MyIdentityProviderUpdateResp, error) {
 	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
 	if authInfo == nil {
 		return nil, status.Error(codes.Unauthenticated, "authentication required")
@@ -463,12 +331,10 @@ func (s *MyTenantServer) UpdateIdentityProviderInstance(ctx context.Context, req
 	}
 
 	// STUB: Just return success without actual update
-	return &api.IdpInstanceUpdateResp{
-		Message: fmt.Sprintf("Identity provider '%s' would be updated successfully (STUB)", req.Key),
-	}, nil
+	return &api.MyIdentityProviderUpdateResp{}, nil
 }
 
-func (s *MyTenantServer) DeleteIdentityProviderInstance(ctx context.Context, req *api.IdpInstanceDeleteReq) (*api.IdpInstanceDeleteResp, error) {
+func (s *MyTenantServer) DeleteMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderDeleteReq) (*api.MyIdentityProviderDeleteResp, error) {
 	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
 	if authInfo == nil {
 		return nil, status.Error(codes.Unauthenticated, "authentication required")
@@ -493,9 +359,7 @@ func (s *MyTenantServer) DeleteIdentityProviderInstance(ctx context.Context, req
 	}
 
 	// STUB: Just return success without actual deletion
-	return &api.IdpInstanceDeleteResp{
-		Message: fmt.Sprintf("Identity provider '%s' would be deleted successfully (STUB)", req.Key),
-	}, nil
+	return &api.MyIdentityProviderDeleteResp{}, nil
 }
 
 // Helper methods for Identity Provider Management - REMOVED (STUBS DON'T NEED THESE)
