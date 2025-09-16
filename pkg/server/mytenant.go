@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/go-core-stack/auth-gateway/api"
@@ -24,6 +25,7 @@ import (
 type MyTenantServer struct {
 	api.UnimplementedMyTenantServer
 	client *keycloak.Client
+	// idpTable *table.IdentityProviderTable // REMOVED - using stubs instead
 }
 
 func (s *MyTenantServer) GetMyPasswordPolicy(ctx context.Context, req *api.MyPasswordPolicyGetReq) (*api.MyPasswordPolicyGetResp, error) {
@@ -151,9 +153,226 @@ func (s *MyTenantServer) UpdateMyPasswordPolicy(ctx context.Context, req *api.My
 	return &api.MyPasswordPolicyUpdateResp{}, nil
 }
 
+// Identity Provider Management Methods - STUB IMPLEMENTATIONS
+
+func (s *MyTenantServer) GetMyIdentityProviderTypes(ctx context.Context, req *api.IdentityProviderTypesGetReq) (*api.IdentityProviderTypesGetResp, error) {
+	resp := &api.IdentityProviderTypesGetResp{
+		Providers: []*api.IdentityProviderTypesListEntry{},
+	}
+	for k, v := range api.IdentityProviderDefs_Type_name {
+		if k == int32(api.IdentityProviderDefs_IdentityProviderUnspecified) {
+			continue
+		}
+		resp.Providers = append(resp.Providers, &api.IdentityProviderTypesListEntry{Type: v})
+	}
+	// Return available provider types metadata
+
+	return resp, nil
+}
+
+func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderCreateReq) (*api.MyIdentityProviderCreateResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Error(codes.Unauthenticated, "authentication required")
+	}
+
+	// Basic validation
+	if strings.TrimSpace(req.Key) == "" {
+		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
+	}
+
+	if req.Type == api.IdentityProviderDefs_IdentityProviderUnspecified {
+		return nil, status.Error(codes.InvalidArgument, "provider type is required")
+	}
+
+	// STUB: Just return success without actual creation
+	return &api.MyIdentityProviderCreateResp{}, nil
+}
+
+func (s *MyTenantServer) ListMyIdentityProviders(ctx context.Context, req *api.MyIdentityProvidersListReq) (*api.MyIdentityProvidersListResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Error(codes.Unauthenticated, "authentication required")
+	}
+
+	// STUB: Return mock data
+	mockInstances := []*api.MyIdentityProvidersListEntry{
+		{
+			Key:      "google-sso",
+			DispName: "Google SSO",
+			Type:     api.IdentityProviderDefs_Google,
+			Enabled:  true,
+			Created:  time.Now().Unix() - 86400, // 1 day ago
+		},
+		{
+			Key:      "microsoft-sso",
+			DispName: "Microsoft SSO",
+			Type:     api.IdentityProviderDefs_Microsoft,
+			Enabled:  false,
+			Created:  time.Now().Unix() - 7200, // 2 hours ago
+		},
+	}
+
+	// Apply filters if provided
+	var filteredInstances []*api.MyIdentityProvidersListEntry
+	for _, instance := range mockInstances {
+		// Filter by provider type
+		if req.Type != nil {
+			if instance.Type != *req.Type {
+				continue
+			}
+		}
+
+		// Filter by enabled status
+		if req.Enabled != nil {
+			if instance.Enabled != *req.Enabled {
+				continue
+			}
+		}
+
+		filteredInstances = append(filteredInstances, instance)
+	}
+
+	// Apply pagination
+	totalCount := len(filteredInstances)
+	offset := int(req.GetOffset())
+	limit := int(req.GetLimit())
+
+	if limit <= 0 {
+		limit = 10 // Default limit
+	}
+
+	start := offset
+	if start > totalCount {
+		start = totalCount
+	}
+
+	end := start + limit
+	if end > totalCount {
+		end = totalCount
+	}
+
+	pagedInstances := filteredInstances[start:end]
+
+	return &api.MyIdentityProvidersListResp{
+		Items: pagedInstances,
+		Count: int32(totalCount),
+	}, nil
+}
+
+func (s *MyTenantServer) GetMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderGetReq) (*api.MyIdentityProviderGetResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Error(codes.Unauthenticated, "authentication required")
+	}
+
+	if strings.TrimSpace(req.Key) == "" {
+		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
+	}
+
+	// STUB: Return mock data based on key
+	switch req.Key {
+	case "google-sso":
+		return &api.MyIdentityProviderGetResp{
+			Key:       "google-sso",
+			DispName:  "Google SSO",
+			Type:      api.IdentityProviderDefs_Google,
+			Enabled:   true,
+			Created:   time.Now().Unix() - 86400,
+			CreatedBy: "admin",
+			Google: &api.GoogleIDPConfig{
+				ClientId:     "stub-google-client-id",
+				ClientSecret: "stub-google-client-secret",
+				HostedDomain: "example.com",
+			},
+		}, nil
+	case "microsoft-sso":
+		return &api.MyIdentityProviderGetResp{
+			Key:       "microsoft-sso",
+			DispName:  "Microsoft SSO",
+			Type:      api.IdentityProviderDefs_Microsoft,
+			Enabled:   false,
+			Created:   time.Now().Unix() - 7200,
+			CreatedBy: "admin",
+			Microsoft: &api.MicrosoftIDPConfig{
+				ClientId:     "stub-microsoft-client-id",
+				ClientSecret: "stub-microsoft-client-secret",
+				TenantId:     "common",
+			},
+		}, nil
+	default:
+		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found (STUB)", req.Key)
+	}
+}
+
+func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderUpdateReq) (*api.MyIdentityProviderUpdateResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Error(codes.Unauthenticated, "authentication required")
+	}
+
+	if strings.TrimSpace(req.Key) == "" {
+		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
+	}
+
+	// STUB: Simulate checking if provider exists
+	validKeys := []string{"google-sso", "microsoft-sso"}
+	found := false
+	for _, validKey := range validKeys {
+		if req.Key == validKey {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found (STUB)", req.Key)
+	}
+
+	// STUB: Just return success without actual update
+	return &api.MyIdentityProviderUpdateResp{}, nil
+}
+
+func (s *MyTenantServer) DeleteMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderDeleteReq) (*api.MyIdentityProviderDeleteResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Error(codes.Unauthenticated, "authentication required")
+	}
+
+	if strings.TrimSpace(req.Key) == "" {
+		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
+	}
+
+	// STUB: Simulate checking if provider exists
+	validKeys := []string{"google-sso", "microsoft-sso"}
+	found := false
+	for _, validKey := range validKeys {
+		if req.Key == validKey {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found (STUB)", req.Key)
+	}
+
+	// STUB: Just return success without actual deletion
+	return &api.MyIdentityProviderDeleteResp{}, nil
+}
+
+// Helper methods for Identity Provider Management - REMOVED (STUBS DON'T NEED THESE)
+
 func NewMyTenantServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *MyTenantServer {
+	// REMOVED: Database dependency - using stubs instead
+	// idpTbl, err := table.GetIdentityProviderTable()
+	// if err != nil {
+	//	log.Panicf("failed to get identity provider table: %s", err)
+	// }
+
 	srv := &MyTenantServer{
 		client: client,
+		// idpTable: idpTbl, // REMOVED - using stubs instead
 	}
 	api.RegisterMyTenantServer(ctx.Server, srv)
 	err := api.RegisterMyTenantHandler(context.Background(), ctx.Mux, ctx.Conn)

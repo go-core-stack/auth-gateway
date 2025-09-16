@@ -34,6 +34,74 @@ service MyTenant {
       verb: "update"
     };
   }
+
+  // List supported identity provider types (like Keycloak providers endpoint)
+  rpc GetMyIdentityProviderTypes(IdentityProviderTypesGetReq) returns (IdentityProviderTypesGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/identity-provider-types"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "list-types"
+    };
+  }
+
+  // Create identity provider instance (like Keycloak instances endpoint)
+  rpc CreateMyIdentityProvider(MyIdentityProviderCreateReq) returns (MyIdentityProviderCreateResp) {
+    option (google.api.http) = {
+      post: "/api/mytenant/v1/identity-provider"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "create"
+    };
+  }
+
+  // List all configured identity provider instances for the tenant
+  rpc ListMyIdentityProviders(MyIdentityProvidersListReq) returns (MyIdentityProvidersListResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/identity-providers"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "list"
+    };
+  }
+
+  // Get identity provider configuration (like Keycloak instances endpoint)
+  rpc GetMyIdentityProvider(MyIdentityProviderGetReq) returns (MyIdentityProviderGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/identity-provider/{key}"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "get"
+    };
+  }
+
+  // Update identity provider configuration (like Keycloak instances endpoint)
+  rpc UpdateMyIdentityProvider(MyIdentityProviderUpdateReq) returns (MyIdentityProviderUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/identity-provider/{key}"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "update"
+    };
+  }
+
+  // Delete identity provider (like Keycloak instances endpoint)
+  rpc DeleteMyIdentityProvider(MyIdentityProviderDeleteReq) returns (MyIdentityProviderDeleteResp) {
+    option (google.api.http) = {
+      delete: "/api/mytenant/v1/identity-provider/{key}"
+    };
+    option (api.role) = {
+      resource: "tenant-idp"
+      verb: "delete"
+    };
+  }
 }
 
 // password policy get request
@@ -102,4 +170,205 @@ message MyPasswordPolicyUpdateReq {
 
 // password policy update response
 message MyPasswordPolicyUpdateResp {
+}
+
+message IdentityProviderDefs {
+  // Identity Provider types
+  enum Type {
+    // Unspecified IDP
+    IdentityProviderUnspecified = 0;
+
+    // Identity Provider - Google
+    Google = 1;
+
+    // Identity Provider - Microsoft
+    Microsoft = 2;
+  }
+}
+
+// Configuration field metadata for validation
+message IdpConfigField {
+  string name = 1;
+  string type = 2;
+  bool required = 3;
+  bool sensitive = 4;
+  string description = 5;
+  string default_value = 6;
+  string validation = 7;
+}
+
+// Identity provider providers request (list supported provider types)
+message IdentityProviderTypesGetReq {
+}
+
+message IdentityProviderTypesListEntry {
+  // type value for the list entry
+  string type = 1;
+}
+
+// Identity provider providers response
+message IdentityProviderTypesGetResp {
+  // Available provider types
+  repeated IdentityProviderTypesListEntry providers = 1;
+}
+
+message GoogleIDPConfig {
+  // client id from google SSO config, where controller
+  // is enabled as client
+  string clientId = 1;
+
+  // client secret to validate ourself with google
+  string clientSecret = 2;
+
+  // Hosted Domain for allowing users only from specific domain
+  string hostedDomain = 3;
+}
+
+message MicrosoftIDPConfig {
+  // client id from microsoft SSO config, where controller
+  // is enabled as client
+  string clientId = 1;
+
+  // client secret to validate ourself with microsoft
+  string clientSecret = 2;
+
+  // tenant id to ensure allowing users only from specific
+  // microsoft tenant
+  string tenantId = 3;
+}
+
+// Identity provider create request
+message MyIdentityProviderCreateReq {
+  // Identity provider key (unique per tenant), also used for
+  // hosting SSO broker endpoint
+  string key = 1;
+
+  // Display name
+  string dispName = 2;
+
+  // Provider type
+  IdentityProviderDefs.Type type = 3;
+
+  // Whether configuration is enabled
+  bool enabled = 4;
+
+  // configuration for Google Identity Provider
+  GoogleIDPConfig google = 5;
+
+  // configuration for Microsoft Identity Provider
+  MicrosoftIDPConfig microsoft = 6;
+}
+
+// Identity provider create response
+message MyIdentityProviderCreateResp {
+}
+
+// Identity provider list request
+message MyIdentityProvidersListReq {
+  // Optional filter by provider type
+  optional IdentityProviderDefs.Type type = 1;
+
+  // Optional filter by enabled status
+  optional bool enabled = 2;
+
+  // Optional pagination limit
+  optional int32 limit = 3;
+
+  // Optional pagination offset
+  optional int32 offset = 4;
+}
+
+// Identity provider list entry
+message MyIdentityProvidersListEntry {
+  // Identity provider key
+  string key = 1;
+
+  // Display name
+  string dispName = 2;
+
+  // Provider type
+  IdentityProviderDefs.Type type = 3;
+
+  // Whether configuration is enabled
+  bool enabled = 4;
+
+  // Created timestamp
+  int64 created = 5;
+}
+
+// Identity provider instance list response
+message MyIdentityProvidersListResp {
+  // Count of IDP available
+  int32 count = 1;
+
+  // List of identity providers
+  repeated MyIdentityProvidersListEntry items = 2;
+}
+
+// Identity provider get request
+message MyIdentityProviderGetReq {
+  // Identity provider key
+  string key = 1;
+}
+
+// Identity provider get response
+message MyIdentityProviderGetResp {
+  // Identity provider key
+  string key = 1;
+
+  // Display name
+  string dispName = 2;
+
+  // Provider type
+  IdentityProviderDefs.Type type = 3;
+
+  // Whether configuration is enabled
+  bool enabled = 4;
+
+  // Created timestamp
+  int64 created = 5;
+
+  // Created by user
+  string created_by = 6;
+
+  // configuration for Google Identity Provider
+  GoogleIDPConfig google = 7;
+
+  // configuration for Microsoft Identity Provider
+  MicrosoftIDPConfig microsoft = 8;
+}
+
+// Identity provider update request
+message MyIdentityProviderUpdateReq {
+  // Identity provider key
+  string key = 1;
+
+  // Display name
+  string dispName = 2;
+
+  // Whether configuration is enabled
+  bool enabled = 3;
+
+  // Provider type
+  IdentityProviderDefs.Type type = 4;
+
+  // configuration for Google Identity Provider
+  GoogleIDPConfig google = 5;
+
+  // configuration for Microsoft Identity Provider
+  MicrosoftIDPConfig microsoft = 6;
+}
+
+// Identity provider update response
+message MyIdentityProviderUpdateResp {
+}
+
+// Identity provider delete request
+message MyIdentityProviderDeleteReq {
+  // Identity provider key
+  string key = 1;
+}
+
+// Identity provider delete response
+message MyIdentityProviderDeleteResp {
 }

@@ -22,8 +22,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MyTenant_GetMyPasswordPolicy_FullMethodName    = "/api.MyTenant/GetMyPasswordPolicy"
-	MyTenant_UpdateMyPasswordPolicy_FullMethodName = "/api.MyTenant/UpdateMyPasswordPolicy"
+	MyTenant_GetMyPasswordPolicy_FullMethodName        = "/api.MyTenant/GetMyPasswordPolicy"
+	MyTenant_UpdateMyPasswordPolicy_FullMethodName     = "/api.MyTenant/UpdateMyPasswordPolicy"
+	MyTenant_GetMyIdentityProviderTypes_FullMethodName = "/api.MyTenant/GetMyIdentityProviderTypes"
+	MyTenant_CreateMyIdentityProvider_FullMethodName   = "/api.MyTenant/CreateMyIdentityProvider"
+	MyTenant_ListMyIdentityProviders_FullMethodName    = "/api.MyTenant/ListMyIdentityProviders"
+	MyTenant_GetMyIdentityProvider_FullMethodName      = "/api.MyTenant/GetMyIdentityProvider"
+	MyTenant_UpdateMyIdentityProvider_FullMethodName   = "/api.MyTenant/UpdateMyIdentityProvider"
+	MyTenant_DeleteMyIdentityProvider_FullMethodName   = "/api.MyTenant/DeleteMyIdentityProvider"
 )
 
 // MyTenantClient is the client API for MyTenant service.
@@ -36,6 +42,18 @@ type MyTenantClient interface {
 	GetMyPasswordPolicy(ctx context.Context, in *MyPasswordPolicyGetReq, opts ...grpc.CallOption) (*MyPasswordPolicyGetResp, error)
 	// Update Password policy configuration
 	UpdateMyPasswordPolicy(ctx context.Context, in *MyPasswordPolicyUpdateReq, opts ...grpc.CallOption) (*MyPasswordPolicyUpdateResp, error)
+	// List supported identity provider types (like Keycloak providers endpoint)
+	GetMyIdentityProviderTypes(ctx context.Context, in *IdentityProviderTypesGetReq, opts ...grpc.CallOption) (*IdentityProviderTypesGetResp, error)
+	// Create identity provider instance (like Keycloak instances endpoint)
+	CreateMyIdentityProvider(ctx context.Context, in *MyIdentityProviderCreateReq, opts ...grpc.CallOption) (*MyIdentityProviderCreateResp, error)
+	// List all configured identity provider instances for the tenant
+	ListMyIdentityProviders(ctx context.Context, in *MyIdentityProvidersListReq, opts ...grpc.CallOption) (*MyIdentityProvidersListResp, error)
+	// Get identity provider configuration (like Keycloak instances endpoint)
+	GetMyIdentityProvider(ctx context.Context, in *MyIdentityProviderGetReq, opts ...grpc.CallOption) (*MyIdentityProviderGetResp, error)
+	// Update identity provider configuration (like Keycloak instances endpoint)
+	UpdateMyIdentityProvider(ctx context.Context, in *MyIdentityProviderUpdateReq, opts ...grpc.CallOption) (*MyIdentityProviderUpdateResp, error)
+	// Delete identity provider (like Keycloak instances endpoint)
+	DeleteMyIdentityProvider(ctx context.Context, in *MyIdentityProviderDeleteReq, opts ...grpc.CallOption) (*MyIdentityProviderDeleteResp, error)
 }
 
 type myTenantClient struct {
@@ -66,6 +84,66 @@ func (c *myTenantClient) UpdateMyPasswordPolicy(ctx context.Context, in *MyPassw
 	return out, nil
 }
 
+func (c *myTenantClient) GetMyIdentityProviderTypes(ctx context.Context, in *IdentityProviderTypesGetReq, opts ...grpc.CallOption) (*IdentityProviderTypesGetResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IdentityProviderTypesGetResp)
+	err := c.cc.Invoke(ctx, MyTenant_GetMyIdentityProviderTypes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myTenantClient) CreateMyIdentityProvider(ctx context.Context, in *MyIdentityProviderCreateReq, opts ...grpc.CallOption) (*MyIdentityProviderCreateResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MyIdentityProviderCreateResp)
+	err := c.cc.Invoke(ctx, MyTenant_CreateMyIdentityProvider_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myTenantClient) ListMyIdentityProviders(ctx context.Context, in *MyIdentityProvidersListReq, opts ...grpc.CallOption) (*MyIdentityProvidersListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MyIdentityProvidersListResp)
+	err := c.cc.Invoke(ctx, MyTenant_ListMyIdentityProviders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myTenantClient) GetMyIdentityProvider(ctx context.Context, in *MyIdentityProviderGetReq, opts ...grpc.CallOption) (*MyIdentityProviderGetResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MyIdentityProviderGetResp)
+	err := c.cc.Invoke(ctx, MyTenant_GetMyIdentityProvider_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myTenantClient) UpdateMyIdentityProvider(ctx context.Context, in *MyIdentityProviderUpdateReq, opts ...grpc.CallOption) (*MyIdentityProviderUpdateResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MyIdentityProviderUpdateResp)
+	err := c.cc.Invoke(ctx, MyTenant_UpdateMyIdentityProvider_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myTenantClient) DeleteMyIdentityProvider(ctx context.Context, in *MyIdentityProviderDeleteReq, opts ...grpc.CallOption) (*MyIdentityProviderDeleteResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MyIdentityProviderDeleteResp)
+	err := c.cc.Invoke(ctx, MyTenant_DeleteMyIdentityProvider_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MyTenantServer is the server API for MyTenant service.
 // All implementations must embed UnimplementedMyTenantServer
 // for forward compatibility.
@@ -76,6 +154,18 @@ type MyTenantServer interface {
 	GetMyPasswordPolicy(context.Context, *MyPasswordPolicyGetReq) (*MyPasswordPolicyGetResp, error)
 	// Update Password policy configuration
 	UpdateMyPasswordPolicy(context.Context, *MyPasswordPolicyUpdateReq) (*MyPasswordPolicyUpdateResp, error)
+	// List supported identity provider types (like Keycloak providers endpoint)
+	GetMyIdentityProviderTypes(context.Context, *IdentityProviderTypesGetReq) (*IdentityProviderTypesGetResp, error)
+	// Create identity provider instance (like Keycloak instances endpoint)
+	CreateMyIdentityProvider(context.Context, *MyIdentityProviderCreateReq) (*MyIdentityProviderCreateResp, error)
+	// List all configured identity provider instances for the tenant
+	ListMyIdentityProviders(context.Context, *MyIdentityProvidersListReq) (*MyIdentityProvidersListResp, error)
+	// Get identity provider configuration (like Keycloak instances endpoint)
+	GetMyIdentityProvider(context.Context, *MyIdentityProviderGetReq) (*MyIdentityProviderGetResp, error)
+	// Update identity provider configuration (like Keycloak instances endpoint)
+	UpdateMyIdentityProvider(context.Context, *MyIdentityProviderUpdateReq) (*MyIdentityProviderUpdateResp, error)
+	// Delete identity provider (like Keycloak instances endpoint)
+	DeleteMyIdentityProvider(context.Context, *MyIdentityProviderDeleteReq) (*MyIdentityProviderDeleteResp, error)
 	mustEmbedUnimplementedMyTenantServer()
 }
 
@@ -91,6 +181,24 @@ func (UnimplementedMyTenantServer) GetMyPasswordPolicy(context.Context, *MyPassw
 }
 func (UnimplementedMyTenantServer) UpdateMyPasswordPolicy(context.Context, *MyPasswordPolicyUpdateReq) (*MyPasswordPolicyUpdateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMyPasswordPolicy not implemented")
+}
+func (UnimplementedMyTenantServer) GetMyIdentityProviderTypes(context.Context, *IdentityProviderTypesGetReq) (*IdentityProviderTypesGetResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyIdentityProviderTypes not implemented")
+}
+func (UnimplementedMyTenantServer) CreateMyIdentityProvider(context.Context, *MyIdentityProviderCreateReq) (*MyIdentityProviderCreateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateMyIdentityProvider not implemented")
+}
+func (UnimplementedMyTenantServer) ListMyIdentityProviders(context.Context, *MyIdentityProvidersListReq) (*MyIdentityProvidersListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMyIdentityProviders not implemented")
+}
+func (UnimplementedMyTenantServer) GetMyIdentityProvider(context.Context, *MyIdentityProviderGetReq) (*MyIdentityProviderGetResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyIdentityProvider not implemented")
+}
+func (UnimplementedMyTenantServer) UpdateMyIdentityProvider(context.Context, *MyIdentityProviderUpdateReq) (*MyIdentityProviderUpdateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMyIdentityProvider not implemented")
+}
+func (UnimplementedMyTenantServer) DeleteMyIdentityProvider(context.Context, *MyIdentityProviderDeleteReq) (*MyIdentityProviderDeleteResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteMyIdentityProvider not implemented")
 }
 func (UnimplementedMyTenantServer) mustEmbedUnimplementedMyTenantServer() {}
 func (UnimplementedMyTenantServer) testEmbeddedByValue()                  {}
@@ -149,6 +257,114 @@ func _MyTenant_UpdateMyPasswordPolicy_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MyTenant_GetMyIdentityProviderTypes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdentityProviderTypesGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).GetMyIdentityProviderTypes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_GetMyIdentityProviderTypes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).GetMyIdentityProviderTypes(ctx, req.(*IdentityProviderTypesGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyTenant_CreateMyIdentityProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MyIdentityProviderCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).CreateMyIdentityProvider(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_CreateMyIdentityProvider_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).CreateMyIdentityProvider(ctx, req.(*MyIdentityProviderCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyTenant_ListMyIdentityProviders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MyIdentityProvidersListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).ListMyIdentityProviders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_ListMyIdentityProviders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).ListMyIdentityProviders(ctx, req.(*MyIdentityProvidersListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyTenant_GetMyIdentityProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MyIdentityProviderGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).GetMyIdentityProvider(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_GetMyIdentityProvider_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).GetMyIdentityProvider(ctx, req.(*MyIdentityProviderGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyTenant_UpdateMyIdentityProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MyIdentityProviderUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).UpdateMyIdentityProvider(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_UpdateMyIdentityProvider_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).UpdateMyIdentityProvider(ctx, req.(*MyIdentityProviderUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyTenant_DeleteMyIdentityProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MyIdentityProviderDeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).DeleteMyIdentityProvider(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_DeleteMyIdentityProvider_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).DeleteMyIdentityProvider(ctx, req.(*MyIdentityProviderDeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MyTenant_ServiceDesc is the grpc.ServiceDesc for MyTenant service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -163,6 +379,30 @@ var MyTenant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateMyPasswordPolicy",
 			Handler:    _MyTenant_UpdateMyPasswordPolicy_Handler,
+		},
+		{
+			MethodName: "GetMyIdentityProviderTypes",
+			Handler:    _MyTenant_GetMyIdentityProviderTypes_Handler,
+		},
+		{
+			MethodName: "CreateMyIdentityProvider",
+			Handler:    _MyTenant_CreateMyIdentityProvider_Handler,
+		},
+		{
+			MethodName: "ListMyIdentityProviders",
+			Handler:    _MyTenant_ListMyIdentityProviders_Handler,
+		},
+		{
+			MethodName: "GetMyIdentityProvider",
+			Handler:    _MyTenant_GetMyIdentityProvider_Handler,
+		},
+		{
+			MethodName: "UpdateMyIdentityProvider",
+			Handler:    _MyTenant_UpdateMyIdentityProvider_Handler,
+		},
+		{
+			MethodName: "DeleteMyIdentityProvider",
+			Handler:    _MyTenant_DeleteMyIdentityProvider_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
