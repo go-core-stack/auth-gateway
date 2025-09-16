@@ -156,19 +156,18 @@ func (s *MyTenantServer) UpdateMyPasswordPolicy(ctx context.Context, req *api.My
 // Identity Provider Management Methods - STUB IMPLEMENTATIONS
 
 func (s *MyTenantServer) GetMyIdentityProviderTypes(ctx context.Context, req *api.IdentityProviderTypesGetReq) (*api.IdentityProviderTypesGetResp, error) {
-	// Return available provider types metadata
-	allProviders := []*api.IdentityProviderTypesListEntry{
-		{
-			Type: "google",
-		},
-		{
-			Type: "microsoft",
-		},
+	resp := &api.IdentityProviderTypesGetResp{
+		Providers: []*api.IdentityProviderTypesListEntry{},
 	}
+	for k, v := range api.IdentityProviderDefs_Type_name {
+		if k == int32(api.IdentityProviderDefs_IdentityProviderUnspecified) {
+			continue
+		}
+		resp.Providers = append(resp.Providers, &api.IdentityProviderTypesListEntry{Type: v})
+	}
+	// Return available provider types metadata
 
-	return &api.IdentityProviderTypesGetResp{
-		Providers: allProviders,
-	}, nil
+	return resp, nil
 }
 
 func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderCreateReq) (*api.MyIdentityProviderCreateResp, error) {
