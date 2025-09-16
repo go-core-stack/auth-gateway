@@ -291,9 +291,6 @@ message MyIdentityProvidersListEntry {
 
   // Whether configuration is enabled
   bool enabled = 4;
-
-  // Created timestamp
-  int64 created = 5;
 }
 
 // Identity provider instance list response
@@ -325,17 +322,11 @@ message MyIdentityProviderGetResp {
   // Whether configuration is enabled
   bool enabled = 4;
 
-  // Created timestamp
-  int64 created = 5;
-
-  // Created by user
-  string created_by = 6;
-
   // configuration for Google Identity Provider
-  GoogleIDPConfig google = 7;
+  GoogleIDPConfig google = 5;
 
   // configuration for Microsoft Identity Provider
-  MicrosoftIDPConfig microsoft = 8;
+  MicrosoftIDPConfig microsoft = 6;
 }
 
 // Identity provider update request
