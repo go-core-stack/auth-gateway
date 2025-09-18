@@ -1,0 +1,22 @@
+name: Validate build for pull request
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+jobs:
+  build-pull-request:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Go Environment
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.24.x"
+    - name: Build docker image
+      env:
+        GIT_TOKEN: ${{secrets.ORG_GIT_TOKEN}}
+      run: |
+        make
+    - name: Cleanup build
+      run: |
+        sudo docker system prune -a -f
+        sudo docker image prune -a -f

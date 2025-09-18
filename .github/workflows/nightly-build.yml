@@ -1,0 +1,33 @@
+name: Nightly Build
+on:
+  schedule:
+  - cron: "30 19 * * *"
+  workflow_dispatch:
+jobs:
+  daily-build:
+    runs-on: self-hosted
+    steps:
+    - name: Create Image Tag
+      run: echo "TAG=$(TZ='Asia/Kolkata' date +'%F')" >> $GITHUB_ENV
+    - uses: actions/checkout@v2
+    - name: Login to docker hub
+      env:
+        DOCKER_USER: ${{secrets.PSETHI_DOCKER_USER}}
+        DOCKER_TOKEN: ${{secrets.PSETHI_DOCKER_PUSH_TOKEN}}
+      run: sudo docker login -u $DOCKER_USER -p $DOCKER_TOKEN
+    - name: Set up Go Environment
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.24.x"
+    - name: Build docker image
+      env:
+        GIT_TOKEN: ${{secrets.ORG_GIT_TOKEN}}
+      run: |
+        VERSION=${{ env.TAG }} make
+    - name: Push the docker image
+      run: VERSION=${{ env.TAG }} make push-images
+    - name: cleanup the docker
+      run: |
+        sudo docker logout
+        sudo docker system prune -a -f
+        sudo docker image prune -a -f
