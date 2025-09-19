@@ -1,5 +1,7 @@
 # Auth Gateway
 
+[![Nightly Image Build](https://github.com/go-core-stack/auth-gateway/actions/workflows/nightly-build.yml/badge.svg)](https://github.com/go-core-stack/auth-gateway/actions/workflows/nightly-build.yml)
+
 This repo provides construct to manage Tenants with hard and soft tenancy
 definitions to work with. Eventually this repo is also supposed to be offering
 options to work as both Authentication and Authorization Gateway for all the
