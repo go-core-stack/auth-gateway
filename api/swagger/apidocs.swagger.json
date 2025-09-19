@@ -2704,15 +2704,6 @@
           "type": "boolean",
           "title": "Whether configuration is enabled"
         },
-        "created": {
-          "type": "string",
-          "format": "int64",
-          "title": "Created timestamp"
-        },
-        "createdBy": {
-          "type": "string",
-          "title": "Created by user"
-        },
         "google": {
           "$ref": "#/definitions/apiGoogleIDPConfig",
           "title": "configuration for Google Identity Provider"
@@ -2746,11 +2737,6 @@
         "enabled": {
           "type": "boolean",
           "title": "Whether configuration is enabled"
-        },
-        "created": {
-          "type": "string",
-          "format": "int64",
-          "title": "Created timestamp"
         }
       },
       "title": "Identity provider list entry"

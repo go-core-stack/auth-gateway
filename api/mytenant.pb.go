@@ -987,9 +987,7 @@ type MyIdentityProvidersListEntry struct {
 	// Provider type
 	Type IdentityProviderDefs_Type `protobuf:"varint,3,opt,name=type,proto3,enum=api.IdentityProviderDefs_Type" json:"type,omitempty"`
 	// Whether configuration is enabled
-	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// Created timestamp
-	Created       int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	Enabled       bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1050,13 +1048,6 @@ func (x *MyIdentityProvidersListEntry) GetEnabled() bool {
 		return x.Enabled
 	}
 	return false
-}
-
-func (x *MyIdentityProvidersListEntry) GetCreated() int64 {
-	if x != nil {
-		return x.Created
-	}
-	return 0
 }
 
 // Identity provider instance list response
@@ -1171,14 +1162,10 @@ type MyIdentityProviderGetResp struct {
 	Type IdentityProviderDefs_Type `protobuf:"varint,3,opt,name=type,proto3,enum=api.IdentityProviderDefs_Type" json:"type,omitempty"`
 	// Whether configuration is enabled
 	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// Created timestamp
-	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
-	// Created by user
-	CreatedBy string `protobuf:"bytes,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	// configuration for Google Identity Provider
-	Google *GoogleIDPConfig `protobuf:"bytes,7,opt,name=google,proto3" json:"google,omitempty"`
+	Google *GoogleIDPConfig `protobuf:"bytes,5,opt,name=google,proto3" json:"google,omitempty"`
 	// configuration for Microsoft Identity Provider
-	Microsoft     *MicrosoftIDPConfig `protobuf:"bytes,8,opt,name=microsoft,proto3" json:"microsoft,omitempty"`
+	Microsoft     *MicrosoftIDPConfig `protobuf:"bytes,6,opt,name=microsoft,proto3" json:"microsoft,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1239,20 +1226,6 @@ func (x *MyIdentityProviderGetResp) GetEnabled() bool {
 		return x.Enabled
 	}
 	return false
-}
-
-func (x *MyIdentityProviderGetResp) GetCreated() int64 {
-	if x != nil {
-		return x.Created
-	}
-	return 0
-}
-
-func (x *MyIdentityProviderGetResp) GetCreatedBy() string {
-	if x != nil {
-		return x.CreatedBy
-	}
-	return ""
 }
 
 func (x *MyIdentityProviderGetResp) GetGoogle() *GoogleIDPConfig {
@@ -1557,28 +1530,24 @@ const file_mytenant_proto_rawDesc = "" +
 	"\n" +
 	"\b_enabledB\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_offset\"\xb4\x01\n" +
+	"\a_offset\"\x9a\x01\n" +
 	"\x1cMyIdentityProvidersListEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
 	"\bdispName\x18\x02 \x01(\tR\bdispName\x122\n" +
 	"\x04type\x18\x03 \x01(\x0e2\x1e.api.IdentityProviderDefs.TypeR\x04type\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\x12\x18\n" +
-	"\acreated\x18\x05 \x01(\x03R\acreated\"l\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\"l\n" +
 	"\x1bMyIdentityProvidersListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x127\n" +
 	"\x05items\x18\x02 \x03(\v2!.api.MyIdentityProvidersListEntryR\x05items\",\n" +
 	"\x18MyIdentityProviderGetReq\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\"\xb5\x02\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\"\xfc\x01\n" +
 	"\x19MyIdentityProviderGetResp\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
 	"\bdispName\x18\x02 \x01(\tR\bdispName\x122\n" +
 	"\x04type\x18\x03 \x01(\x0e2\x1e.api.IdentityProviderDefs.TypeR\x04type\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\x12\x18\n" +
-	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1d\n" +
-	"\n" +
-	"created_by\x18\x06 \x01(\tR\tcreatedBy\x12,\n" +
-	"\x06google\x18\a \x01(\v2\x14.api.GoogleIDPConfigR\x06google\x125\n" +
-	"\tmicrosoft\x18\b \x01(\v2\x17.api.MicrosoftIDPConfigR\tmicrosoft\"\xfe\x01\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12,\n" +
+	"\x06google\x18\x05 \x01(\v2\x14.api.GoogleIDPConfigR\x06google\x125\n" +
+	"\tmicrosoft\x18\x06 \x01(\v2\x17.api.MicrosoftIDPConfigR\tmicrosoft\"\xfe\x01\n" +
 	"\x1bMyIdentityProviderUpdateReq\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
 	"\bdispName\x18\x02 \x01(\tR\bdispName\x12\x18\n" +
