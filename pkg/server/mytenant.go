@@ -210,7 +210,7 @@ func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.
 	token, err := s.client.GetAccessToken()
 	if err != nil {
 		log.Printf("failed to get access token: %s", err)
-		return nil, status.Error(codes.Internal, "authentication failed")
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
 	// Create identity provider based on type
@@ -223,18 +223,20 @@ func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.
 			return nil, status.Error(codes.InvalidArgument, "Google client ID and secret are required")
 		}
 
-		// validate Google client ID format (should end with .googleusercontent.com)
-		if !strings.HasSuffix(req.Google.ClientId, ".googleusercontent.com") {
-			return nil, status.Error(codes.InvalidArgument, "Google client ID must end with .googleusercontent.com")
-		}
-
-		// Validate hosted domain format if provided
-		if req.Google.HostedDomain != "" {
-			domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
-			if !domainRegex.MatchString(req.Google.HostedDomain) {
-				return nil, status.Error(codes.InvalidArgument, "hosted domain must be a valid domain name")
+		/*
+			// validate Google client ID format (should end with .googleusercontent.com)
+			if !strings.HasSuffix(req.Google.ClientId, ".googleusercontent.com") {
+				return nil, status.Error(codes.InvalidArgument, "Google client ID must end with .googleusercontent.com")
 			}
-		}
+
+			// Validate hosted domain format if provided
+			if req.Google.HostedDomain != "" {
+				domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
+				if !domainRegex.MatchString(req.Google.HostedDomain) {
+					return nil, status.Error(codes.InvalidArgument, "hosted domain must be a valid domain name")
+				}
+			}
+		*/
 
 		// Build Google IDP configuration
 		idpConfig := map[string]string{
@@ -245,6 +247,7 @@ func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.
 			"createdBy": authInfo.UserName,
 		}
 
+		// set hosted domain if provided
 		if req.Google.HostedDomain != "" {
 			idpConfig["hostedDomain"] = req.Google.HostedDomain
 		}
@@ -260,7 +263,7 @@ func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.
 		_, err = s.client.CreateIdentityProvider(ctx, token, authInfo.Realm, idpRep)
 		if err != nil {
 			log.Printf("failed to create Google identity provider: %s", err)
-			return nil, status.Error(codes.Internal, "failed to create identity provider")
+			return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 		}
 
 	case api.IdentityProviderDefs_Microsoft:
@@ -271,26 +274,28 @@ func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.
 			return nil, status.Error(codes.InvalidArgument, "Microsoft client ID and secret are required")
 		}
 
-		// validate Microsoft client ID format (should be a GUID)
-		guidRegex := regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
-		if !guidRegex.MatchString(req.Microsoft.ClientId) {
-			return nil, status.Error(codes.InvalidArgument, "Microsoft client ID must be a valid GUID format")
-		}
+		/*
+				// validate Microsoft client ID format (should be a GUID)
+				guidRegex := regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+				if !guidRegex.MatchString(req.Microsoft.ClientId) {
+					return nil, status.Error(codes.InvalidArgument, "Microsoft client ID must be a valid GUID format")
+				}
 
-		// Validate tenant ID format if provided
-		if req.Microsoft.TenantId != "" {
-			// Tenant ID can be a GUID, domain name, or special azure AD value.
-			isSpecialValue := req.Microsoft.TenantId == "common" || req.Microsoft.TenantId == "organizations" || req.Microsoft.TenantId == "consumers"
-			isGUID := guidRegex.MatchString(req.Microsoft.TenantId)
+			// Validate tenant ID format if provided
+			if req.Microsoft.TenantId != "" {
+				// Tenant ID can be a GUID, domain name, or special azure AD value.
+				isSpecialValue := req.Microsoft.TenantId == "common" || req.Microsoft.TenantId == "organizations" || req.Microsoft.TenantId == "consumers"
+				isGUID := guidRegex.MatchString(req.Microsoft.TenantId)
 
-			if !isSpecialValue && !isGUID {
-				// Check if it's a valid domain name
-				domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
-				if !domainRegex.MatchString(req.Microsoft.TenantId) {
-					return nil, status.Error(codes.InvalidArgument, "Microsoft tenant ID must be a valid GUID, domain name, or one of: common, organizations, consumers")
+				if !isSpecialValue && !isGUID {
+					// Check if it's a valid domain name
+					domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
+					if !domainRegex.MatchString(req.Microsoft.TenantId) {
+						return nil, status.Error(codes.InvalidArgument, "Microsoft tenant ID must be a valid GUID, domain name, or one of: common, organizations, consumers")
+					}
 				}
 			}
-		}
+		*/
 
 		// Build Microsoft IDP configuration
 		idpConfig := map[string]string{
@@ -301,6 +306,7 @@ func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.
 			"createdBy": authInfo.UserName,
 		}
 
+		// set tenant id if provided
 		if req.Microsoft.TenantId != "" {
 			idpConfig["tenantId"] = req.Microsoft.TenantId
 		}
@@ -316,7 +322,7 @@ func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.
 		_, err = s.client.CreateIdentityProvider(ctx, token, authInfo.Realm, idpRep)
 		if err != nil {
 			log.Printf("failed to create Microsoft identity provider: %s", err)
-			return nil, status.Error(codes.Internal, "failed to create identity provider")
+			return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 		}
 
 	default:
@@ -335,7 +341,7 @@ func (s *MyTenantServer) ListMyIdentityProviders(ctx context.Context, req *api.M
 	token, err := s.client.GetAccessToken()
 	if err != nil {
 		log.Printf("failed to get access token: %s", err)
-		return nil, status.Error(codes.Internal, "authentication failed")
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
 	// Get identity providers from Keycloak
@@ -355,7 +361,7 @@ func (s *MyTenantServer) ListMyIdentityProviders(ctx context.Context, req *api.M
 			}
 		}
 		log.Printf("failed to list identity providers: %s", err)
-		return nil, status.Error(codes.Internal, "failed to list identity providers")
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
 	var filteredInstances []*api.MyIdentityProvidersListEntry
@@ -463,7 +469,7 @@ func (s *MyTenantServer) GetMyIdentityProvider(ctx context.Context, req *api.MyI
 	token, err := s.client.GetAccessToken()
 	if err != nil {
 		log.Printf("failed to get access token: %s", err)
-		return nil, status.Error(codes.Internal, "authentication failed")
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
 	// Get identity provider from Keycloak
@@ -583,7 +589,7 @@ func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.
 	token, err := s.client.GetAccessToken()
 	if err != nil {
 		log.Printf("failed to get access token: %s", err)
-		return nil, status.Error(codes.Internal, "authentication failed")
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
 	// Check if provider exists and get its type
@@ -651,7 +657,7 @@ func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.
 			err = s.client.UpdateIdentityProvider(ctx, token, authInfo.Realm, req.Key, idpRep)
 			if err != nil {
 				log.Printf("failed to update Google identity provider: %s", err)
-				return status.Error(codes.Internal, "failed to update identity provider")
+				return status.Error(codes.Internal, "Something went wrong, please try again later")
 			}
 			return nil
 		},
@@ -714,7 +720,7 @@ func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.
 			err = s.client.UpdateIdentityProvider(ctx, token, authInfo.Realm, req.Key, idpRep)
 			if err != nil {
 				log.Printf("failed to update Microsoft identity provider: %s", err)
-				return status.Error(codes.Internal, "failed to update identity provider")
+				return status.Error(codes.Internal, "Something went wrong, please try again later")
 			}
 			return nil
 		},
@@ -746,7 +752,7 @@ func (s *MyTenantServer) DeleteMyIdentityProvider(ctx context.Context, req *api.
 	token, err := s.client.GetAccessToken()
 	if err != nil {
 		log.Printf("failed to get access token: %s", err)
-		return nil, status.Error(codes.Internal, "authentication failed")
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
 	// Check if provider exists before deleting
@@ -760,7 +766,7 @@ func (s *MyTenantServer) DeleteMyIdentityProvider(ctx context.Context, req *api.
 	err = s.client.DeleteIdentityProvider(ctx, token, authInfo.Realm, req.Key)
 	if err != nil {
 		log.Printf("failed to delete identity provider '%s': %s", req.Key, err)
-		return nil, status.Error(codes.Internal, "failed to delete identity provider")
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
 	return &api.MyIdentityProviderDeleteResp{}, nil
