@@ -5,6 +5,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -25,7 +26,6 @@ import (
 type MyTenantServer struct {
 	api.UnimplementedMyTenantServer
 	client *keycloak.Client
-	// idpTable *table.IdentityProviderTable // REMOVED - using stubs instead
 }
 
 func (s *MyTenantServer) GetMyPasswordPolicy(ctx context.Context, req *api.MyPasswordPolicyGetReq) (*api.MyPasswordPolicyGetResp, error) {
@@ -153,7 +153,7 @@ func (s *MyTenantServer) UpdateMyPasswordPolicy(ctx context.Context, req *api.My
 	return &api.MyPasswordPolicyUpdateResp{}, nil
 }
 
-// Identity Provider Management Methods - STUB IMPLEMENTATIONS
+// Identity Provider Management Methods
 
 func (s *MyTenantServer) GetMyIdentityProviderTypes(ctx context.Context, req *api.IdentityProviderTypesGetReq) (*api.IdentityProviderTypesGetResp, error) {
 	resp := &api.IdentityProviderTypesGetResp{
@@ -181,11 +181,154 @@ func (s *MyTenantServer) CreateMyIdentityProvider(ctx context.Context, req *api.
 		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
 	}
 
+	// validate key format (only alphanumeric, hyphens, underscores)
+	keyRegex := regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+	if !keyRegex.MatchString(req.Key) {
+		return nil, status.Error(codes.InvalidArgument, "identity provider key must contain only alphanumeric characters, hyphens, and underscores")
+	}
+
+	// key length limits
+	if len(req.Key) < 2 || len(req.Key) > 50 {
+		return nil, status.Error(codes.InvalidArgument, "identity provider key must be between 2 and 50 characters")
+	}
+
 	if req.Type == api.IdentityProviderDefs_IdentityProviderUnspecified {
 		return nil, status.Error(codes.InvalidArgument, "provider type is required")
 	}
 
-	// STUB: Just return success without actual creation
+	// Use Alias(Key) as display name if not provided
+	displayName := strings.TrimSpace(req.DispName)
+	if displayName == "" {
+		displayName = req.Key
+	}
+
+	// display name length limit check
+	if len(displayName) > 30 {
+		return nil, status.Error(codes.InvalidArgument, "display name must not exceed 30 characters")
+	}
+
+	token, err := s.client.GetAccessToken()
+	if err != nil {
+		log.Printf("failed to get access token: %s", err)
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	// Create identity provider based on type
+	switch req.Type {
+	case api.IdentityProviderDefs_Google:
+		if req.Google == nil {
+			return nil, status.Error(codes.InvalidArgument, "Google configuration is required")
+		}
+		if req.Google.ClientId == "" || req.Google.ClientSecret == "" {
+			return nil, status.Error(codes.InvalidArgument, "Google client ID and secret are required")
+		}
+
+		/*
+			// validate Google client ID format (should end with .googleusercontent.com)
+			if !strings.HasSuffix(req.Google.ClientId, ".googleusercontent.com") {
+				return nil, status.Error(codes.InvalidArgument, "Google client ID must end with .googleusercontent.com")
+			}
+
+			// Validate hosted domain format if provided
+			if req.Google.HostedDomain != "" {
+				domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
+				if !domainRegex.MatchString(req.Google.HostedDomain) {
+					return nil, status.Error(codes.InvalidArgument, "hosted domain must be a valid domain name")
+				}
+			}
+		*/
+
+		// Build Google IDP configuration
+		idpConfig := map[string]string{
+			"clientId":     req.Google.ClientId,
+			"clientSecret": req.Google.ClientSecret,
+			// Store creation metadata
+			"createdAt": fmt.Sprintf("%d", time.Now().Unix()),
+			"createdBy": authInfo.UserName,
+		}
+
+		// set hosted domain if provided
+		if req.Google.HostedDomain != "" {
+			idpConfig["hostedDomain"] = req.Google.HostedDomain
+		}
+
+		idpRep := gocloak.IdentityProviderRepresentation{
+			Alias:       &req.Key,
+			DisplayName: &displayName,
+			ProviderID:  gocloak.StringP("google"),
+			Enabled:     gocloak.BoolP(req.Enabled),
+			Config:      &idpConfig,
+		}
+
+		_, err = s.client.CreateIdentityProvider(ctx, token, authInfo.Realm, idpRep)
+		if err != nil {
+			log.Printf("failed to create Google identity provider: %s", err)
+			return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
+		}
+
+	case api.IdentityProviderDefs_Microsoft:
+		if req.Microsoft == nil {
+			return nil, status.Error(codes.InvalidArgument, "Microsoft configuration is required")
+		}
+		if req.Microsoft.ClientId == "" || req.Microsoft.ClientSecret == "" {
+			return nil, status.Error(codes.InvalidArgument, "Microsoft client ID and secret are required")
+		}
+
+		/*
+				// validate Microsoft client ID format (should be a GUID)
+				guidRegex := regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+				if !guidRegex.MatchString(req.Microsoft.ClientId) {
+					return nil, status.Error(codes.InvalidArgument, "Microsoft client ID must be a valid GUID format")
+				}
+
+			// Validate tenant ID format if provided
+			if req.Microsoft.TenantId != "" {
+				// Tenant ID can be a GUID, domain name, or special azure AD value.
+				isSpecialValue := req.Microsoft.TenantId == "common" || req.Microsoft.TenantId == "organizations" || req.Microsoft.TenantId == "consumers"
+				isGUID := guidRegex.MatchString(req.Microsoft.TenantId)
+
+				if !isSpecialValue && !isGUID {
+					// Check if it's a valid domain name
+					domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
+					if !domainRegex.MatchString(req.Microsoft.TenantId) {
+						return nil, status.Error(codes.InvalidArgument, "Microsoft tenant ID must be a valid GUID, domain name, or one of: common, organizations, consumers")
+					}
+				}
+			}
+		*/
+
+		// Build Microsoft IDP configuration
+		idpConfig := map[string]string{
+			"clientId":     req.Microsoft.ClientId,
+			"clientSecret": req.Microsoft.ClientSecret,
+			// Store creation metadata
+			"createdAt": fmt.Sprintf("%d", time.Now().Unix()),
+			"createdBy": authInfo.UserName,
+		}
+
+		// set tenant id if provided
+		if req.Microsoft.TenantId != "" {
+			idpConfig["tenantId"] = req.Microsoft.TenantId
+		}
+
+		idpRep := gocloak.IdentityProviderRepresentation{
+			Alias:       &req.Key,
+			DisplayName: &displayName,
+			ProviderID:  gocloak.StringP("microsoft"),
+			Enabled:     gocloak.BoolP(req.Enabled),
+			Config:      &idpConfig,
+		}
+
+		_, err = s.client.CreateIdentityProvider(ctx, token, authInfo.Realm, idpRep)
+		if err != nil {
+			log.Printf("failed to create Microsoft identity provider: %s", err)
+			return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
+		}
+
+	default:
+		return nil, status.Error(codes.InvalidArgument, "unsupported provider type")
+	}
+
 	return &api.MyIdentityProviderCreateResp{}, nil
 }
 
@@ -195,45 +338,98 @@ func (s *MyTenantServer) ListMyIdentityProviders(ctx context.Context, req *api.M
 		return nil, status.Error(codes.Unauthenticated, "authentication required")
 	}
 
-	// STUB: Return mock data
-	mockInstances := []*api.MyIdentityProvidersListEntry{
-		{
-			Key:      "google-sso",
-			DispName: "Google SSO",
-			Type:     api.IdentityProviderDefs_Google,
-			Enabled:  true,
-			Created:  time.Now().Unix() - 86400, // 1 day ago
-		},
-		{
-			Key:      "microsoft-sso",
-			DispName: "Microsoft SSO",
-			Type:     api.IdentityProviderDefs_Microsoft,
-			Enabled:  false,
-			Created:  time.Now().Unix() - 7200, // 2 hours ago
-		},
+	token, err := s.client.GetAccessToken()
+	if err != nil {
+		log.Printf("failed to get access token: %s", err)
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
-	// Apply filters if provided
+	// Get identity providers from Keycloak
+	idps, err := s.client.GetIdentityProviders(ctx, token, authInfo.Realm)
+	if err != nil {
+		var apiErr gocloak.APIError
+		if errors.As(err, &apiErr) {
+			switch apiErr.Code {
+			case 401:
+				return nil, status.Error(codes.Unauthenticated, "unauthorized")
+			case 403:
+				return nil, status.Error(codes.PermissionDenied, "permission denied")
+			case 404:
+				return nil, status.Error(codes.NotFound, "resource not found")
+			default:
+				// fallthrough
+			}
+		}
+		log.Printf("failed to list identity providers: %s", err)
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
+	}
+
 	var filteredInstances []*api.MyIdentityProvidersListEntry
-	for _, instance := range mockInstances {
+	for _, idp := range idps {
+		alias := ""
+		if idp.Alias != nil {
+			alias = *idp.Alias
+		}
+
+		displayName := ""
+		if idp.DisplayName != nil {
+			displayName = *idp.DisplayName
+		}
+
+		providerID := ""
+		if idp.ProviderID != nil {
+			providerID = *idp.ProviderID
+		}
+
+		enabled := false
+		if idp.Enabled != nil {
+			enabled = *idp.Enabled
+		}
+
+		// Convert provider ID to our enum
+		var providerType api.IdentityProviderDefs_Type
+		switch providerID {
+		case "google":
+			providerType = api.IdentityProviderDefs_Google
+		case "microsoft":
+			providerType = api.IdentityProviderDefs_Microsoft
+		default:
+			continue // Skip unsupported providers
+		}
+
 		// Filter by provider type
 		if req.Type != nil {
-			if instance.Type != *req.Type {
+			if providerType != *req.Type {
 				continue
 			}
 		}
 
 		// Filter by enabled status
 		if req.Enabled != nil {
-			if instance.Enabled != *req.Enabled {
+			if enabled != *req.Enabled {
 				continue
 			}
 		}
 
-		filteredInstances = append(filteredInstances, instance)
+		// Get creation metadata from config
+		var created int64
+		if idp.Config != nil {
+			if createdAtStr, exists := (*idp.Config)["createdAt"]; exists {
+				if createdAtInt, err := strconv.ParseInt(createdAtStr, 10, 64); err == nil {
+					created = createdAtInt
+				}
+			}
+		}
+
+		filteredInstances = append(filteredInstances, &api.MyIdentityProvidersListEntry{
+			Key:      alias,
+			DispName: displayName,
+			Type:     providerType,
+			Enabled:  enabled,
+			Created:  created,
+		})
 	}
 
-	// Apply pagination
 	totalCount := len(filteredInstances)
 	offset := int(req.GetOffset())
 	limit := int(req.GetLimit())
@@ -270,39 +466,97 @@ func (s *MyTenantServer) GetMyIdentityProvider(ctx context.Context, req *api.MyI
 		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
 	}
 
-	// STUB: Return mock data based on key
-	switch req.Key {
-	case "google-sso":
-		return &api.MyIdentityProviderGetResp{
-			Key:       "google-sso",
-			DispName:  "Google SSO",
-			Type:      api.IdentityProviderDefs_Google,
-			Enabled:   true,
-			Created:   time.Now().Unix() - 86400,
-			CreatedBy: "admin",
-			Google: &api.GoogleIDPConfig{
-				ClientId:     "stub-google-client-id",
-				ClientSecret: "stub-google-client-secret",
-				HostedDomain: "example.com",
-			},
-		}, nil
-	case "microsoft-sso":
-		return &api.MyIdentityProviderGetResp{
-			Key:       "microsoft-sso",
-			DispName:  "Microsoft SSO",
-			Type:      api.IdentityProviderDefs_Microsoft,
-			Enabled:   false,
-			Created:   time.Now().Unix() - 7200,
-			CreatedBy: "admin",
-			Microsoft: &api.MicrosoftIDPConfig{
-				ClientId:     "stub-microsoft-client-id",
-				ClientSecret: "stub-microsoft-client-secret",
-				TenantId:     "common",
-			},
-		}, nil
-	default:
-		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found (STUB)", req.Key)
+	token, err := s.client.GetAccessToken()
+	if err != nil {
+		log.Printf("failed to get access token: %s", err)
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
+
+	// Get identity provider from Keycloak
+	idp, err := s.client.GetIdentityProvider(ctx, token, authInfo.Realm, req.Key)
+	if err != nil {
+		log.Printf("failed to get identity provider '%s': %s", req.Key, err)
+		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found", req.Key)
+	}
+
+	alias := ""
+	if idp.Alias != nil {
+		alias = *idp.Alias
+	}
+
+	displayName := ""
+	if idp.DisplayName != nil {
+		displayName = *idp.DisplayName
+	}
+
+	providerID := ""
+	if idp.ProviderID != nil {
+		providerID = *idp.ProviderID
+	}
+
+	enabled := false
+	if idp.Enabled != nil {
+		enabled = *idp.Enabled
+	}
+
+	// Get configuration from Keycloak and populate response based on provider type
+	config := make(map[string]string)
+	if idp.Config != nil {
+		config = *idp.Config
+	}
+
+	// Extract creation metadata from config
+	var created int64
+	var createdBy string
+	if createdAtStr, exists := config["createdAt"]; exists {
+		if createdAtInt, err := strconv.ParseInt(createdAtStr, 10, 64); err == nil {
+			created = createdAtInt
+		}
+	}
+	if cb, exists := config["createdBy"]; exists {
+		createdBy = cb
+	}
+
+	resp := &api.MyIdentityProviderGetResp{
+		Key:       alias,
+		DispName:  displayName,
+		Enabled:   enabled,
+		Created:   created,
+		CreatedBy: createdBy,
+	}
+
+	// Get configuration from Keycloak and populate response based on provider type
+
+	switch providerID {
+	case "google":
+		resp.Type = api.IdentityProviderDefs_Google
+		clientID := config["clientId"]
+		clientSecret := config["clientSecret"]
+		hostedDomain := config["hostedDomain"]
+
+		resp.Google = &api.GoogleIDPConfig{
+			ClientId:     clientID,
+			ClientSecret: clientSecret,
+			HostedDomain: hostedDomain,
+		}
+
+	case "microsoft":
+		resp.Type = api.IdentityProviderDefs_Microsoft
+		clientID := config["clientId"]
+		clientSecret := config["clientSecret"]
+		tenantID := config["tenantId"] // Will be empty string if not set
+
+		resp.Microsoft = &api.MicrosoftIDPConfig{
+			ClientId:     clientID,
+			ClientSecret: clientSecret,
+			TenantId:     tenantID,
+		}
+
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "unsupported provider type: %s", providerID)
+	}
+
+	return resp, nil
 }
 
 func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.MyIdentityProviderUpdateReq) (*api.MyIdentityProviderUpdateResp, error) {
@@ -315,21 +569,173 @@ func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.
 		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
 	}
 
-	// STUB: Simulate checking if provider exists
-	validKeys := []string{"google-sso", "microsoft-sso"}
-	found := false
-	for _, validKey := range validKeys {
-		if req.Key == validKey {
-			found = true
-			break
-		}
+	// validate key format (should match creation validation)
+	keyRegex := regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+	if !keyRegex.MatchString(req.Key) {
+		return nil, status.Error(codes.InvalidArgument, "identity provider key must contain only alphanumeric characters, hyphens, and underscores")
 	}
 
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found (STUB)", req.Key)
+	// handle display name validation
+	displayName := strings.TrimSpace(req.DispName)
+	if displayName == "" {
+		displayName = req.Key
 	}
 
-	// STUB: Just return success without actual update
+	// display name length limit check
+	if len(displayName) > 30 {
+		return nil, status.Error(codes.InvalidArgument, "display name must not exceed 30 characters")
+	}
+
+	token, err := s.client.GetAccessToken()
+	if err != nil {
+		log.Printf("failed to get access token: %s", err)
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	// Check if provider exists and get its type
+	idp, err := s.client.GetIdentityProvider(ctx, token, authInfo.Realm, req.Key)
+	if err != nil {
+		log.Printf("failed to get identity provider '%s': %s", req.Key, err)
+		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found", req.Key)
+	}
+
+	// Get existing configuration to preserve creation metadata
+	existingConfig := make(map[string]string)
+	if idp.Config != nil {
+		existingConfig = *idp.Config
+	}
+
+	// Define handler map for different provider types
+	updateHandlers := map[api.IdentityProviderDefs_Type]func() error{
+		api.IdentityProviderDefs_Google: func() error {
+			if req.Google == nil {
+				return status.Error(codes.InvalidArgument, "Google configuration is required")
+			}
+			if req.Google.ClientId == "" || req.Google.ClientSecret == "" {
+				return status.Error(codes.InvalidArgument, "Google client ID and secret are required")
+			}
+
+			// validate Google client ID format (should end with .googleusercontent.com)
+			if !strings.HasSuffix(req.Google.ClientId, ".googleusercontent.com") {
+				return status.Error(codes.InvalidArgument, "Google client ID must end with .googleusercontent.com")
+			}
+
+			// validate hosted domain format if provided
+			if req.Google.HostedDomain != "" {
+				domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
+				if !domainRegex.MatchString(req.Google.HostedDomain) {
+					return status.Error(codes.InvalidArgument, "hosted domain must be a valid domain name")
+				}
+			}
+
+			// Build Google IDP configuration
+			idpConfig := map[string]string{
+				"clientId":     req.Google.ClientId,
+				"clientSecret": req.Google.ClientSecret,
+			}
+
+			if req.Google.HostedDomain != "" {
+				idpConfig["hostedDomain"] = req.Google.HostedDomain
+			}
+
+			// Preserve creation metadata
+			if createdAt, exists := existingConfig["createdAt"]; exists {
+				idpConfig["createdAt"] = createdAt
+			}
+			if createdBy, exists := existingConfig["createdBy"]; exists {
+				idpConfig["createdBy"] = createdBy
+			}
+
+			idpRep := gocloak.IdentityProviderRepresentation{
+				Alias:       &req.Key,
+				DisplayName: &displayName,
+				ProviderID:  gocloak.StringP("google"),
+				Enabled:     &req.Enabled,
+				Config:      &idpConfig,
+			}
+
+			err = s.client.UpdateIdentityProvider(ctx, token, authInfo.Realm, req.Key, idpRep)
+			if err != nil {
+				log.Printf("failed to update Google identity provider: %s", err)
+				return status.Error(codes.Internal, "Something went wrong, please try again later")
+			}
+			return nil
+		},
+
+		api.IdentityProviderDefs_Microsoft: func() error {
+			if req.Microsoft == nil {
+				return status.Error(codes.InvalidArgument, "Microsoft configuration is required")
+			}
+			if req.Microsoft.ClientId == "" || req.Microsoft.ClientSecret == "" {
+				return status.Error(codes.InvalidArgument, "Microsoft client ID and secret are required")
+			}
+
+			// Validate Microsoft client ID format (should be a valid GUID)
+			guidPattern := regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+			if !guidPattern.MatchString(req.Microsoft.ClientId) {
+				return status.Error(codes.InvalidArgument, "Microsoft client ID must be a valid GUID")
+			}
+
+			// Validate tenant ID if provided
+			if req.Microsoft.TenantId != "" {
+				// Tenant ID can be a GUID, domain name, or special Azure AD values
+				isSpecialValue := req.Microsoft.TenantId == "common" || req.Microsoft.TenantId == "organizations" || req.Microsoft.TenantId == "consumers"
+				isGUID := guidPattern.MatchString(req.Microsoft.TenantId)
+
+				if !isSpecialValue && !isGUID {
+					// Check if it's a valid domain name
+					domainPattern := regexp.MustCompile(`^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$`)
+					if !domainPattern.MatchString(req.Microsoft.TenantId) {
+						return status.Error(codes.InvalidArgument, "Microsoft tenant ID must be a valid GUID, domain name, or one of: common, organizations, consumers")
+					}
+				}
+			}
+
+			// Build Microsoft IDP configuration
+			idpConfig := map[string]string{
+				"clientId":     req.Microsoft.ClientId,
+				"clientSecret": req.Microsoft.ClientSecret,
+			}
+
+			if req.Microsoft.TenantId != "" {
+				idpConfig["tenantId"] = req.Microsoft.TenantId
+			}
+
+			// Preserve creation metadata
+			if createdAt, exists := existingConfig["createdAt"]; exists {
+				idpConfig["createdAt"] = createdAt
+			}
+			if createdBy, exists := existingConfig["createdBy"]; exists {
+				idpConfig["createdBy"] = createdBy
+			}
+
+			idpRep := gocloak.IdentityProviderRepresentation{
+				Alias:       &req.Key,
+				DisplayName: &displayName,
+				ProviderID:  gocloak.StringP("microsoft"),
+				Enabled:     &req.Enabled,
+				Config:      &idpConfig,
+			}
+
+			err = s.client.UpdateIdentityProvider(ctx, token, authInfo.Realm, req.Key, idpRep)
+			if err != nil {
+				log.Printf("failed to update Microsoft identity provider: %s", err)
+				return status.Error(codes.Internal, "Something went wrong, please try again later")
+			}
+			return nil
+		},
+	}
+
+	// Update identity provider using handler map
+	handler, exists := updateHandlers[req.Type]
+	if !exists {
+		return nil, status.Error(codes.InvalidArgument, "unsupported provider type")
+	}
+
+	if err := handler(); err != nil {
+		return nil, err
+	}
+
 	return &api.MyIdentityProviderUpdateResp{}, nil
 }
 
@@ -343,36 +749,34 @@ func (s *MyTenantServer) DeleteMyIdentityProvider(ctx context.Context, req *api.
 		return nil, status.Error(codes.InvalidArgument, "identity provider key is required")
 	}
 
-	// STUB: Simulate checking if provider exists
-	validKeys := []string{"google-sso", "microsoft-sso"}
-	found := false
-	for _, validKey := range validKeys {
-		if req.Key == validKey {
-			found = true
-			break
-		}
+	token, err := s.client.GetAccessToken()
+	if err != nil {
+		log.Printf("failed to get access token: %s", err)
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
 	}
 
-	if !found {
-		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found (STUB)", req.Key)
+	// Check if provider exists before deleting
+	_, err = s.client.GetIdentityProvider(ctx, token, authInfo.Realm, req.Key)
+	if err != nil {
+		log.Printf("failed to get identity provider '%s': %s", req.Key, err)
+		return nil, status.Errorf(codes.NotFound, "identity provider '%s' not found", req.Key)
 	}
 
-	// STUB: Just return success without actual deletion
+	// Delete the identity provider
+	err = s.client.DeleteIdentityProvider(ctx, token, authInfo.Realm, req.Key)
+	if err != nil {
+		log.Printf("failed to delete identity provider '%s': %s", req.Key, err)
+		return nil, status.Error(codes.Internal, "Something went wrong, please try again later")
+	}
+
 	return &api.MyIdentityProviderDeleteResp{}, nil
 }
 
-// Helper methods for Identity Provider Management - REMOVED (STUBS DON'T NEED THESE)
+// Helper methods for Identity Provider Management
 
 func NewMyTenantServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *MyTenantServer {
-	// REMOVED: Database dependency - using stubs instead
-	// idpTbl, err := table.GetIdentityProviderTable()
-	// if err != nil {
-	//	log.Panicf("failed to get identity provider table: %s", err)
-	// }
-
 	srv := &MyTenantServer{
 		client: client,
-		// idpTable: idpTbl, // REMOVED - using stubs instead
 	}
 	api.RegisterMyTenantServer(ctx.Server, srv)
 	err := api.RegisterMyTenantHandler(context.Background(), ctx.Mux, ctx.Conn)
