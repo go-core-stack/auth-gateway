@@ -28,6 +28,114 @@ type SetupReconciler struct {
 	ctrl *SetupController
 }
 
+const (
+	// Auth Flows
+	BrowserFlow      = "auth browser"
+	IDPPostLoginFlow = "auth idp post login"
+)
+
+// update or create required auth flows in the realm
+// and use the default or provided configurations to
+// update the same
+func (r *SetupReconciler) updateRealmAuthFlows(realm string) error {
+	token, err := r.ctrl.client.GetAccessToken()
+	if err != nil {
+		log.Panicf("keycloak session not active: %s", err)
+	}
+	ctx := context.Background()
+	// check if the required auth flows are already created
+	flows, err := r.ctrl.client.GetAuthenticationFlows(ctx, token, realm)
+	if err != nil {
+		log.Printf("Failed fetching existing flows: error: %s", err)
+		return err
+	}
+	var browserFlow, idpPostLoginFlow bool
+	for _, f := range flows {
+		if *f.Alias == IDPPostLoginFlow {
+			idpPostLoginFlow = true
+		}
+		if *f.Alias == BrowserFlow {
+			browserFlow = true
+		}
+	}
+	// if identity provider post login flow is not created, create it
+	if !idpPostLoginFlow {
+		flow := gocloak.AuthenticationFlowRepresentation{
+			Alias:       gocloak.StringP(IDPPostLoginFlow),
+			BuiltIn:     gocloak.BoolP(false),
+			Description: gocloak.StringP("Identity Provider post login auth checks"),
+			ProviderID:  gocloak.StringP("basic-flow"),
+			TopLevel:    gocloak.BoolP(true),
+		}
+		err = r.ctrl.client.CreateAuthenticationFlow(ctx, token, realm, flow)
+		if err != nil {
+			log.Printf("failed to create Auth IDP post login flow, error: %s", err)
+			return err
+		}
+	}
+
+	e, err := r.ctrl.client.LocateAuthenticationExecution(ctx, token, realm, IDPPostLoginFlow, "user-session-limits")
+	if err != nil {
+		return err
+	}
+
+	err = r.ctrl.client.ConfigureUserSessionLimit(ctx, token, realm, e, 5, false, IDPPostLoginFlow+" session limiter", "")
+	if err != nil {
+		return err
+	}
+
+	e.Requirement = gocloak.StringP("REQUIRED")
+	err = r.ctrl.client.UpdateAuthenticationExecution(ctx, token, realm, IDPPostLoginFlow, *e)
+	if err != nil {
+		log.Printf("failed to enable user session limit config, error: %s", err)
+		return err
+	}
+
+	if !browserFlow {
+		err = r.ctrl.client.CopyAuthenticationFlow(ctx, token, realm, "browser", BrowserFlow)
+		if err != nil {
+			log.Printf("failed to create Auth browser login flow, error: %s", err)
+			return err
+		}
+	}
+
+	// ensure configuration in the realm to use custom auth flows for login
+	updateRealm := gocloak.RealmRepresentation{
+		Realm:       gocloak.StringP(realm),
+		BrowserFlow: gocloak.StringP(BrowserFlow),
+	}
+
+	err = r.ctrl.client.UpdateRealm(ctx, token, updateRealm)
+	if err != nil {
+		log.Printf("browser and direct grant flow update in realm failed, error: %s", err)
+		return err
+	}
+
+	list, err := r.ctrl.client.GetAuthenticationExecutions(ctx, token, realm, BrowserFlow+" forms")
+	if err != nil || len(list) < 4 {
+		log.Printf("waiting for copy operation for auth browser flow to complete, error: %s", err)
+		return errors.Wrapf(errors.Unknown, "waiting for copy operation for auth browser flow to complete, error :%s", err)
+	}
+
+	e, err = r.ctrl.client.LocateAuthenticationExecution(ctx, token, realm, BrowserFlow+" forms", "user-session-limits")
+	if err != nil {
+		return err
+	}
+
+	err = r.ctrl.client.ConfigureUserSessionLimit(ctx, token, realm, e, 5, false, BrowserFlow+" session limiter", "")
+	if err != nil {
+		return err
+	}
+	e.Requirement = gocloak.StringP("REQUIRED")
+	err = r.ctrl.client.UpdateAuthenticationExecution(ctx, token, realm, BrowserFlow, *e)
+	if err != nil {
+		log.Printf("failed to enable user session limit config for browser, error: %s", err)
+		return err
+	}
+
+	return nil
+}
+
 func (r *SetupReconciler) Reconcile(k any) (*reconciler.Result, error) {
 	key := k.(*table.TenantKey)
 
@@ -63,6 +171,12 @@ func (r *SetupReconciler) Reconcile(k any) (*reconciler.Result, error) {
 
 		if err != nil {
 			log.Println("failed to configure keycloak with relevant tenant configuration")
+			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
+		}
+
+		err = r.updateRealmAuthFlows(key.Name)
+		if err != nil {
+			log.Printf("failed to configure keycloak auth flows, error: %s", err)
 			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
 		}
 
