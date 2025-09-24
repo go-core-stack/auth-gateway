@@ -478,7 +478,7 @@ func (s *UserApiServer) ListUserOrgUnits(ctx context.Context, req *api.UserOrgUn
 
 	// Get org units where the current user has roles
 	orgUnitUsers, err := s.orgUnitUserTbl.GetByUser(ctx, tenant, req.Username)
-	if err != nil {
+	if err != nil && !errors.IsNotFound(err){
 		log.Printf("error getting org units for user %s in tenant %s: %s", req.Username, tenant, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}

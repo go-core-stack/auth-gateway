@@ -379,10 +379,7 @@ func (s *MyAccountServer) ListApiKeys(ctx context.Context, req *api.ApiKeysListR
 		Username: authInfo.UserName,
 	}
 	keys, err := s.apiKeys.FindByUser(ctx, user)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return nil, status.Errorf(codes.NotFound, "No API keys found for user %s in tenant %s", user.Username, user.Tenant)
-		}
+	if err != nil && !errors.IsNotFound(err){
 		log.Printf("got error while fetching apikey list (%v): %s", user, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
@@ -446,10 +443,7 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 		return resp, nil
 	}
 	OrgUnits, err := s.ouTable.FindByTenant(ctx, authInfo.Realm, "")
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return nil, status.Errorf(codes.NotFound, "No Org Unit available for tenant %s", authInfo.Realm)
-		}
+	if err != nil && !errors.IsNotFound(err) {
 		log.Printf("got error while fetching org unit list for tenant %s: %s", authInfo.Realm, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
