@@ -413,20 +413,25 @@ func (s *MyTenantServer) ListMyIdentityProviders(ctx context.Context, req *api.M
 
 		// Get creation metadata from config
 		var created int64
+		var createdBy string
 		if idp.Config != nil {
 			if createdAtStr, exists := (*idp.Config)["createdAt"]; exists {
 				if createdAtInt, err := strconv.ParseInt(createdAtStr, 10, 64); err == nil {
 					created = createdAtInt
 				}
 			}
+			if cb, exists := (*idp.Config)["createdBy"]; exists {
+				createdBy = cb
+			}
 		}
 
 		filteredInstances = append(filteredInstances, &api.MyIdentityProvidersListEntry{
-			Key:      alias,
-			DispName: displayName,
-			Type:     providerType,
-			Enabled:  enabled,
-			Created:  created,
+			Key:       alias,
+			DispName:  displayName,
+			Type:      providerType,
+			Enabled:   enabled,
+			Created:   created,
+			CreatedBy: createdBy,
 		})
 	}
 
@@ -616,17 +621,17 @@ func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.
 			}
 
 			// validate Google client ID format (should end with .googleusercontent.com)
-			if !strings.HasSuffix(req.Google.ClientId, ".googleusercontent.com") {
-				return status.Error(codes.InvalidArgument, "Google client ID must end with .googleusercontent.com")
-			}
+			// if !strings.HasSuffix(req.Google.ClientId, ".googleusercontent.com") {
+			// 	return status.Error(codes.InvalidArgument, "Google client ID must end with .googleusercontent.com")
+			// }
 
 			// validate hosted domain format if provided
-			if req.Google.HostedDomain != "" {
-				domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
-				if !domainRegex.MatchString(req.Google.HostedDomain) {
-					return status.Error(codes.InvalidArgument, "hosted domain must be a valid domain name")
-				}
-			}
+			// if req.Google.HostedDomain != "" {
+			// 	domainRegex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]*\.([a-zA-Z]{2,})+$`)
+			// 	if !domainRegex.MatchString(req.Google.HostedDomain) {
+			// 		return status.Error(codes.InvalidArgument, "hosted domain must be a valid domain name")
+			// 	}
+			// }
 
 			// Build Google IDP configuration
 			idpConfig := map[string]string{
@@ -671,25 +676,25 @@ func (s *MyTenantServer) UpdateMyIdentityProvider(ctx context.Context, req *api.
 			}
 
 			// Validate Microsoft client ID format (should be a valid GUID)
-			guidPattern := regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
-			if !guidPattern.MatchString(req.Microsoft.ClientId) {
-				return status.Error(codes.InvalidArgument, "Microsoft client ID must be a valid GUID")
-			}
+			// guidPattern := regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+			// if !guidPattern.MatchString(req.Microsoft.ClientId) {
+			// 	return status.Error(codes.InvalidArgument, "Microsoft client ID must be a valid GUID")
+			// }
 
 			// Validate tenant ID if provided
-			if req.Microsoft.TenantId != "" {
-				// Tenant ID can be a GUID, domain name, or special Azure AD values
-				isSpecialValue := req.Microsoft.TenantId == "common" || req.Microsoft.TenantId == "organizations" || req.Microsoft.TenantId == "consumers"
-				isGUID := guidPattern.MatchString(req.Microsoft.TenantId)
+			// if req.Microsoft.TenantId != "" {
+			// 	// Tenant ID can be a GUID, domain name, or special Azure AD values
+			// 	isSpecialValue := req.Microsoft.TenantId == "common" || req.Microsoft.TenantId == "organizations" || req.Microsoft.TenantId == "consumers"
+			// 	isGUID := guidPattern.MatchString(req.Microsoft.TenantId)
 
-				if !isSpecialValue && !isGUID {
-					// Check if it's a valid domain name
-					domainPattern := regexp.MustCompile(`^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$`)
-					if !domainPattern.MatchString(req.Microsoft.TenantId) {
-						return status.Error(codes.InvalidArgument, "Microsoft tenant ID must be a valid GUID, domain name, or one of: common, organizations, consumers")
-					}
-				}
-			}
+			// 	if !isSpecialValue && !isGUID {
+			// 		// Check if it's a valid domain name
+			// 		domainPattern := regexp.MustCompile(`^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$`)
+			// 		if !domainPattern.MatchString(req.Microsoft.TenantId) {
+			// 			return status.Error(codes.InvalidArgument, "Microsoft tenant ID must be a valid GUID, domain name, or one of: common, organizations, consumers")
+			// 		}
+			// 	}
+			// }
 
 			// Build Microsoft IDP configuration
 			idpConfig := map[string]string{

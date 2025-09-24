@@ -294,6 +294,9 @@ message MyIdentityProvidersListEntry {
 
   // Created timestamp
   int64 created = 5;
+
+  // Created by user
+  string created_by = 6;
 }
 
 // Identity provider instance list response

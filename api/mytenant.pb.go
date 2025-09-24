@@ -989,7 +989,9 @@ type MyIdentityProvidersListEntry struct {
 	// Whether configuration is enabled
 	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Created timestamp
-	Created       int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	// Created by user
+	CreatedBy     string `protobuf:"bytes,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1057,6 +1059,13 @@ func (x *MyIdentityProvidersListEntry) GetCreated() int64 {
 		return x.Created
 	}
 	return 0
+}
+
+func (x *MyIdentityProvidersListEntry) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
 }
 
 // Identity provider instance list response
@@ -1557,13 +1566,15 @@ const file_mytenant_proto_rawDesc = "" +
 	"\n" +
 	"\b_enabledB\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_offset\"\xb4\x01\n" +
+	"\a_offset\"\xd3\x01\n" +
 	"\x1cMyIdentityProvidersListEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
 	"\bdispName\x18\x02 \x01(\tR\bdispName\x122\n" +
 	"\x04type\x18\x03 \x01(\x0e2\x1e.api.IdentityProviderDefs.TypeR\x04type\x12\x18\n" +
 	"\aenabled\x18\x04 \x01(\bR\aenabled\x12\x18\n" +
-	"\acreated\x18\x05 \x01(\x03R\acreated\"l\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\x06 \x01(\tR\tcreatedBy\"l\n" +
 	"\x1bMyIdentityProvidersListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x127\n" +
 	"\x05items\x18\x02 \x03(\v2!.api.MyIdentityProvidersListEntryR\x05items\",\n" +
