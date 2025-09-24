@@ -2751,6 +2751,10 @@
           "type": "string",
           "format": "int64",
           "title": "Created timestamp"
+        },
+        "createdBy": {
+          "type": "string",
+          "title": "Created by user"
         }
       },
       "title": "Identity provider list entry"
