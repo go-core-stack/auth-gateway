@@ -38,7 +38,7 @@ func (s *OrgUnitUserServer) ListOrgUnitUsers(ctx context.Context, req *api.OrgUn
 
 	list, err := s.tbl.GetByOrgUnitId(ctx, req.Ou, req.Offset, req.Limit)
 
-	if err != nil {
+	if err != nil && !errors.IsNotFound(err) {
 		log.Printf("failed to get list of org unit users, got error: %s", err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
 	}
