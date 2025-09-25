@@ -1,0 +1,82 @@
+// Copyright © 2025 Prabhjot Singh Sethi, All Rights reserved
+// Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
+
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+import "coreapis/api/role.proto";
+
+option go_package = "github.com/go-core-stack/auth-gateway/api";
+
+service AccessLogs {
+  // get object storage access logs for a given ou
+  rpc GetAccessLogs(AccessLogsGetReq) returns (AccessLogsGetResp) {
+    option (google.api.http) = {
+      get: "/api/object-storage/v1/ou/{ou}/log"
+    };
+    option (api.role) = {
+      resource: "access-logs"
+      scope: "ou"
+      verb: "get"
+    };
+  };
+
+}
+
+message AccessLogsGetReq {
+  
+  // ou under consideration
+  string ou = 1;
+ 
+  // start timestamp when filter is range
+  int64 start = 2;
+
+  // end timestamp when filter is range
+  int64 end = 3;
+
+}
+
+message AccessLogItem {
+  // Timestamp of the request (epoch millis or nanos UTC)
+  string timestamp = 1;
+  
+  // ou name
+  string ou = 2;
+
+  // User email id
+  string email = 3;
+
+  // Unix Timestamp
+  string request_time = 4;
+
+  // Remote IP address of the requester
+  string remote_ip = 5;
+
+  // http Request
+  string method = 6;
+
+  // Request action, e.g., GET,PUT,LIST
+  string request_action = 7;
+
+  // url path
+  string path = 8;
+
+  // HTTP status code for success/failure
+  string http_status_code = 9;
+
+  // The client software making the request
+  string user_agent = 10;
+
+  // log level
+  string level = 11;
+
+  // tenant name
+  string tenant = 12;
+}
+
+message AccessLogsGetResp {
+  // list of access log items
+  repeated AccessLogItem items = 1;
+}
