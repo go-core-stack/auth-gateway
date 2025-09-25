@@ -314,7 +314,6 @@ func (c *Client) ConfigureUserSessionLimit(ctx context.Context, token, realm str
 		behavior = "Terminate oldest session"
 	}
 	config := struct {
-		//ID     *string            `json:"id,omitempty"`
 		Alias  *string            `json:"alias,omitempty"`
 		Config *map[string]string `json:"config,omitempty"`
 	}{
@@ -360,4 +359,81 @@ func (c *Client) LowerAuthenticationExecutionPriority(ctx context.Context, token
 	}
 
 	return nil
+}
+
+// SetExecutionToLastPosition moves an execution to the last position by using LowerAuthenticationExecutionPriority repeatedly
+func (c *Client) SetExecutionToLastPosition(ctx context.Context, token, realm, flowId, executionId string) error {
+	maxAttempts := 20 // Safety limit to prevent infinite loops
+
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		// Get current executions to check position
+		executions, err := c.GetAuthenticationExecutions(ctx, token, realm, flowId)
+		if err != nil {
+			return err
+		}
+
+		// Find our execution's current position
+		var ourExecution *gocloak.ModifyAuthenticationExecutionRepresentation
+		ourIndex := -1
+		for i, exec := range executions {
+			if exec.ID != nil && *exec.ID == executionId {
+				ourExecution = exec
+				ourIndex = i
+				break
+			}
+		}
+
+		if ourExecution == nil {
+			return errors.Wrapf(errors.Unknown, "execution %s not found in flow %s", executionId, flowId)
+		}
+
+		// Check if we're already at the last position among same-level executions
+		isLast := true
+		for i := ourIndex + 1; i < len(executions); i++ {
+			nextExec := executions[i]
+			if nextExec.Level != nil && ourExecution.Level != nil && *nextExec.Level == *ourExecution.Level {
+				isLast = false
+				break
+			}
+		}
+
+		if isLast {
+			return nil
+		}
+
+		// Lower priority once
+		err = c.LowerAuthenticationExecutionPriority(ctx, token, realm, executionId)
+		if err != nil {
+			return errors.Wrapf(errors.Unknown, "failed to lower execution priority on attempt %d: %v", attempt, err)
+		}
+	}
+
+	return errors.Wrapf(errors.Unknown, "failed to position execution %s to last after %d attempts", executionId, maxAttempts)
+}
+
+// NormalizeAuthenticationExecutionPriorities attempts to normalize execution order by re-positioning
+func (c *Client) NormalizeAuthenticationExecutionPriorities(ctx context.Context, token, realm, flowId string) error {
+	// For now, this is a no-op since Keycloak doesn't provide direct priority setting
+	// The SetExecutionToLastPosition method handles positioning more reliably
+	return nil
+}
+
+// GetMaxExecutionPriority returns the maximum priority among top-level executions in a flow
+// Since Priority field is not exposed in the struct, we use position-based calculation
+func (c *Client) GetMaxExecutionPriority(ctx context.Context, token, realm, flowId string) (int, error) {
+	executions, err := c.GetAuthenticationExecutions(ctx, token, realm, flowId)
+	if err != nil {
+		return 0, err
+	}
+
+	// Count top-level executions to estimate max priority
+	topLevelCount := 0
+	for _, exec := range executions {
+		if exec.Level != nil && *exec.Level == 0 { // Only top-level executions
+			topLevelCount++
+		}
+	}
+
+	// Return estimated max priority (assuming normalized priorities of 10, 20, 30, etc.)
+	return topLevelCount * 10, nil
 }
