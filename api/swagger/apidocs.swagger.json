@@ -2604,6 +2604,20 @@
         }
       }
     },
+    "apiLocation": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "city name"
+        },
+        "country": {
+          "type": "string",
+          "title": "country name"
+        }
+      },
+      "title": "location information derived from IP address"
+    },
     "apiMicrosoftIDPConfig": {
       "type": "object",
       "properties": {
@@ -2985,6 +2999,10 @@
         "ip": {
           "type": "string",
           "title": "incoming client ip"
+        },
+        "loc": {
+          "$ref": "#/definitions/apiLocation",
+          "title": "location information based on IP (optional, omitted for private IPs)"
         }
       },
       "title": "my session information"
@@ -3851,6 +3869,10 @@
         "ip": {
           "type": "string",
           "title": "incoming client ip"
+        },
+        "loc": {
+          "$ref": "#/definitions/apiLocation",
+          "title": "location information based on IP (optional, omitted for private IPs)"
         }
       },
       "title": "user session information"
