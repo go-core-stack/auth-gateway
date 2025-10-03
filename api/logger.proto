@@ -11,13 +11,13 @@ import "coreapis/api/role.proto";
 option go_package = "github.com/go-core-stack/auth-gateway/api";
 
 service AccessLogs {
-  // get object storage access logs for a given ou
+  // get auth gateway access logs for a given ou
   rpc GetAccessLogs(AccessLogsGetReq) returns (AccessLogsGetResp) {
     option (google.api.http) = {
-      get: "/api/object-storage/v1/ou/{ou}/log"
+      get: "/api/auth/v1/access-logs/ou/{ou}"
     };
     option (api.role) = {
-      resource: "access-logs"
+      resource: "auth-access-logs"
       scope: "ou"
       verb: "get"
     };
@@ -39,7 +39,7 @@ message AccessLogsGetReq {
 }
 
 message AccessLogItem {
-  // Timestamp of the request (epoch millis or nanos UTC)
+  // Timestamp of the request 
   string timestamp = 1;
   
   // ou name
