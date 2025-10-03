@@ -196,7 +196,9 @@ type MySessionInfo struct {
 	// last access time
 	LastAccess int64 `protobuf:"varint,3,opt,name=lastAccess,proto3" json:"lastAccess,omitempty"`
 	// incoming client ip
-	Ip            string `protobuf:"bytes,4,opt,name=ip,proto3" json:"ip,omitempty"`
+	Ip string `protobuf:"bytes,4,opt,name=ip,proto3" json:"ip,omitempty"`
+	// location information based on IP (optional, omitted for private IPs)
+	Loc           *Location `protobuf:"bytes,5,opt,name=loc,proto3,oneof" json:"loc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -257,6 +259,13 @@ func (x *MySessionInfo) GetIp() string {
 		return x.Ip
 	}
 	return ""
+}
+
+func (x *MySessionInfo) GetLoc() *Location {
+	if x != nil {
+		return x.Loc
+	}
+	return nil
 }
 
 // my sessions get response
@@ -1553,6 +1562,61 @@ func (x *MyAzsListResp) GetItems() []*MyAzsListEntry {
 	return nil
 }
 
+// location information derived from IP address
+type Location struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// city name
+	City string `protobuf:"bytes,1,opt,name=city,proto3" json:"city,omitempty"`
+	// country name
+	Country       string `protobuf:"bytes,2,opt,name=country,proto3" json:"country,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Location) Reset() {
+	*x = Location{}
+	mi := &file_myaccount_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Location) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Location) ProtoMessage() {}
+
+func (x *Location) ProtoReflect() protoreflect.Message {
+	mi := &file_myaccount_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Location.ProtoReflect.Descriptor instead.
+func (*Location) Descriptor() ([]byte, []int) {
+	return file_myaccount_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *Location) GetCity() string {
+	if x != nil {
+		return x.City
+	}
+	return ""
+}
+
+func (x *Location) GetCountry() string {
+	if x != nil {
+		return x.Country
+	}
+	return ""
+}
+
 var File_myaccount_proto protoreflect.FileDescriptor
 
 const file_myaccount_proto_rawDesc = "" +
@@ -1563,14 +1627,16 @@ const file_myaccount_proto_rawDesc = "" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
 	"\tfirstName\x18\x02 \x01(\tR\tfirstName\x12\x1a\n" +
 	"\blastName\x18\x03 \x01(\tR\blastName\x12\x14\n" +
-	"\x05email\x18\x04 \x01(\tR\x05email\"w\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\"\xa5\x01\n" +
 	"\rMySessionInfo\x12\x1c\n" +
 	"\tsessionId\x18\x01 \x01(\tR\tsessionId\x12\x18\n" +
 	"\astarted\x18\x02 \x01(\x03R\astarted\x12\x1e\n" +
 	"\n" +
 	"lastAccess\x18\x03 \x01(\x03R\n" +
 	"lastAccess\x12\x0e\n" +
-	"\x02ip\x18\x04 \x01(\tR\x02ip\"=\n" +
+	"\x02ip\x18\x04 \x01(\tR\x02ip\x12$\n" +
+	"\x03loc\x18\x05 \x01(\v2\r.api.LocationH\x00R\x03loc\x88\x01\x01B\x06\n" +
+	"\x04_loc\"=\n" +
 	"\x11MySessionsGetResp\x12(\n" +
 	"\x05items\x18\x01 \x03(\v2\x12.api.MySessionInfoR\x05items\"3\n" +
 	"\x13MySessionsLogoutReq\x12\x1c\n" +
@@ -1636,7 +1702,10 @@ const file_myaccount_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\":\n" +
 	"\rMyAzsListResp\x12)\n" +
-	"\x05items\x18\x02 \x03(\v2\x13.api.MyAzsListEntryR\x05items2\xe1\t\n" +
+	"\x05items\x18\x02 \x03(\v2\x13.api.MyAzsListEntryR\x05items\"8\n" +
+	"\bLocation\x12\x12\n" +
+	"\x04city\x18\x01 \x01(\tR\x04city\x12\x18\n" +
+	"\acountry\x18\x02 \x01(\tR\acountry2\xe1\t\n" +
 	"\tMyAccount\x12R\n" +
 	"\tGetMyInfo\x12\x11.api.MyInfoGetReq\x1a\x12.api.MyInfoGetResp\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/myaccount/v1/info\x12b\n" +
 	"\rGetMySessions\x12\x15.api.MySessionsGetReq\x1a\x16.api.MySessionsGetResp\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/myaccount/v1/sessions\x12u\n" +
@@ -1666,7 +1735,7 @@ func file_myaccount_proto_rawDescGZIP() []byte {
 }
 
 var file_myaccount_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_myaccount_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_myaccount_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_myaccount_proto_goTypes = []any{
 	(ApiKeyDef_Status)(0),        // 0: api.ApiKeyDef.Status
 	(*MyInfoGetReq)(nil),         // 1: api.MyInfoGetReq
@@ -1699,46 +1768,48 @@ var file_myaccount_proto_goTypes = []any{
 	(*MyAzsListReq)(nil),         // 28: api.MyAzsListReq
 	(*MyAzsListEntry)(nil),       // 29: api.MyAzsListEntry
 	(*MyAzsListResp)(nil),        // 30: api.MyAzsListResp
+	(*Location)(nil),             // 31: api.Location
 }
 var file_myaccount_proto_depIdxs = []int32{
-	3,  // 0: api.MySessionsGetResp.items:type_name -> api.MySessionInfo
-	0,  // 1: api.ApiKeyCreateResp.status:type_name -> api.ApiKeyDef.Status
-	0,  // 2: api.ApiKeyListEntry.status:type_name -> api.ApiKeyDef.Status
-	17, // 3: api.ApiKeysListResp.items:type_name -> api.ApiKeyListEntry
-	21, // 4: api.MyOrgUnitsListResp.default:type_name -> api.MyOrgUnitEntry
-	21, // 5: api.MyOrgUnitsListResp.items:type_name -> api.MyOrgUnitEntry
-	26, // 6: api.MyRegionsListResp.default:type_name -> api.MyRegionsListEntry
-	26, // 7: api.MyRegionsListResp.items:type_name -> api.MyRegionsListEntry
-	29, // 8: api.MyAzsListResp.items:type_name -> api.MyAzsListEntry
-	1,  // 9: api.MyAccount.GetMyInfo:input_type -> api.MyInfoGetReq
-	19, // 10: api.MyAccount.GetMySessions:input_type -> api.MySessionsGetReq
-	5,  // 11: api.MyAccount.LogoutMySessions:input_type -> api.MySessionsLogoutReq
-	7,  // 12: api.MyAccount.CreateApiKey:input_type -> api.ApiKeyCreateReq
-	10, // 13: api.MyAccount.DisableApiKey:input_type -> api.ApiKeyDisableReq
-	12, // 14: api.MyAccount.EnableApiKey:input_type -> api.ApiKeyEnableReq
-	14, // 15: api.MyAccount.DeleteApiKey:input_type -> api.ApiKeyDeleteReq
-	16, // 16: api.MyAccount.ListApiKeys:input_type -> api.ApiKeysListReq
-	20, // 17: api.MyAccount.ListMyOrgUnits:input_type -> api.MyOrgUnitsListReq
-	23, // 18: api.MyAccount.SetDefaultOrgUnit:input_type -> api.DefaultOrgUnitReq
-	25, // 19: api.MyAccount.ListMyRegions:input_type -> api.MyRegionsListReq
-	28, // 20: api.MyAccount.ListMyAzs:input_type -> api.MyAzsListReq
-	2,  // 21: api.MyAccount.GetMyInfo:output_type -> api.MyInfoGetResp
-	4,  // 22: api.MyAccount.GetMySessions:output_type -> api.MySessionsGetResp
-	6,  // 23: api.MyAccount.LogoutMySessions:output_type -> api.MySessionsLogoutResp
-	9,  // 24: api.MyAccount.CreateApiKey:output_type -> api.ApiKeyCreateResp
-	11, // 25: api.MyAccount.DisableApiKey:output_type -> api.ApiKeyDisableResp
-	13, // 26: api.MyAccount.EnableApiKey:output_type -> api.ApiKeyEnableResp
-	15, // 27: api.MyAccount.DeleteApiKey:output_type -> api.ApiKeyDeleteResp
-	18, // 28: api.MyAccount.ListApiKeys:output_type -> api.ApiKeysListResp
-	22, // 29: api.MyAccount.ListMyOrgUnits:output_type -> api.MyOrgUnitsListResp
-	24, // 30: api.MyAccount.SetDefaultOrgUnit:output_type -> api.DefaultOrgUnitResp
-	27, // 31: api.MyAccount.ListMyRegions:output_type -> api.MyRegionsListResp
-	30, // 32: api.MyAccount.ListMyAzs:output_type -> api.MyAzsListResp
-	21, // [21:33] is the sub-list for method output_type
-	9,  // [9:21] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	31, // 0: api.MySessionInfo.loc:type_name -> api.Location
+	3,  // 1: api.MySessionsGetResp.items:type_name -> api.MySessionInfo
+	0,  // 2: api.ApiKeyCreateResp.status:type_name -> api.ApiKeyDef.Status
+	0,  // 3: api.ApiKeyListEntry.status:type_name -> api.ApiKeyDef.Status
+	17, // 4: api.ApiKeysListResp.items:type_name -> api.ApiKeyListEntry
+	21, // 5: api.MyOrgUnitsListResp.default:type_name -> api.MyOrgUnitEntry
+	21, // 6: api.MyOrgUnitsListResp.items:type_name -> api.MyOrgUnitEntry
+	26, // 7: api.MyRegionsListResp.default:type_name -> api.MyRegionsListEntry
+	26, // 8: api.MyRegionsListResp.items:type_name -> api.MyRegionsListEntry
+	29, // 9: api.MyAzsListResp.items:type_name -> api.MyAzsListEntry
+	1,  // 10: api.MyAccount.GetMyInfo:input_type -> api.MyInfoGetReq
+	19, // 11: api.MyAccount.GetMySessions:input_type -> api.MySessionsGetReq
+	5,  // 12: api.MyAccount.LogoutMySessions:input_type -> api.MySessionsLogoutReq
+	7,  // 13: api.MyAccount.CreateApiKey:input_type -> api.ApiKeyCreateReq
+	10, // 14: api.MyAccount.DisableApiKey:input_type -> api.ApiKeyDisableReq
+	12, // 15: api.MyAccount.EnableApiKey:input_type -> api.ApiKeyEnableReq
+	14, // 16: api.MyAccount.DeleteApiKey:input_type -> api.ApiKeyDeleteReq
+	16, // 17: api.MyAccount.ListApiKeys:input_type -> api.ApiKeysListReq
+	20, // 18: api.MyAccount.ListMyOrgUnits:input_type -> api.MyOrgUnitsListReq
+	23, // 19: api.MyAccount.SetDefaultOrgUnit:input_type -> api.DefaultOrgUnitReq
+	25, // 20: api.MyAccount.ListMyRegions:input_type -> api.MyRegionsListReq
+	28, // 21: api.MyAccount.ListMyAzs:input_type -> api.MyAzsListReq
+	2,  // 22: api.MyAccount.GetMyInfo:output_type -> api.MyInfoGetResp
+	4,  // 23: api.MyAccount.GetMySessions:output_type -> api.MySessionsGetResp
+	6,  // 24: api.MyAccount.LogoutMySessions:output_type -> api.MySessionsLogoutResp
+	9,  // 25: api.MyAccount.CreateApiKey:output_type -> api.ApiKeyCreateResp
+	11, // 26: api.MyAccount.DisableApiKey:output_type -> api.ApiKeyDisableResp
+	13, // 27: api.MyAccount.EnableApiKey:output_type -> api.ApiKeyEnableResp
+	15, // 28: api.MyAccount.DeleteApiKey:output_type -> api.ApiKeyDeleteResp
+	18, // 29: api.MyAccount.ListApiKeys:output_type -> api.ApiKeysListResp
+	22, // 30: api.MyAccount.ListMyOrgUnits:output_type -> api.MyOrgUnitsListResp
+	24, // 31: api.MyAccount.SetDefaultOrgUnit:output_type -> api.DefaultOrgUnitResp
+	27, // 32: api.MyAccount.ListMyRegions:output_type -> api.MyRegionsListResp
+	30, // 33: api.MyAccount.ListMyAzs:output_type -> api.MyAzsListResp
+	22, // [22:34] is the sub-list for method output_type
+	10, // [10:22] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_myaccount_proto_init() }
@@ -1746,13 +1817,14 @@ func file_myaccount_proto_init() {
 	if File_myaccount_proto != nil {
 		return
 	}
+	file_myaccount_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_myaccount_proto_rawDesc), len(file_myaccount_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   30,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

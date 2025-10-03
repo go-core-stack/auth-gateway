@@ -143,6 +143,9 @@ message MySessionInfo {
 
   // incoming client ip
   string ip = 4;
+
+  // location information based on IP (optional, omitted for private IPs)
+  optional Location loc = 5;
 }
 
 // my sessions get response
@@ -338,4 +341,13 @@ message MyAzsListResp {
   // list of available azs for the tenant
   // under a region
   repeated MyAzsListEntry items = 2;
+}
+
+// location information derived from IP address
+message Location {
+  // city name
+  string city = 1;
+  
+  // country name
+  string country = 2;
 }

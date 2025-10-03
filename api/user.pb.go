@@ -1053,7 +1053,9 @@ type UserSessionInfo struct {
 	// last access time
 	LastAccess int64 `protobuf:"varint,4,opt,name=lastAccess,proto3" json:"lastAccess,omitempty"`
 	// incoming client ip
-	Ip            string `protobuf:"bytes,5,opt,name=ip,proto3" json:"ip,omitempty"`
+	Ip string `protobuf:"bytes,5,opt,name=ip,proto3" json:"ip,omitempty"`
+	// location information based on IP (optional, omitted for private IPs)
+	Loc           *Location `protobuf:"bytes,6,opt,name=loc,proto3,oneof" json:"loc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1121,6 +1123,13 @@ func (x *UserSessionInfo) GetIp() string {
 		return x.Ip
 	}
 	return ""
+}
+
+func (x *UserSessionInfo) GetLoc() *Location {
+	if x != nil {
+		return x.Loc
+	}
+	return nil
 }
 
 // response of list active sessions
@@ -1459,7 +1468,7 @@ var File_user_proto protoreflect.FileDescriptor
 const file_user_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a\x17coreapis/api/role.proto\"T\n" +
+	"user.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a\x17coreapis/api/role.proto\x1a\x0fmyaccount.proto\"T\n" +
 	"\fUsersListReq\x12\x16\n" +
 	"\x06offset\x18\x01 \x01(\x05R\x06offset\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
@@ -1527,7 +1536,7 @@ const file_user_proto_rawDesc = "" +
 	"\x13UserSessionsListReq\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x16\n" +
 	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
-	"\x05limit\x18\x03 \x01(\x05R\x05limit\"\x95\x01\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"\xc3\x01\n" +
 	"\x0fUserSessionInfo\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1c\n" +
 	"\tsessionId\x18\x02 \x01(\tR\tsessionId\x12\x18\n" +
@@ -1535,7 +1544,9 @@ const file_user_proto_rawDesc = "" +
 	"\n" +
 	"lastAccess\x18\x04 \x01(\x03R\n" +
 	"lastAccess\x12\x0e\n" +
-	"\x02ip\x18\x05 \x01(\tR\x02ip\"X\n" +
+	"\x02ip\x18\x05 \x01(\tR\x02ip\x12$\n" +
+	"\x03loc\x18\x06 \x01(\v2\r.api.LocationH\x00R\x03loc\x88\x01\x01B\x06\n" +
+	"\x04_loc\"X\n" +
 	"\x14UserSessionsListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12*\n" +
 	"\x05items\x18\x02 \x03(\v2\x14.api.UserSessionInfoR\x05items\"P\n" +
@@ -1617,36 +1628,38 @@ var file_user_proto_goTypes = []any{
 	(*UserOrgUnitsListReq)(nil),   // 20: api.UserOrgUnitsListReq
 	(*UserOrgUnitWithRole)(nil),   // 21: api.UserOrgUnitWithRole
 	(*UserOrgUnitsListResp)(nil),  // 22: api.UserOrgUnitsListResp
+	(*Location)(nil),              // 23: api.Location
 }
 var file_user_proto_depIdxs = []int32{
 	1,  // 0: api.UsersListResp.items:type_name -> api.UserListEntry
-	16, // 1: api.UserSessionsListResp.items:type_name -> api.UserSessionInfo
-	21, // 2: api.UserOrgUnitsListResp.items:type_name -> api.UserOrgUnitWithRole
-	0,  // 3: api.User.GetUsers:input_type -> api.UsersListReq
-	3,  // 4: api.User.CreateUser:input_type -> api.UserCreateReq
-	7,  // 5: api.User.GetUser:input_type -> api.UserGetReq
-	11, // 6: api.User.EnableUser:input_type -> api.UserEnableReq
-	13, // 7: api.User.DisableUser:input_type -> api.UserDisableReq
-	9,  // 8: api.User.UpdateUser:input_type -> api.UserUpdateReq
-	5,  // 9: api.User.DeleteUser:input_type -> api.UserDeleteReq
-	15, // 10: api.User.ListUserSessions:input_type -> api.UserSessionsListReq
-	18, // 11: api.User.LogoutUserSession:input_type -> api.UserSessionLogoutReq
-	20, // 12: api.User.ListUserOrgUnits:input_type -> api.UserOrgUnitsListReq
-	2,  // 13: api.User.GetUsers:output_type -> api.UsersListResp
-	4,  // 14: api.User.CreateUser:output_type -> api.UserCreateResp
-	8,  // 15: api.User.GetUser:output_type -> api.UserGetResp
-	12, // 16: api.User.EnableUser:output_type -> api.UserEnableResp
-	14, // 17: api.User.DisableUser:output_type -> api.UserDisableResp
-	10, // 18: api.User.UpdateUser:output_type -> api.UserUpdateResp
-	6,  // 19: api.User.DeleteUser:output_type -> api.UserDeleteResp
-	17, // 20: api.User.ListUserSessions:output_type -> api.UserSessionsListResp
-	19, // 21: api.User.LogoutUserSession:output_type -> api.UserSessionLogoutResp
-	22, // 22: api.User.ListUserOrgUnits:output_type -> api.UserOrgUnitsListResp
-	13, // [13:23] is the sub-list for method output_type
-	3,  // [3:13] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	23, // 1: api.UserSessionInfo.loc:type_name -> api.Location
+	16, // 2: api.UserSessionsListResp.items:type_name -> api.UserSessionInfo
+	21, // 3: api.UserOrgUnitsListResp.items:type_name -> api.UserOrgUnitWithRole
+	0,  // 4: api.User.GetUsers:input_type -> api.UsersListReq
+	3,  // 5: api.User.CreateUser:input_type -> api.UserCreateReq
+	7,  // 6: api.User.GetUser:input_type -> api.UserGetReq
+	11, // 7: api.User.EnableUser:input_type -> api.UserEnableReq
+	13, // 8: api.User.DisableUser:input_type -> api.UserDisableReq
+	9,  // 9: api.User.UpdateUser:input_type -> api.UserUpdateReq
+	5,  // 10: api.User.DeleteUser:input_type -> api.UserDeleteReq
+	15, // 11: api.User.ListUserSessions:input_type -> api.UserSessionsListReq
+	18, // 12: api.User.LogoutUserSession:input_type -> api.UserSessionLogoutReq
+	20, // 13: api.User.ListUserOrgUnits:input_type -> api.UserOrgUnitsListReq
+	2,  // 14: api.User.GetUsers:output_type -> api.UsersListResp
+	4,  // 15: api.User.CreateUser:output_type -> api.UserCreateResp
+	8,  // 16: api.User.GetUser:output_type -> api.UserGetResp
+	12, // 17: api.User.EnableUser:output_type -> api.UserEnableResp
+	14, // 18: api.User.DisableUser:output_type -> api.UserDisableResp
+	10, // 19: api.User.UpdateUser:output_type -> api.UserUpdateResp
+	6,  // 20: api.User.DeleteUser:output_type -> api.UserDeleteResp
+	17, // 21: api.User.ListUserSessions:output_type -> api.UserSessionsListResp
+	19, // 22: api.User.LogoutUserSession:output_type -> api.UserSessionLogoutResp
+	22, // 23: api.User.ListUserOrgUnits:output_type -> api.UserOrgUnitsListResp
+	14, // [14:24] is the sub-list for method output_type
+	4,  // [4:14] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -1654,6 +1667,8 @@ func file_user_proto_init() {
 	if File_user_proto != nil {
 		return
 	}
+	file_myaccount_proto_init()
+	file_user_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

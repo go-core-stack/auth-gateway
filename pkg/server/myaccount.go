@@ -20,6 +20,7 @@ import (
 	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/utils"
+	locationclient "github.com/go-core-stack/location-services/pkg/client"
 
 	"github.com/go-core-stack/auth-gateway/api"
 	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
@@ -53,6 +54,7 @@ type MyAccountServer struct {
 	ouUserTable         *table.OrgUnitUserTable    // Org Unit User table
 	userPreferenceTable *table.UserPreferenceTable // user preference table
 	client              *keycloak.Client
+	locationClient      *locationclient.IpLocationClient
 }
 
 // GetMyInfo returns account information for the current user.
@@ -134,6 +136,22 @@ func (s *MyAccountServer) GetMySessions(ctx context.Context, req *api.MySessions
 			LastAccess: lastAccess, // Use session last access time from Keycloak
 			Ip:         ipAddress,  // Use session IP address from Keycloak
 		}
+
+		// Try to resolve location if location client is available and IP is public
+		if s.locationClient != nil && ipAddress != "" {
+			// Create a context with timeout for the location lookup
+			locationCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
+			defer cancel()
+
+			if resp, err := s.locationClient.GetLocation(locationCtx, ipAddress); err == nil {
+				item.Loc = &api.Location{
+					City:    resp.City,
+					Country: resp.Country,
+				}
+			}
+			// If error (private IP, invalid IP, timeout, etc.), just continue without location
+		}
+
 		resp.Items = append(resp.Items, item)
 	}
 
@@ -379,7 +397,7 @@ func (s *MyAccountServer) ListApiKeys(ctx context.Context, req *api.ApiKeysListR
 		Username: authInfo.UserName,
 	}
 	keys, err := s.apiKeys.FindByUser(ctx, user)
-	if err != nil && !errors.IsNotFound(err){
+	if err != nil && !errors.IsNotFound(err) {
 		log.Printf("got error while fetching apikey list (%v): %s", user, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
@@ -581,7 +599,7 @@ func (s *MyAccountServer) ListMyAzs(ctx context.Context, req *api.MyAzsListReq) 
 // Returns:
 //
 //	*MyAccountServer - the registered server instance
-func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *MyAccountServer {
+func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, locationClient *locationclient.IpLocationClient, ep string) *MyAccountServer {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("failed to get API key table: %s", err)
@@ -598,12 +616,14 @@ func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, e
 	if err != nil {
 		log.Panicf("failed to get user preference table: %s", err)
 	}
+
 	srv := &MyAccountServer{
 		apiKeys:             apiKeys, // Initialize the API keys table
 		ouTable:             ouTbl,   // Initialize the Org Unit table
 		ouUserTable:         ouUserTable,
 		userPreferenceTable: userPreferenceTable,
 		client:              client,
+		locationClient:      locationClient,
 	}
 	api.RegisterMyAccountServer(ctx.Server, srv)
 	err = api.RegisterMyAccountHandler(context.Background(), ctx.Mux, ctx.Conn)

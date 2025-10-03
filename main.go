@@ -26,6 +26,7 @@ import (
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/sync"
 	"github.com/go-core-stack/core/values"
+	locationclient "github.com/go-core-stack/location-services/pkg/client"
 
 	"github.com/go-core-stack/auth-gateway/pkg/apidocs"
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
@@ -402,6 +403,38 @@ func main() {
 		_ = client.Logout(context.Background())
 	}()
 
+	// create a new location services client
+	locationEndpoint := os.Getenv("LOCATION_SERVICE_ENDPOINT")
+	if locationEndpoint == "" {
+		// Default to standard service name in kubernetes
+		locationEndpoint = "location-services:8080"
+	}
+
+	// Parse endpoint into host and port
+	var locationClient *locationclient.IpLocationClient
+	if host, port, err := net.SplitHostPort(locationEndpoint); err == nil {
+		locationClient, err = locationclient.NewIpLocationClient(host, port)
+		if err != nil {
+			log.Printf("failed to create location client (continuing without location enrichment): %s", err)
+			locationClient = nil
+		} else {
+			defer func() {
+				_ = locationClient.Close()
+			}()
+		}
+	} else {
+		// If no port specified, assume default port 8080
+		locationClient, err = locationclient.NewIpLocationClient(locationEndpoint, "8080")
+		if err != nil {
+			log.Printf("failed to create location client (continuing without location enrichment): %s", err)
+			locationClient = nil
+		} else {
+			defer func() {
+				_ = locationClient.Close()
+			}()
+		}
+	}
+
 	// Initialize auth package, needs to be done before starting the
 	// gateway service which in turn will be using auth package
 	err = auth.Initialize(conf.GetKeycloakEndpoint(), "account")
@@ -455,13 +488,13 @@ func main() {
 	_ = server.NewTenantServer(serverCtx, APIEndpoint)
 
 	// Setup as new user server
-	_ = server.NewUserServer(serverCtx, client, APIEndpoint)
+	_ = server.NewUserServer(serverCtx, client, locationClient, APIEndpoint)
 
 	// Setup new tenant user server
 	_ = server.NewTenantUserServer(serverCtx, client, APIEndpoint)
 
 	// setup myaccount server
-	_ = server.NewMyAccountServer(serverCtx, client, APIEndpoint)
+	_ = server.NewMyAccountServer(serverCtx, client, locationClient, APIEndpoint)
 
 	// setup mytenant server
 	_ = server.NewMyTenantServer(serverCtx, client, APIEndpoint)
