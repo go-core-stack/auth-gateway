@@ -17,6 +17,7 @@ import (
 	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/utils"
+	locationclient "github.com/go-core-stack/location-services/pkg/client"
 
 	"github.com/go-core-stack/auth-gateway/api"
 	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
@@ -31,6 +32,7 @@ type UserApiServer struct {
 	orgUnitTbl     *table.OrgUnitTable
 	orgUnitUserTbl *table.OrgUnitUserTable
 	client         *keycloak.Client
+	locationClient *locationclient.IpLocationClient
 }
 
 func (s *UserApiServer) getTenant(ctx context.Context, name string) (*table.TenantEntry, error) {
@@ -313,7 +315,7 @@ func (s *UserApiServer) DeleteUser(ctx context.Context, req *api.UserDeleteReq) 
 	return &api.UserDeleteResp{}, nil
 }
 
-func (s *UserApiServer) sessionsToApi(session *gocloak.UserSessionRepresentation) *api.UserSessionInfo {
+func (s *UserApiServer) sessionsToApi(ctx context.Context, session *gocloak.UserSessionRepresentation) *api.UserSessionInfo {
 	if session == nil {
 		return nil
 	}
@@ -343,13 +345,30 @@ func (s *UserApiServer) sessionsToApi(session *gocloak.UserSessionRepresentation
 		ipAddress = *session.IPAddress
 	}
 
-	return &api.UserSessionInfo{
+	sessionInfo := &api.UserSessionInfo{
 		Username:   username,
 		SessionId:  sessionId,
 		Started:    startTime,
 		LastAccess: lastAccess,
 		Ip:         ipAddress,
 	}
+
+	// Try to resolve location if location client is available and IP is public
+	if s.locationClient != nil && ipAddress != "" {
+		// Create a context with timeout for the location lookup
+		locationCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
+		defer cancel()
+
+		if resp, err := s.locationClient.GetLocation(locationCtx, ipAddress); err == nil {
+			sessionInfo.Loc = &api.Location{
+				City:    resp.City,
+				Country: resp.Country,
+			}
+		}
+		// If error (private IP, invalid IP, timeout, etc.), just continue without location
+	}
+
+	return sessionInfo
 }
 func (s *UserApiServer) ListUserSessions(ctx context.Context, req *api.UserSessionsListReq) (*api.UserSessionsListResp, error) {
 	info, err := auth.GetAuthInfoFromContext(ctx)
@@ -424,7 +443,7 @@ func (s *UserApiServer) ListUserSessions(ctx context.Context, req *api.UserSessi
 
 	for _, session := range sessions {
 		if session != nil {
-			resp.Items = append(resp.Items, s.sessionsToApi(session))
+			resp.Items = append(resp.Items, s.sessionsToApi(ctx, session))
 		}
 	}
 
@@ -478,7 +497,7 @@ func (s *UserApiServer) ListUserOrgUnits(ctx context.Context, req *api.UserOrgUn
 
 	// Get org units where the current user has roles
 	orgUnitUsers, err := s.orgUnitUserTbl.GetByUser(ctx, tenant, req.Username)
-	if err != nil && !errors.IsNotFound(err){
+	if err != nil && !errors.IsNotFound(err) {
 		log.Printf("error getting org units for user %s in tenant %s: %s", req.Username, tenant, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
@@ -523,7 +542,7 @@ func (s *UserApiServer) ListUserOrgUnits(ctx context.Context, req *api.UserOrgUn
 	return resp, nil
 }
 
-func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *UserApiServer {
+func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, locationClient *locationclient.IpLocationClient, ep string) *UserApiServer {
 	tbl, err := table.GetTenantTable()
 	if err != nil {
 		log.Panicf("failed to get tenant table: %s", err)
@@ -540,12 +559,14 @@ func NewUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep str
 	if err != nil {
 		log.Panicf("failed to get org unit user table: %s", err)
 	}
+
 	srv := &UserApiServer{
 		tenantTbl:      tbl,
 		userTbl:        uTbl,
 		orgUnitTbl:     orgUnitTbl,
 		orgUnitUserTbl: orgUnitUserTbl,
 		client:         client,
+		locationClient: locationClient,
 	}
 	api.RegisterUserServer(ctx.Server, srv)
 	err = api.RegisterUserHandler(context.Background(), ctx.Mux, ctx.Conn)

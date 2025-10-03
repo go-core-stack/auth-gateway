@@ -22,16 +22,22 @@ type Keycloak struct {
 	Endpoint string `yaml:"endpoint,omitempty"`
 }
 
+type LocationService struct {
+	Host string `yaml:"host,omitempty"`
+	Port string `yaml:"port,omitempty"`
+}
+
 type CorsConfig struct {
 	Enabled bool `yaml:"enabled,omitempty"`
 }
 
 // Base config struct
 type BaseConfig struct {
-	ConfigDB *MongoDB   `yaml:"configDB,omitempty"`
-	Swagger  Swagger    `yaml:"swagger,omitempty"`
-	Keycloak *Keycloak  `yaml:"keycloak,omitempty"`
-	Cors     CorsConfig `yaml:"cors,omitempty"`
+	ConfigDB        *MongoDB         `yaml:"configDB,omitempty"`
+	Swagger         Swagger          `yaml:"swagger,omitempty"`
+	Keycloak        *Keycloak        `yaml:"keycloak,omitempty"`
+	LocationService *LocationService `yaml:"locationService,omitempty"`
+	Cors            CorsConfig       `yaml:"cors,omitempty"`
 }
 
 // get Config database information, if the struct
@@ -70,6 +76,30 @@ func (c *BaseConfig) GetSwaggerDir() string {
 
 func (c *BaseConfig) IsCORSEnabled() bool {
 	return c.Cors.Enabled
+}
+
+// IsLocationServiceConfigured checks if location service is properly configured
+// with both host and port values
+func (c *BaseConfig) IsLocationServiceConfigured() bool {
+	return c.LocationService != nil &&
+		c.LocationService.Host != "" &&
+		c.LocationService.Port != ""
+}
+
+// GetLocationServiceHost returns the configured location service host
+func (c *BaseConfig) GetLocationServiceHost() string {
+	if c.LocationService != nil {
+		return c.LocationService.Host
+	}
+	return ""
+}
+
+// GetLocationServicePort returns the configured location service port
+func (c *BaseConfig) GetLocationServicePort() string {
+	if c.LocationService != nil {
+		return c.LocationService.Port
+	}
+	return ""
 }
 
 // Parse YAML Config file from the provided config file path
