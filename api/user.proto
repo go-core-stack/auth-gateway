@@ -7,6 +7,7 @@ package api;
 
 import "google/api/annotations.proto";
 import "coreapis/api/role.proto";
+import "myaccount.proto";
 
 option go_package = "github.com/go-core-stack/auth-gateway/api";
 
@@ -333,6 +334,9 @@ message UserSessionInfo {
 
   // incoming client ip
   string ip = 5;
+
+  // location information based on IP (optional, omitted for private IPs)
+  optional Location loc = 6;
 }
 
 // response of list active sessions

@@ -26,6 +26,7 @@ import (
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/sync"
 	"github.com/go-core-stack/core/values"
+	locationclient "github.com/go-core-stack/location-services/pkg/client"
 
 	"github.com/go-core-stack/auth-gateway/pkg/apidocs"
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
@@ -402,6 +403,25 @@ func main() {
 		_ = client.Logout(context.Background())
 	}()
 
+	// create a new location services client
+	var locationClient *locationclient.IpLocationClient
+	if conf.IsLocationServiceConfigured() {
+		host := conf.GetLocationServiceHost()
+		port := conf.GetLocationServicePort()
+
+		locationClient, err = locationclient.NewIpLocationClient(host, port)
+		if err != nil {
+			// If location service is configured but connection fails, panic
+			// as this indicates invalid configuration
+			log.Panicf("failed to create location client with configured endpoint %s:%s: %s", host, port, err)
+		}
+		defer func() {
+			_ = locationClient.Close()
+		}()
+	} else {
+		log.Println("Location service not configured, continuing without location enrichment")
+	}
+
 	// Initialize auth package, needs to be done before starting the
 	// gateway service which in turn will be using auth package
 	err = auth.Initialize(conf.GetKeycloakEndpoint(), "account")
@@ -455,13 +475,13 @@ func main() {
 	_ = server.NewTenantServer(serverCtx, APIEndpoint)
 
 	// Setup as new user server
-	_ = server.NewUserServer(serverCtx, client, APIEndpoint)
+	_ = server.NewUserServer(serverCtx, client, locationClient, APIEndpoint)
 
 	// Setup new tenant user server
 	_ = server.NewTenantUserServer(serverCtx, client, APIEndpoint)
 
 	// setup myaccount server
-	_ = server.NewMyAccountServer(serverCtx, client, APIEndpoint)
+	_ = server.NewMyAccountServer(serverCtx, client, locationClient, APIEndpoint)
 
 	// setup mytenant server
 	_ = server.NewMyTenantServer(serverCtx, client, APIEndpoint)
