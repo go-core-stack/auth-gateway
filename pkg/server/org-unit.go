@@ -32,7 +32,7 @@ func (s *OrgUnitServer) ListOrgUnits(ctx context.Context, req *api.OrgUnitsListR
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 	OrgUnits, err := s.ouTable.FindByTenant(ctx, authInfo.Realm, "")
-	if err != nil && !errors.IsNotFound(err){
+	if err != nil && !errors.IsNotFound(err) {
 		log.Printf("got error while fetching org unit list for tenant %s: %s", authInfo.Realm, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
