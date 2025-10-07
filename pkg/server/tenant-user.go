@@ -433,7 +433,7 @@ func (s *TenantUserApiServer) ListTenantUserOrgUnits(ctx context.Context, req *a
 		Name: req.Tenant,
 	}
 	_, err := s.tenantTbl.Find(ctx, tenantKey)
-	if err != nil && !errors.IsNotFound(err){
+	if err != nil && !errors.IsNotFound(err) {
 		log.Printf("error getting tenant %s: %s", req.Tenant, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 	}
