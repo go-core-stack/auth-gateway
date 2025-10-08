@@ -54,6 +54,16 @@ func (t *OrgUnitUserTable) GetByUser(ctx context.Context, tenant, user string) (
 	return list, nil
 }
 
+func (t *OrgUnitUserTable) DeleteByUser(ctx context.Context, tenant, user string) error {
+	filter := bson.M{
+		"key.tenant":   tenant,
+		"key.username": user,
+	}
+
+	_, err := t.col.DeleteMany(ctx, filter)
+	return err
+}
+
 func (t *OrgUnitUserTable) GetByOrgUnitId(ctx context.Context, orgUnitId string, offset, limit int32) ([]*OrgUnitUser, error) {
 	filter := bson.M{
 		"key.orgUnitId": orgUnitId,

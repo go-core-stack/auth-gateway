@@ -24,6 +24,7 @@ import (
 type UserController struct {
 	tenantTbl *table.TenantTable
 	userTbl   *table.UserTable
+	ouUserTbl *table.OrgUnitUserTable
 	client    *keycloak.Client
 }
 
@@ -119,6 +120,13 @@ func (r *UserReconciler) Reconcile(k any) (*reconciler.Result, error) {
 			}
 		}
 
+		// ensure clearing up Org User Role assigments as well
+		err = r.ctrl.ouUserTbl.DeleteByUser(ctx, key.Tenant, key.Username)
+		if err != nil && !errors.IsNotFound(err) {
+			log.Printf("failed to delete org unit user mappings for user %s:%s, got error: %s", key.Tenant, key.Username, err)
+			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
+		}
+
 		err = r.ctrl.userTbl.DeleteKey(ctx, key)
 		if err != nil {
 			if !errors.IsNotFound(err) {
@@ -204,10 +212,16 @@ func NewUserController(client *keycloak.Client) (*UserController, error) {
 		return nil, err
 	}
 
+	ouUserTbl, err := table.GetOrgUnitUserTable()
+	if err != nil {
+		return nil, err
+	}
+
 	ctrl := &UserController{
 		userTbl:   tbl,
 		tenantTbl: tenantTbl,
 		client:    client,
+		ouUserTbl: ouUserTbl,
 	}
 
 	r := &UserReconciler{
