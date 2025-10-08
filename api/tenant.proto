@@ -45,6 +45,17 @@ service Tenant {
       verb: "get"
     };
   }
+
+  // Get list of available Org units in the system along with associated tenant
+  rpc ListOrgUnits(TenantOrgUnitsListReq) returns (TenantOrgUnitsListResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/ous"
+    };
+    option (api.role) = {
+      resource: "tenant-ou"
+      verb: "list"
+    };
+  }
 }
 
 // tenant list request
@@ -130,4 +141,42 @@ message TenantGetResp {
 
   // default tenant admin
   string admin = 5;
+}
+
+// tenant Org unit list request
+message TenantOrgUnitsListReq {
+  // filter for specific tenant
+  string tenant = 1;
+
+  // offset from where to start the list of org units 
+  int32 offset = 2;
+
+  // limit the response to specified count
+  int32 limit = 3;
+}
+
+message TenantOrgUnitListEntry {
+  // org unit id
+  string id = 1;
+
+  // org unit display name
+  string name = 2;
+
+  // org unit description
+  string desc = 3;
+
+  // tenant - owner
+  string tenant = 4;
+
+  // create time
+  int64 created = 5;
+}
+
+// tenant Org unit list response
+message TenantOrgUnitsListResp {
+  // count of org units available
+  int32 count = 1;
+
+  // list of org unit info in response
+  repeated TenantOrgUnitListEntry items = 2;
 }

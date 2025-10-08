@@ -7,9 +7,11 @@ import (
 	"context"
 	"log"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	auth "github.com/go-core-stack/auth/context"
 	"github.com/go-core-stack/auth/route"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/utils"
@@ -22,6 +24,7 @@ import (
 type TenantServer struct {
 	api.UnimplementedTenantServer
 	tenantTbl *table.TenantTable
+	ouTable   *table.OrgUnitTable
 }
 
 func (s *TenantServer) CreateTenant(ctx context.Context, req *api.TenantCreateReq) (*api.TenantCreateResp, error) {
@@ -79,13 +82,57 @@ func (s *TenantServer) ListTenants(ctx context.Context, req *api.TenantsListReq)
 	return resp, nil
 }
 
+func (s *TenantServer) ListOrgUnits(ctx context.Context, req *api.TenantOrgUnitsListReq) (*api.TenantOrgUnitsListResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+	filter := bson.D{}
+	if req.Tenant != "" {
+		filter = bson.D{{Key: "tenant", Value: req.Tenant}}
+	}
+	OrgUnits, err := s.ouTable.FindMany(ctx, filter, int32(req.Offset), int32(req.Limit))
+	if err != nil && !errors.IsNotFound(err) {
+		log.Printf("got error while fetching tenant org unit list: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	count, err := s.ouTable.Count(ctx, filter)
+	if err != nil {
+		log.Printf("got error while fetching count of tenant org units: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	resp := &api.TenantOrgUnitsListResp{
+		Count: int32(count),
+	}
+
+	for _, ou := range OrgUnits {
+		item := &api.TenantOrgUnitListEntry{
+			Id:      ou.Key.ID,
+			Name:    ou.Name,
+			Desc:    ou.Desc,
+			Tenant:  ou.Tenant,
+			Created: ou.Created,
+		}
+		resp.Items = append(resp.Items, item)
+	}
+
+	return resp, nil
+}
+
 func NewTenantServer(ctx *model.GrpcServerContext, ep string) *TenantServer {
 	tbl, err := table.GetTenantTable()
 	if err != nil {
 		log.Panicf("failed to get tenant table: %s", err)
 	}
+	ouTbl, err := table.GetOrgUnitTable()
+	if err != nil {
+		log.Panicf("failed to get Org Unit table: %s", err)
+	}
 	srv := &TenantServer{
 		tenantTbl: tbl,
+		ouTable:   ouTbl,
 	}
 	api.RegisterTenantServer(ctx.Server, srv)
 	err = api.RegisterTenantHandler(context.Background(), ctx.Mux, ctx.Conn)
