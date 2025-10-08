@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/go-core-stack/auth v0.0.0-20250703132332-24ef7e70de0e
-	github.com/go-core-stack/core v0.0.0-20250808174703-793334d9127e
+	github.com/go-core-stack/core v0.0.0-20251008102250-104cf0673a8d
 	github.com/go-core-stack/grpc-core v0.0.0-20250612052530-de9a8693884f
 	github.com/go-core-stack/location-services v0.0.1
 	github.com/go-core-stack/patricia v0.0.0-20250613164405-ac1bcd231c34

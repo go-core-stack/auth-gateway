@@ -285,7 +285,7 @@ func (s *MyAccountServer) DisableApiKey(ctx context.Context, req *api.ApiKeyDisa
 		Key:    found.Key,
 		Config: found.Config,
 	}
-	update.Config.IsDisabled = utils.BoolP(true)
+	update.Config.IsDisabled = utils.Pointer(true)
 
 	err = s.apiKeys.Update(ctx, &update.Key, update)
 	if err != nil {
@@ -331,7 +331,7 @@ func (s *MyAccountServer) EnableApiKey(ctx context.Context, req *api.ApiKeyEnabl
 		Key:    found.Key,
 		Config: found.Config,
 	}
-	update.Config.IsDisabled = utils.BoolP(false)
+	update.Config.IsDisabled = utils.Pointer(false)
 
 	err = s.apiKeys.Update(ctx, &update.Key, update)
 	if err != nil {
@@ -413,7 +413,7 @@ func (s *MyAccountServer) ListApiKeys(ctx context.Context, req *api.ApiKeysListR
 		if key.Config != nil {
 			item.Name = key.Config.Name         // Use the name from the API key config
 			item.ExpireAt = key.Config.ExpireAt // Use the expiration time from the API key config
-			if utils.PBool(key.Config.IsDisabled) {
+			if utils.Dereference(key.Config.IsDisabled) {
 				item.Status = api.ApiKeyDef_Disabled // Set status to disabled if the key is disabled
 			} else if key.Config.ExpireAt != 0 && time.Now().Unix() >= key.Config.ExpireAt {
 				item.Status = api.ApiKeyDef_Expired // Set status to expired if the current time exceeds expiration
@@ -475,7 +475,7 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 
 	defaultOU := ""
 	if pref != nil {
-		defaultOU = utils.PString(pref.DefaultOU)
+		defaultOU = utils.Dereference(pref.DefaultOU)
 	}
 
 	for i, ou := range OrgUnits {
@@ -542,7 +542,7 @@ func (s *MyAccountServer) SetDefaultOrgUnit(ctx context.Context, req *api.Defaul
 			Tenant:   authInfo.Realm,
 			Username: authInfo.UserName,
 		},
-		DefaultOU: utils.StringP(req.Id),
+		DefaultOU: utils.Pointer(req.Id),
 	}
 
 	err := s.userPreferenceTable.Locate(ctx, update.Key, update)
@@ -642,7 +642,7 @@ func NewMyAccountServer(ctx *model.GrpcServerContext, client *keycloak.Client, l
 		entry := &route.Route{
 			Key:            key,
 			Endpoint:       ep,
-			IsUserSpecific: utils.BoolP(true),
+			IsUserSpecific: utils.Pointer(true),
 		}
 		if err := tbl.Locate(context.Background(), key, entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)

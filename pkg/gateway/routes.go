@@ -45,9 +45,9 @@ func populateRoutes(routes *route.RouteTable) {
 				r.Key.Method: {
 					scheme:         ep.Scheme,
 					host:           ep.Host,
-					isPublic:       utils.PBool(r.IsPublic),
-					isRoot:         utils.PBool(r.IsRoot),
-					isUserSpecific: utils.PBool(r.IsUserSpecific),
+					isPublic:       utils.Dereference(r.IsPublic),
+					isRoot:         utils.Dereference(r.IsRoot),
+					isUserSpecific: utils.Dereference(r.IsUserSpecific),
 					scopes:         r.Scopes,
 				},
 			}
@@ -56,9 +56,9 @@ func populateRoutes(routes *route.RouteTable) {
 			(*node)[r.Key.Method] = routeData{
 				scheme:         ep.Scheme,
 				host:           ep.Host,
-				isPublic:       utils.PBool(r.IsPublic),
-				isRoot:         utils.PBool(r.IsRoot),
-				isUserSpecific: utils.PBool(r.IsUserSpecific),
+				isPublic:       utils.Dereference(r.IsPublic),
+				isRoot:         utils.Dereference(r.IsRoot),
+				isUserSpecific: utils.Dereference(r.IsUserSpecific),
 				scopes:         r.Scopes,
 			}
 		}

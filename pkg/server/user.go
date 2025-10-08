@@ -83,7 +83,7 @@ func (s *UserApiServer) GetUsers(ctx context.Context, req *api.UsersListReq) (*a
 			Email:      user.Info.Email,
 			FirstName:  user.Info.FirstName,
 			LastName:   user.Info.LastName,
-			Enabled:    !utils.PBool(user.Disabled),
+			Enabled:    !utils.Dereference(user.Disabled),
 			Created:    user.Created,
 			LastAccess: user.LastAccess,
 		}
@@ -164,7 +164,7 @@ func (s *UserApiServer) GetUser(ctx context.Context, req *api.UserGetReq) (*api.
 		Email:      uEntry.Info.Email,
 		FirstName:  uEntry.Info.FirstName,
 		LastName:   uEntry.Info.LastName,
-		Enabled:    !utils.PBool(uEntry.Disabled),
+		Enabled:    !utils.Dereference(uEntry.Disabled),
 		Created:    uEntry.Created,
 		LastAccess: uEntry.LastAccess,
 	}
@@ -261,7 +261,7 @@ func (s *UserApiServer) UpdateUser(ctx context.Context, req *api.UserUpdateReq) 
 			Email:     req.Email,
 		},
 		Updated:  time.Now().Unix(),
-		Disabled: utils.BoolP(req.Disabled),
+		Disabled: utils.Pointer(req.Disabled),
 	}
 	err = s.userTbl.Update(ctx, update.Key, update)
 	if err != nil {

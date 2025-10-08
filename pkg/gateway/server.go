@@ -192,7 +192,7 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 		}
 	}
 
-	if utils.PBool(user.Disabled) {
+	if utils.Dereference(user.Disabled) {
 		return nil, errors.Wrapf(errors.Unauthorized, "User %s is disabled in tenant %s", authInfo.UserName, authInfo.Realm)
 	}
 

@@ -153,7 +153,7 @@ func NewTenantServer(ctx *model.GrpcServerContext, ep string) *TenantServer {
 			Endpoint: ep,
 			Resource: r.Resource,
 			Verb:     r.Verb,
-			IsRoot:   utils.BoolP(true),
+			IsRoot:   utils.Pointer(true),
 		}
 		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)

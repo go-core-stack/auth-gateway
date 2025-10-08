@@ -60,7 +60,7 @@ func (r *UserReconciler) updateUser(ctx context.Context, tEntry *table.TenantEnt
 	user := users[0]
 	user.FirstName = gocloak.StringP(uEntry.Info.FirstName)
 	user.LastName = gocloak.StringP(uEntry.Info.LastName)
-	user.Enabled = gocloak.BoolP(!utils.PBool(uEntry.Disabled))
+	user.Enabled = gocloak.BoolP(!utils.Dereference(uEntry.Disabled))
 	user.Email = gocloak.StringP(uEntry.Info.Email)
 	err = r.ctrl.client.UpdateUser(ctx, token, tEntry.KCStatus.RealmName, *user)
 	if err != nil {
@@ -93,7 +93,7 @@ func (r *UserReconciler) Reconcile(k any) (*reconciler.Result, error) {
 		return &reconciler.Result{}, nil
 	}
 
-	if utils.PBool(entry.Deleted) {
+	if utils.Dereference(entry.Deleted) {
 		if tEntry.Config.DefaultAdmin.UserID == key.Username {
 			// no need to delete the default admin user
 			return &reconciler.Result{}, nil
@@ -159,7 +159,7 @@ func (r *UserReconciler) Reconcile(k any) (*reconciler.Result, error) {
 			FirstName: gocloak.StringP(entry.Info.FirstName),
 			LastName:  gocloak.StringP(entry.Info.LastName),
 			Email:     gocloak.StringP(entry.Info.Email),
-			Enabled:   gocloak.BoolP(!utils.PBool(entry.Disabled)),
+			Enabled:   gocloak.BoolP(!utils.Dereference(entry.Disabled)),
 			Username:  gocloak.StringP(key.Username),
 		}
 		token, _ := r.ctrl.client.GetAccessToken()

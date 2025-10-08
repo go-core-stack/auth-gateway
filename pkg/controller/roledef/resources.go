@@ -44,10 +44,10 @@ func (r *resourceReconciler) compileResourceDef() {
 		Resources: map[string]*resVerbs{},
 	}
 	for _, rt := range list {
-		if utils.PBool(rt.IsPublic) || utils.PBool(rt.IsUserSpecific) {
+		if utils.Dereference(rt.IsPublic) || utils.Dereference(rt.IsUserSpecific) {
 			continue
 		}
-		if utils.PBool(rt.IsRoot) {
+		if utils.Dereference(rt.IsRoot) {
 			current = root
 		} else {
 			current = user

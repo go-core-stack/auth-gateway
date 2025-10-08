@@ -62,7 +62,7 @@ func NewResourceDefinitionServer(ctx *model.GrpcServerContext, mgr *roledef.Reso
 		entry := &route.Route{
 			Key:            key,
 			Endpoint:       ep,
-			IsUserSpecific: utils.BoolP(true), // these routes are available only if user is logged in, and are rendered based on tenancy
+			IsUserSpecific: utils.Pointer(true), // these routes are available only if user is logged in, and are rendered based on tenancy
 		}
 		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)
