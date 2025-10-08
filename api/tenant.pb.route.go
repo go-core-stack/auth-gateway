@@ -27,4 +27,10 @@ func init() {
 	route.Resource = "tenant"
 	route.Verb = "get"
 	RoutesTenant = append(RoutesTenant, route)
+
+	// Adding Route information for ListOrgUnits RPC
+	route = model.NewRoute("/api/auth/v1/ous", "GET")
+	route.Resource = "tenant-ou"
+	route.Verb = "list"
+	RoutesTenant = append(RoutesTenant, route)
 }

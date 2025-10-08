@@ -502,6 +502,206 @@ func (x *TenantGetResp) GetAdmin() string {
 	return ""
 }
 
+// tenant Org unit list request
+type TenantOrgUnitsListReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// filter for specific tenant
+	Tenant string `protobuf:"bytes,1,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// offset from where to start the list of org units
+	Offset int32 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	// limit the response to specified count
+	Limit         int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantOrgUnitsListReq) Reset() {
+	*x = TenantOrgUnitsListReq{}
+	mi := &file_tenant_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantOrgUnitsListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantOrgUnitsListReq) ProtoMessage() {}
+
+func (x *TenantOrgUnitsListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantOrgUnitsListReq.ProtoReflect.Descriptor instead.
+func (*TenantOrgUnitsListReq) Descriptor() ([]byte, []int) {
+	return file_tenant_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *TenantOrgUnitsListReq) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitsListReq) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *TenantOrgUnitsListReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type TenantOrgUnitListEntry struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// org unit id
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// org unit display name
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// org unit description
+	Desc string `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`
+	// tenant - owner
+	Tenant string `protobuf:"bytes,4,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// create time
+	Created       int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantOrgUnitListEntry) Reset() {
+	*x = TenantOrgUnitListEntry{}
+	mi := &file_tenant_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantOrgUnitListEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantOrgUnitListEntry) ProtoMessage() {}
+
+func (x *TenantOrgUnitListEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantOrgUnitListEntry.ProtoReflect.Descriptor instead.
+func (*TenantOrgUnitListEntry) Descriptor() ([]byte, []int) {
+	return file_tenant_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *TenantOrgUnitListEntry) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitListEntry) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitListEntry) GetDesc() string {
+	if x != nil {
+		return x.Desc
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitListEntry) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+func (x *TenantOrgUnitListEntry) GetCreated() int64 {
+	if x != nil {
+		return x.Created
+	}
+	return 0
+}
+
+// tenant Org unit list response
+type TenantOrgUnitsListResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// count of org units available
+	Count int32 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	// list of org unit info in response
+	Items         []*TenantOrgUnitListEntry `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantOrgUnitsListResp) Reset() {
+	*x = TenantOrgUnitsListResp{}
+	mi := &file_tenant_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantOrgUnitsListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantOrgUnitsListResp) ProtoMessage() {}
+
+func (x *TenantOrgUnitsListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_tenant_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TenantOrgUnitsListResp.ProtoReflect.Descriptor instead.
+func (*TenantOrgUnitsListResp) Descriptor() ([]byte, []int) {
+	return file_tenant_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *TenantOrgUnitsListResp) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *TenantOrgUnitsListResp) GetItems() []*TenantOrgUnitListEntry {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_tenant_proto protoreflect.FileDescriptor
 
 const file_tenant_proto_rawDesc = "" +
@@ -534,14 +734,29 @@ const file_tenant_proto_rawDesc = "" +
 	"\bdispName\x18\x02 \x01(\tR\bdispName\x12\x12\n" +
 	"\x04desc\x18\x03 \x01(\tR\x04desc\x12\x18\n" +
 	"\acreated\x18\x04 \x01(\x03R\acreated\x12\x14\n" +
-	"\x05admin\x18\x05 \x01(\tR\x05admin2\xca\x02\n" +
+	"\x05admin\x18\x05 \x01(\tR\x05admin\"]\n" +
+	"\x15TenantOrgUnitsListReq\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"\x82\x01\n" +
+	"\x16TenantOrgUnitListEntry\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04desc\x18\x03 \x01(\tR\x04desc\x12\x16\n" +
+	"\x06tenant\x18\x04 \x01(\tR\x06tenant\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\"a\n" +
+	"\x16TenantOrgUnitsListResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x05R\x05count\x121\n" +
+	"\x05items\x18\x02 \x03(\v2\x1b.api.TenantOrgUnitListEntryR\x05items2\xc2\x03\n" +
 	"\x06Tenant\x12h\n" +
 	"\vListTenants\x12\x13.api.TenantsListReq\x1a\x14.api.TenantsListResp\".\x8a\xb5\x18\x0e\n" +
 	"\x06tenant\x1a\x04list\x82\xd3\xe4\x93\x02\x16\x12\x14/api/auth/v1/tenants\x12o\n" +
 	"\fCreateTenant\x12\x14.api.TenantCreateReq\x1a\x15.api.TenantCreateResp\"2\x8a\xb5\x18\x10\n" +
 	"\x06tenant\x1a\x06create\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/auth/v1/tenant\x12e\n" +
 	"\tGetTenant\x12\x11.api.TenantGetReq\x1a\x12.api.TenantGetResp\"1\x8a\xb5\x18\r\n" +
-	"\x06tenant\x1a\x03get\x82\xd3\xe4\x93\x02\x1a\x12\x18/api/auth/v1/tenant/{id}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\x06tenant\x1a\x03get\x82\xd3\xe4\x93\x02\x1a\x12\x18/api/auth/v1/tenant/{id}\x12v\n" +
+	"\fListOrgUnits\x12\x1a.api.TenantOrgUnitsListReq\x1a\x1b.api.TenantOrgUnitsListResp\"-\x8a\xb5\x18\x11\n" +
+	"\ttenant-ou\x1a\x04list\x82\xd3\xe4\x93\x02\x12\x12\x10/api/auth/v1/ousB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_tenant_proto_rawDescOnce sync.Once
@@ -555,7 +770,7 @@ func file_tenant_proto_rawDescGZIP() []byte {
 	return file_tenant_proto_rawDescData
 }
 
-var file_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_tenant_proto_goTypes = []any{
 	(*TenantsListReq)(nil),          // 0: api.TenantsListReq
 	(*TenantListEntry)(nil),         // 1: api.TenantListEntry
@@ -565,21 +780,27 @@ var file_tenant_proto_goTypes = []any{
 	(*TenantCreateResp)(nil),        // 5: api.TenantCreateResp
 	(*TenantGetReq)(nil),            // 6: api.TenantGetReq
 	(*TenantGetResp)(nil),           // 7: api.TenantGetResp
+	(*TenantOrgUnitsListReq)(nil),   // 8: api.TenantOrgUnitsListReq
+	(*TenantOrgUnitListEntry)(nil),  // 9: api.TenantOrgUnitListEntry
+	(*TenantOrgUnitsListResp)(nil),  // 10: api.TenantOrgUnitsListResp
 }
 var file_tenant_proto_depIdxs = []int32{
-	1, // 0: api.TenantsListResp.items:type_name -> api.TenantListEntry
-	3, // 1: api.TenantCreateReq.admin:type_name -> api.TenantAdminCreateConfig
-	0, // 2: api.Tenant.ListTenants:input_type -> api.TenantsListReq
-	4, // 3: api.Tenant.CreateTenant:input_type -> api.TenantCreateReq
-	6, // 4: api.Tenant.GetTenant:input_type -> api.TenantGetReq
-	2, // 5: api.Tenant.ListTenants:output_type -> api.TenantsListResp
-	5, // 6: api.Tenant.CreateTenant:output_type -> api.TenantCreateResp
-	7, // 7: api.Tenant.GetTenant:output_type -> api.TenantGetResp
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1,  // 0: api.TenantsListResp.items:type_name -> api.TenantListEntry
+	3,  // 1: api.TenantCreateReq.admin:type_name -> api.TenantAdminCreateConfig
+	9,  // 2: api.TenantOrgUnitsListResp.items:type_name -> api.TenantOrgUnitListEntry
+	0,  // 3: api.Tenant.ListTenants:input_type -> api.TenantsListReq
+	4,  // 4: api.Tenant.CreateTenant:input_type -> api.TenantCreateReq
+	6,  // 5: api.Tenant.GetTenant:input_type -> api.TenantGetReq
+	8,  // 6: api.Tenant.ListOrgUnits:input_type -> api.TenantOrgUnitsListReq
+	2,  // 7: api.Tenant.ListTenants:output_type -> api.TenantsListResp
+	5,  // 8: api.Tenant.CreateTenant:output_type -> api.TenantCreateResp
+	7,  // 9: api.Tenant.GetTenant:output_type -> api.TenantGetResp
+	10, // 10: api.Tenant.ListOrgUnits:output_type -> api.TenantOrgUnitsListResp
+	7,  // [7:11] is the sub-list for method output_type
+	3,  // [3:7] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_tenant_proto_init() }
@@ -593,7 +814,7 @@ func file_tenant_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tenant_proto_rawDesc), len(file_tenant_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

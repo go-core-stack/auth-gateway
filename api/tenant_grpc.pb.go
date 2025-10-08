@@ -25,6 +25,7 @@ const (
 	Tenant_ListTenants_FullMethodName  = "/api.Tenant/ListTenants"
 	Tenant_CreateTenant_FullMethodName = "/api.Tenant/CreateTenant"
 	Tenant_GetTenant_FullMethodName    = "/api.Tenant/GetTenant"
+	Tenant_ListOrgUnits_FullMethodName = "/api.Tenant/ListOrgUnits"
 )
 
 // TenantClient is the client API for Tenant service.
@@ -39,6 +40,8 @@ type TenantClient interface {
 	CreateTenant(ctx context.Context, in *TenantCreateReq, opts ...grpc.CallOption) (*TenantCreateResp, error)
 	// Get details of existing tenants
 	GetTenant(ctx context.Context, in *TenantGetReq, opts ...grpc.CallOption) (*TenantGetResp, error)
+	// Get list of available Org units in the system along with associated tenant
+	ListOrgUnits(ctx context.Context, in *TenantOrgUnitsListReq, opts ...grpc.CallOption) (*TenantOrgUnitsListResp, error)
 }
 
 type tenantClient struct {
@@ -79,6 +82,16 @@ func (c *tenantClient) GetTenant(ctx context.Context, in *TenantGetReq, opts ...
 	return out, nil
 }
 
+func (c *tenantClient) ListOrgUnits(ctx context.Context, in *TenantOrgUnitsListReq, opts ...grpc.CallOption) (*TenantOrgUnitsListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TenantOrgUnitsListResp)
+	err := c.cc.Invoke(ctx, Tenant_ListOrgUnits_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TenantServer is the server API for Tenant service.
 // All implementations must embed UnimplementedTenantServer
 // for forward compatibility.
@@ -91,6 +104,8 @@ type TenantServer interface {
 	CreateTenant(context.Context, *TenantCreateReq) (*TenantCreateResp, error)
 	// Get details of existing tenants
 	GetTenant(context.Context, *TenantGetReq) (*TenantGetResp, error)
+	// Get list of available Org units in the system along with associated tenant
+	ListOrgUnits(context.Context, *TenantOrgUnitsListReq) (*TenantOrgUnitsListResp, error)
 	mustEmbedUnimplementedTenantServer()
 }
 
@@ -109,6 +124,9 @@ func (UnimplementedTenantServer) CreateTenant(context.Context, *TenantCreateReq)
 }
 func (UnimplementedTenantServer) GetTenant(context.Context, *TenantGetReq) (*TenantGetResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTenant not implemented")
+}
+func (UnimplementedTenantServer) ListOrgUnits(context.Context, *TenantOrgUnitsListReq) (*TenantOrgUnitsListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListOrgUnits not implemented")
 }
 func (UnimplementedTenantServer) mustEmbedUnimplementedTenantServer() {}
 func (UnimplementedTenantServer) testEmbeddedByValue()                {}
@@ -185,6 +203,24 @@ func _Tenant_GetTenant_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Tenant_ListOrgUnits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TenantOrgUnitsListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServer).ListOrgUnits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Tenant_ListOrgUnits_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServer).ListOrgUnits(ctx, req.(*TenantOrgUnitsListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Tenant_ServiceDesc is the grpc.ServiceDesc for Tenant service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -203,6 +239,10 @@ var Tenant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTenant",
 			Handler:    _Tenant_GetTenant_Handler,
+		},
+		{
+			MethodName: "ListOrgUnits",
+			Handler:    _Tenant_ListOrgUnits_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

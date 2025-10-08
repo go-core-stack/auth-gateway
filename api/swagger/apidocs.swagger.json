@@ -424,6 +424,54 @@
         ]
       }
     },
+    "/api/auth/v1/ous": {
+      "get": {
+        "summary": "Get list of available Org units in the system along with associated tenant",
+        "operationId": "Tenant_ListOrgUnits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiTenantOrgUnitsListResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant",
+            "description": "filter for specific tenant",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "description": "offset from where to start the list of org units",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "description": "limit the response to specified count",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "Tenant"
+        ]
+      }
+    },
     "/api/auth/v1/resources": {
       "get": {
         "summary": "Get Resource definitions along with available actions",
@@ -3355,6 +3403,51 @@
         }
       },
       "title": "tenant information for the list entry"
+    },
+    "apiTenantOrgUnitListEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "org unit id"
+        },
+        "name": {
+          "type": "string",
+          "title": "org unit display name"
+        },
+        "desc": {
+          "type": "string",
+          "title": "org unit description"
+        },
+        "tenant": {
+          "type": "string",
+          "title": "tenant - owner"
+        },
+        "created": {
+          "type": "string",
+          "format": "int64",
+          "title": "create time"
+        }
+      }
+    },
+    "apiTenantOrgUnitsListResp": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "count of org units available"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiTenantOrgUnitListEntry"
+          },
+          "title": "list of org unit info in response"
+        }
+      },
+      "title": "tenant Org unit list response"
     },
     "apiTenantUserCreateResp": {
       "type": "object",
