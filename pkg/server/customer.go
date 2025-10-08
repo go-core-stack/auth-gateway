@@ -80,7 +80,7 @@ func NewCustomerServer(ctx *model.GrpcServerContext, ep string) *CustomerServer 
 		entry := &route.Route{
 			Key:      key,
 			Endpoint: ep,
-			IsRoot:   utils.BoolP(true),
+			IsRoot:   utils.Pointer(true),
 		}
 		if err := tbl.Locate(context.Background(), key, entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)

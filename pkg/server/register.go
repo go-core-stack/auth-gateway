@@ -153,7 +153,7 @@ func NewRegistrationServer(ctx *model.GrpcServerContext, ep string) *Registratio
 		entry := &route.Route{
 			Key:      key,
 			Endpoint: ep,
-			IsPublic: utils.BoolP(true),
+			IsPublic: utils.Pointer(true),
 		}
 		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)

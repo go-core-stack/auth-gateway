@@ -80,7 +80,7 @@ func (s *TenantUserApiServer) GetUsers(ctx context.Context, req *api.TenantUsers
 			Email:      user.Info.Email,
 			FirstName:  user.Info.FirstName,
 			LastName:   user.Info.LastName,
-			Enabled:    !utils.PBool(user.Disabled),
+			Enabled:    !utils.Dereference(user.Disabled),
 			Created:    user.Created,
 			LastAccess: user.LastAccess,
 		}
@@ -151,7 +151,7 @@ func (s *TenantUserApiServer) GetUser(ctx context.Context, req *api.TenantUserGe
 		Email:      uEntry.Info.Email,
 		FirstName:  uEntry.Info.FirstName,
 		LastName:   uEntry.Info.LastName,
-		Enabled:    !utils.PBool(uEntry.Disabled),
+		Enabled:    !utils.Dereference(uEntry.Disabled),
 		Created:    uEntry.Created,
 		LastAccess: uEntry.LastAccess,
 	}
@@ -233,7 +233,7 @@ func (s *TenantUserApiServer) UpdateUser(ctx context.Context, req *api.TenantUse
 			Email:     req.Email,
 		},
 		Updated:  time.Now().Unix(),
-		Disabled: utils.BoolP(req.Disabled),
+		Disabled: utils.Pointer(req.Disabled),
 	}
 	err = s.userTbl.Update(ctx, update.Key, update)
 	if err != nil {
@@ -542,7 +542,7 @@ func NewTenantUserServer(ctx *model.GrpcServerContext, client *keycloak.Client, 
 			Endpoint: ep,
 			Resource: r.Resource,
 			Verb:     r.Verb,
-			IsRoot:   utils.BoolP(true), // these routes are only meant for root tenancy
+			IsRoot:   utils.Pointer(true), // these routes are only meant for root tenancy
 		}
 		if err := routeTbl.Locate(context.Background(), key, entry); err != nil {
 			log.Panicf("failed to register route %d %s: %s", r.Method, r.Url, err)
