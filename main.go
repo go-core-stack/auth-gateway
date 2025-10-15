@@ -38,6 +38,7 @@ import (
 	"github.com/go-core-stack/auth-gateway/pkg/gateway"
 	"github.com/go-core-stack/auth-gateway/pkg/keycloak"
 	"github.com/go-core-stack/auth-gateway/pkg/model"
+	"github.com/go-core-stack/auth-gateway/pkg/public"
 	"github.com/go-core-stack/auth-gateway/pkg/server"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
@@ -246,6 +247,7 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 	go func() {
 		gw := gateway.New()
 		oa := apidocs.NewApiDocsServer()
+		rs := public.NewRealmInfoServer()
 		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, "/apidocs/") {
 				// remove the auth context header to ensure we do not
@@ -253,6 +255,8 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 				// processing the authentication
 				r.Header.Del(common.HttpClientAuthContext)
 				oa.ServeHTTP(w, r)
+			} else if r.URL.Path == "/api/v1/realm.json" {
+				rs.ServeHTTP(w, r)
 			} else {
 				// all APIs are handled via GRPC gateway
 				gw.ServeHTTP(w, r)
