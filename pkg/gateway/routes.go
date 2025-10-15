@@ -23,6 +23,8 @@ type routeData struct {
 	isRoot         bool
 	isUserSpecific bool
 	scopes         []string
+	resource       string
+	verb           string
 }
 
 type routeNodes map[route.MethodType]routeData
@@ -49,6 +51,8 @@ func populateRoutes(routes *route.RouteTable) {
 					isRoot:         utils.Dereference(r.IsRoot),
 					isUserSpecific: utils.Dereference(r.IsUserSpecific),
 					scopes:         r.Scopes,
+					resource:       r.Resource,
+					verb:           r.Verb,
 				},
 			}
 			nRoutes.Insert(r.Key.Url, node)
@@ -60,6 +64,8 @@ func populateRoutes(routes *route.RouteTable) {
 				isRoot:         utils.Dereference(r.IsRoot),
 				isUserSpecific: utils.Dereference(r.IsUserSpecific),
 				scopes:         r.Scopes,
+				resource:       r.Resource,
+				verb:           r.Verb,
 			}
 		}
 	}
