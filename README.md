@@ -7,44 +7,108 @@ definitions to work with. Eventually this repo is also supposed to be offering
 options to work as both Authentication and Authorization Gateway for all the
 hosted services made available via the auth gateway
 
-Following is the standard mapping of various types of multi tenancy
-capabilities and resources supported in auth gateways
+Following is the standard mapping of various types of multi tenancy capabilities
+and resources supported in auth gateways
 
 ![Tenant & Org Unit Mapping](docs/img/tenant-org-units.png "Tenant & Org Unit Mapping")
 
 ## Customer / Tenant / Org Unit / User Associations
 
 ### Concept Overview
-- **Customer** — Billing entity for the overall platform. Customers can operate in dedicated or shared tenancy modes. The gRPC surface in `pkg/server/customer.go` and `api/customer.proto` exposes CRUD endpoints, but the current implementation only returns the built-in `root` customer and marks it as `Dedicated`, reflecting the bootstrap state of the service.
-- **Tenant** — Logical security and management boundary mapped to a Keycloak realm. `table.TenantEntry` (see `pkg/table/tenant.go`) captures display metadata, the default tenant admin credential, and runtime statuses (Keycloak provisioning, auth client, role sync). `main.go` guarantees that the bootstrap `root` tenant and its default admin account are present at startup via `locateRootTenant`.
-- **Org Unit (OU)** — Customer-controlled resource grouping. `table.OrgUnitEntry` (defined in `pkg/table/org-unit.go`) stores an OU identifier, human-readable metadata, and the owning tenant. The `OrgUnitServer` (`pkg/server/org-unit.go`) lets tenant administrators create, list, and update OUs inside their realm.
-- **User** — End user identity scoped to a tenant. `table.UserEntry` (`pkg/table/user.go`) keys each record by `<tenant, username>`, records profile info, and tracks provisioning state. `TenantUserApiServer` and `UserApiServer` in `pkg/server/tenant-user.go` and `pkg/server/user.go` provide admin-facing and tenant-scoped CRUD plus enable/disable flows.
+- **Customer** — Billing entity for the overall platform. Customers onboard with
+  either a dedicated tenancy (current default) or, in the future, a shared
+  tenancy similar to GitHub’s org model where invitations are required and auth
+  features remain centrally managed. Dedicated tenancies expose the full
+  authentication surface, provide a customer-specific subdomain or custom
+  domain, and are expected to serve business customers, whereas individuals are
+  typically routed toward the forthcoming shared mode. Onboarding captures
+  regulatory and fiscal identifiers (PAN / TAN / GST), address, contact details,
+  and verification artifacts; individuals must clear KYC while businesses
+  complete KYB. The customer API currently returns only the built-in root
+  record flagged as dedicated, reflecting the bootstrap state of the service.
+  Every customer is created with a non-deletable “break glass” admin user that
+  can later be disabled if the tenant provides alternate operational paths.
+- **Tenant** — Logical security and management boundary mapped to a Keycloak
+  realm. Dedicated customers automatically receive a tenant at onboarding;
+  future shared customers will attach to a pre-provisioned shared cloud tenant.
+  Tenant metadata captures display details, default admin credentials, and
+  runtime provisioning status for the realm, auth client, and role sync. Service
+  startup guarantees that the bootstrap root tenant and its default admin
+  account are present. Each tenant ultimately maps to a branded login surface
+  (`customer1.example.com`, custom domains, `console.example.com` for internal
+  ops, `cloud.example.com` for public shared access).
+- **Org Unit (OU)** — Customer-controlled resource grouping. Org unit records
+  store an identifier, human-readable metadata, and the owning tenant. Org unit
+  APIs let tenant administrators create, list, and update OUs inside their
+  realm.
+- **User** — End user identity scoped to a tenant. User records are keyed by
+  tenant and username, capture profile data, and track provisioning state. Both
+  admin-facing and tenant-scoped APIs offer CRUD plus enable/disable flows.
 
 ### How the Pieces Connect
 1. **Customer ➜ Tenant**
-   - Every billable customer eventually maps to one or more tenants. For dedicated customers, onboarding creates an isolated tenant/realm so the customer can manage identities, SSO, and security controls without sharing space with other customers.
-   - The codebase does not yet persist an explicit `customerId` inside `table.TenantEntry`; the bootstrap path simply wires the singleton `root` customer to the `root` tenant. Future customer onboarding must extend the tenant schema (for example, by adding a `Customer` field) so billing ownership can be traced programmatically.
+   - Every billable customer eventually maps to one or more tenants. For
+     dedicated customers, onboarding creates an isolated tenant and realm so the
+     customer can manage identities, SSO, and security controls without sharing
+     space with other customers.
+   - The current schema does not persist an explicit customer identifier on
+     tenant records; the bootstrap path simply wires the singleton root customer
+     to the root tenant. Future onboarding must extend tenant storage
+     so billing ownership can be traced programmatically.
 
 2. **Tenant ➜ Keycloak Realm**
-   - `tenant.SetupController` (`pkg/controller/tenant/setup.go`) watches tenant records. When it encounters a tenant whose Keycloak status is unset, it provisions or updates a realm named after `TenantKey.Name`, ensures a `controller` client exists with the correct protocol mappers, and stamps the `TenantEntry.KCStatus` / `AuthClient` timestamps.
-   - This linkage ensures that tenant creation in the datastore automatically drives identity infrastructure setup for dedicated customers.
+   - A tenant setup controller watches tenant records. When it encounters a
+     tenant whose Keycloak status is unset, it provisions or updates a realm
+     named after the tenant key, ensures a controller client exists with the
+     correct protocol mappers, and records the provisioning timestamps.
+   - This linkage ensures that tenant creation in the datastore automatically
+     drives identity infrastructure setup for dedicated customers.
 
 3. **Tenant ➜ Org Unit**
-   - Each `OrgUnitEntry` carries its owning tenant (`OrgUnitEntry.Tenant`). All Org Unit APIs resolve the caller’s tenant from the auth context (`auth.GetAuthInfoFromContext`) and constrain reads/writes to that tenant (`pkg/server/org-unit.go:27-112`).
-   - Because Org Units sit under a tenant, billing systems can attribute resource usage per OU while remaining within the customer’s isolated realm.
+   - Each org unit carries its owning tenant. All org unit APIs resolve the
+     caller’s tenant from the auth context and constrain reads and writes to
+     that tenant boundary.
+   - Because org units sit under a tenant, billing systems can attribute
+     resource usage per org unit while remaining within the customer’s isolated
+     realm.
 
 4. **Tenant ➜ User**
-   - User keys are tenant-scoped (`table.UserKey.Tenant`). Both the tenant-level and “my tenant” APIs filter on the active realm before listing or mutating users (`pkg/server/user.go:64-138`, `pkg/server/tenant-user.go:62-149`).
-   - Default tenant admins are created from `TenantConfig.DefaultAdmin` as part of `locateRootTenant` (`main.go:70-127`). Subsequent admins can enable, disable, and update users. Disable operations flip the `UserEntry.Disabled` flag, which downstream auth flows respect.
+   - User keys are tenant-scoped. Both the tenant-level and “my tenant” APIs
+     filter on the active realm before listing or mutating accounts.
+   - Default tenant admins are created from bootstrap configuration during
+     startup. Subsequent admins can enable, disable, and update users, and the
+     disable operation flips a user-level flag respected by downstream auth
+     flows.
 
 5. **Org Unit ⇄ User**
-   - Membership is stored in `table.OrgUnitUser` (`pkg/table/org-unit-user.go`) with a composite key `<tenant, username, orgUnitId>`. `OrgUnitUserServer` (`pkg/server/org-unit-user.go`) allows tenant admins to attach users to Org Units with scoped roles (`admin`, `default`, `auditor`). Lookups and mutations are tenant-aware to prevent cross-tenant leakage.
+   - Membership uses a composite key of tenant, username, and org unit
+     identifier. Tenant administrators can attach users to org units with scoped
+     roles such as admin, default, or auditor. Lookups and mutations are
+     tenant-aware to prevent cross-tenant leakage.
 
 ### Operational Considerations
-- **KYC / KYB** — Regulatory checks are currently handled outside the Auth Gateway. A superadmin (root customer / root tenant) updates each customer’s status manually (pending, completed, partial, due for re-KYC). Once that status is stored in an external system, the gateway can react (for example, by blocking tenant creation or user logins) by consulting the external status before servicing customer-specific requests.
-- **Payments & Access Control** — Payment status is also sourced externally. When a customer falls behind on payments, the external billing process should call back into admin APIs to disable the affected tenant or users. Today that means toggling the `UserEntry.Disabled` flag via `TenantUserApiServer.DisableUser` (`pkg/server/tenant-user.go:150-185`) or, once implemented, a tenant-level disable flag. Re-enabling access follows the inverse flow after the billing system marks the account as settled.
+- **KYC / KYB** — Regulatory checks are currently handled outside the Auth
+  Gateway. Individuals require KYC, businesses require KYB, and supporting
+  identifiers (PAN / TAN / GST) plus contact metadata must be captured before
+  feature access. A superadmin (root customer / root tenant) updates each
+  customer’s status manually (pending, completed, partial, due for re-KYC). Once
+  that status is stored in an external system, the gateway can react (for
+  example, by blocking tenant creation or user logins) by consulting the
+  external status before servicing customer-specific requests.
+- **Payments & Access Control** — Payment status is also sourced externally.
+  When a customer falls behind on payments, the external billing process should
+  call back into admin APIs to disable the affected tenant or users. Today that
+  means toggling the user-level disable flag through the tenant user management
+  API or, once implemented, a tenant-wide disable switch. Re-enabling access
+  follows the inverse flow after the billing system marks the account as
+  settled.
 
 ### Gaps & Next Steps
-- Persist a `Customer` reference inside `table.TenantEntry` so the runtime association is explicit.
-- Introduce tenant-level status fields (e.g., `kycStatus`, `paymentStatus`) to replace manual tracking and allow enforcement at request entry points.
-- Extend customer APIs beyond the bootstrap stub in `pkg/server/customer.go` to create/read/update real records, driving automated tenant provisioning for dedicated customers and configurable sharing for shared tenants.
+- Extend tenant records with an explicit customer reference so the runtime
+  association is explicit.
+- Introduce tenant-level status fields (for example, KYC state or payment
+  standing) to replace manual tracking and allow enforcement at request entry
+  points.
+- Expand customer APIs beyond the bootstrap stub to create, read, and update
+  real records, driving automated tenant provisioning for dedicated customers
+  and configurable sharing for shared tenants.
