@@ -84,7 +84,7 @@ func LocateCustomerTable(client db.StoreClient) (*CustomerTable, error) {
 		return customerTable, nil
 	}
 
-	col := client.GetCollection(AuthDatabaseName, TenantsCollectionName)
+	col := client.GetCollection(AuthDatabaseName, CustomersCollectionName)
 	tbl := &CustomerTable{
 		col: col,
 	}
