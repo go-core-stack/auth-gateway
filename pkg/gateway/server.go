@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"regexp"
 	"slices"
 	"strings"
 	"sync"
@@ -44,15 +45,16 @@ var logger *zap.Logger
 
 type gateway struct {
 	http.Handler
-	validator hash.Validator
-	apiKeys   *table.ApiKeyTable
-	userTbl   *table.UserTable
-	tenantTbl *table.TenantTable
-	routes    *route.RouteTable
-	ouTbl     *table.OrgUnitTable
-	ouUserTbl *table.OrgUnitUserTable
-	proxyV1   *httputil.ReverseProxy
-	proxyV2   *httputil.ReverseProxy
+	validator       hash.Validator
+	apiKeys         *table.ApiKeyTable
+	userTbl         *table.UserTable
+	tenantTbl       *table.TenantTable
+	routes          *route.RouteTable
+	ouTbl           *table.OrgUnitTable
+	ouUserTbl       *table.OrgUnitUserTable
+	ouCustomRoleTbl *table.OrgUnitCustomRoleTable
+	proxyV1         *httputil.ReverseProxy
+	proxyV2         *httputil.ReverseProxy
 }
 
 type gatewayReconciler struct {
@@ -229,7 +231,8 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 
 // performOrgUnitRoleCheck checks if the Org unit role associated with the user
 // allows the requested access, returns true if the role allows access
-func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, r *http.Request) bool {
+// For non-list operations, resourceInstance is the name/id of the specific resource being accessed
+func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, resource, verb, resourceInstance string, r *http.Request) bool {
 	ouUserKey := &table.OrgUnitUserKey{
 		Tenant:    authInfo.Realm,
 		Username:  authInfo.UserName,
@@ -242,6 +245,8 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 		}
 		return false
 	}
+
+	// Handle built-in roles
 	switch ouUser.Role {
 	case "admin":
 		// wildcard access to the org unit
@@ -253,7 +258,127 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 		}
 		return false
 	}
-	return false
+
+	// Check custom role permissions
+	customRole, err := s.ouCustomRoleTbl.FindByNameAndOrgUnit(r.Context(), authInfo.Realm, ou, ouUser.Role)
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			log.Printf("failed to find custom role %s for org unit %s: %s", ouUser.Role, ou, err)
+		}
+		return false
+	}
+
+	// Evaluate permissions
+	return s.evaluateCustomRolePermissions(customRole.Permissions, resource, verb, resourceInstance)
+}
+
+// evaluateCustomRolePermissions checks if the custom role's permissions allow the requested resource and verb
+// For non-list operations, resourceInstance is checked against the permission's match criteria
+func (s *gateway) evaluateCustomRolePermissions(permissions []*table.RolePermission, resource, verb, resourceInstance string) bool {
+	var allowMatched bool
+	var denyMatched bool
+
+	for _, perm := range permissions {
+		// Check if resource matches
+		if !s.matchesResource(perm.Resource, perm.Match, resource) {
+			continue
+		}
+
+		// Check if verb matches
+		verbMatches := false
+		for _, allowedVerb := range perm.Verbs {
+			if allowedVerb == "*" || allowedVerb == verb {
+				verbMatches = true
+				break
+			}
+		}
+
+		if !verbMatches {
+			continue
+		}
+
+		// For non-list operations, check if the resource instance matches the criteria
+		// List operations skip instance matching (show all, filter on individual access)
+		if verb != "list" && resourceInstance != "" {
+			if !s.matchesResourceInstance(resourceInstance, perm.Match) {
+				continue
+			}
+		}
+
+		// Apply action (Deny takes precedence)
+		switch perm.Action {
+		case table.RolePermissionActionDeny:
+			denyMatched = true
+		case table.RolePermissionActionAllow:
+			allowMatched = true
+		case table.RolePermissionActionLog:
+			// Log action allows access but logs for audit
+			allowMatched = true
+		}
+	}
+
+	// Deny takes precedence over Allow
+	if denyMatched {
+		return false
+	}
+
+	return allowMatched
+}
+
+// matchesResource checks if a requested resource matches the permission's resource pattern
+// This function performs resource type matching (e.g., "s3-object", "bucket")
+func (s *gateway) matchesResource(permResource string, match *table.ResourceMatch, requestedResource string) bool {
+	// Handle wildcard resource matching (e.g., "*" matches all resources)
+	if permResource == "*" {
+		return true
+	}
+
+	// Simple equality check - does the permission resource match the requested resource?
+	return permResource == requestedResource
+}
+
+// matchesResourceInstance checks if a resource instance name matches the permission's match criteria
+// Returns true if the instance matches the criteria, or if no criteria is specified
+func (s *gateway) matchesResourceInstance(instanceName string, match *table.ResourceMatch) bool {
+	// If no match criteria specified, allow all instances of this resource type
+	if match == nil || match.Key == "" {
+		return true
+	}
+
+	switch match.Criteria {
+	case table.ResourceMatchCriteriaExact:
+		return instanceName == match.Key
+
+	case table.ResourceMatchCriteriaPrefix:
+		return strings.HasPrefix(instanceName, match.Key)
+
+	case table.ResourceMatchCriteriaSuffix:
+		return strings.HasSuffix(instanceName, match.Key)
+
+	case table.ResourceMatchCriteriaRegex:
+		matched, err := regexp.MatchString(match.Key, instanceName)
+		if err != nil {
+			log.Printf("Invalid regex pattern %s: %s", match.Key, err)
+			return false
+		}
+		return matched
+
+	case table.ResourceMatchCriteriaAny, "*", "":
+		// Default to Any/wildcard matching
+		// Convert wildcard pattern to regex
+		pattern := strings.ReplaceAll(match.Key, "*", ".*")
+		pattern = "^" + pattern + "$"
+		matched, err := regexp.MatchString(pattern, instanceName)
+		if err != nil {
+			log.Printf("Invalid wildcard pattern %s: %s", match.Key, err)
+			return false
+		}
+		return matched
+
+	default:
+		log.Printf("Unknown match criteria: %s", match.Criteria)
+		return false
+	}
 }
 
 func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -265,11 +390,22 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// RawPath will be an empty string
 		path = r.URL.Path
 	}
-	match, orgUnit, err := matchRoute(r.Method, path)
+	match, orgUnit, keys, values, err := matchRoute(r.Method, path)
 	if err != nil {
 		status = http.StatusNotFound
 		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, path), status)
 		return
+	}
+
+	// Extract resource instance name from URL path parameters
+	// Common patterns: /bucket/{name}, /s3-object/{name}, /user/{username}
+	resourceInstance := ""
+	for i, k := range keys {
+		// Look for common resource identifier keys
+		if k == "name" || k == "id" || k == "username" || k == "bucket" || k == "object" {
+			resourceInstance = values[i]
+			break
+		}
 	}
 
 	var authInfo *common.AuthInfo
@@ -319,7 +455,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if orgUnit != "" {
 					// check if Org Unit Role associated with user, allows the
 					// requested access
-					allow = s.performOrgUnitRoleCheck(authInfo, orgUnit, r)
+					allow = s.performOrgUnitRoleCheck(authInfo, orgUnit, match.resource, match.verb, resourceInstance, r)
 				}
 				if !allow {
 					status = http.StatusForbidden
@@ -494,6 +630,11 @@ func New() http.Handler {
 		log.Panicf("unable to get tenant table: %s", err)
 	}
 
+	ouCustomRoleTbl, err := table.GetOrgUnitCustomRoleTable()
+	if err != nil {
+		log.Panicf("unable to get org unit custom role table: %s", err)
+	}
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -509,13 +650,14 @@ func New() http.Handler {
 	}
 
 	gateway := &gateway{
-		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
-		apiKeys:   apiKeys,
-		userTbl:   userTbl,
-		routes:    routes,
-		ouTbl:     ouTbl,
-		ouUserTbl: ouUserTbl,
-		tenantTbl: tenantTbl,
+		validator:       hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
+		apiKeys:         apiKeys,
+		userTbl:         userTbl,
+		tenantTbl:       tenantTbl,
+		routes:          routes,
+		ouTbl:           ouTbl,
+		ouUserTbl:       ouUserTbl,
+		ouCustomRoleTbl: ouCustomRoleTbl,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,

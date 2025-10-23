@@ -268,6 +268,12 @@ func (t *OrgUnitCustomRoleTable) CleanupOrphanedSoftDeletedRoles(ctx context.Con
 	return nil
 }
 
+// StartEventLogger starts the event logger for the custom role table
+func (t *OrgUnitCustomRoleTable) StartEventLogger() error {
+	logger := db.NewEventLogger[OrgUnitCustomRoleKey, OrgUnitCustomRole](t.col, nil)
+	return logger.Start(context.Background())
+}
+
 // GetOrgUnitCustomRoleTable returns the global custom role table instance
 func GetOrgUnitCustomRoleTable() (*OrgUnitCustomRoleTable, error) {
 	if orgUnitCustomRoleTable != nil {
