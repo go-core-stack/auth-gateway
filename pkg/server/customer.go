@@ -15,24 +15,47 @@ import (
 
 	"github.com/go-core-stack/auth-gateway/api"
 	"github.com/go-core-stack/auth-gateway/pkg/model"
+	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
 type CustomerServer struct {
 	api.UnimplementedCustomerServer
+	customerTbl *table.CustomerTable
 }
 
 func (s *CustomerServer) ListCustomers(ctx context.Context, req *api.CustomersListReq) (*api.CustomersListResp, error) {
-	return &api.CustomersListResp{
-		Count: 1,
-		Items: []*api.CustomersListEntry{
-			{
-				Id:      "root",
-				Name:    "Root",
-				Desc:    "Root Customer created as part of deployment",
-				Tenancy: api.CustomerDefs_Dedicated,
-			},
-		},
-	}, nil
+	count, err := s.customerTbl.Count(ctx, nil)
+	if err != nil {
+		log.Printf("Error getting count of available customers: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+	resp := &api.CustomersListResp{
+		Count: int32(count),
+		Items: []*api.CustomersListEntry{},
+	}
+
+	list, err := s.customerTbl.FindMany(ctx, nil, req.Offset, req.Limit)
+	if err != nil {
+		log.Printf("Error getting list of available customers: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	for _, cust := range list {
+		item := &api.CustomersListEntry{
+			Id:   cust.Key.Id,
+			Name: cust.Config.Name,
+			Desc: cust.Config.Desc,
+		}
+		switch cust.Tenancy {
+		case table.DedicatedTenancy:
+			item.Tenancy = api.CustomerDefs_Dedicated
+		case table.SharedTenancy:
+			item.Tenancy = api.CustomerDefs_Shared
+		}
+		resp.Items = append(resp.Items, item)
+	}
+
+	return resp, nil
 }
 
 func (s *CustomerServer) AddCustomer(ctx context.Context, req *api.CustomerAddReq) (*api.CustomerAddResp, error) {
@@ -46,13 +69,27 @@ func (s *CustomerServer) UpdateCustomer(ctx context.Context, req *api.CustomerUp
 }
 
 func (s *CustomerServer) GetCustomer(ctx context.Context, req *api.CustomerGetReq) (*api.CustomerGetResp, error) {
+	key := &table.CustomerKey{
+		Id: req.Id,
+	}
+	entry, err := s.customerTbl.Find(ctx, key)
+	if err != nil {
+		log.Printf("Error getting customer %s: %s", req.Id, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	tenancy := api.CustomerDefs_Dedicated
+	if entry.Tenancy == table.SharedTenancy {
+		tenancy = api.CustomerDefs_Shared
+	}
+
 	return &api.CustomerGetResp{
-		Id:        "root",
-		Name:      "Root",
-		Desc:      "Root Customer created as part of deployment",
-		Created:   int64(1751907610),
-		CreatedBy: "system",
-		Tenancy:   api.CustomerDefs_Dedicated,
+		Id:        entry.Key.Id,
+		Name:      entry.Config.Name,
+		Desc:      entry.Config.Desc,
+		Created:   entry.Created,
+		CreatedBy: entry.CreatedBy,
+		Tenancy:   tenancy,
 	}, nil
 }
 
@@ -62,9 +99,15 @@ func (s *CustomerServer) DeleteCustomer(ctx context.Context, req *api.CustomerDe
 }
 
 func NewCustomerServer(ctx *model.GrpcServerContext, ep string) *CustomerServer {
-	srv := &CustomerServer{}
+	customerTbl, err := table.GetCustomerTable()
+	if err != nil {
+		log.Panicf("failed to get customer table: %s", err)
+	}
+	srv := &CustomerServer{
+		customerTbl: customerTbl,
+	}
 	api.RegisterCustomerServer(ctx.Server, srv)
-	err := api.RegisterCustomerHandler(context.Background(), ctx.Mux, ctx.Conn)
+	err = api.RegisterCustomerHandler(context.Background(), ctx.Mux, ctx.Conn)
 	if err != nil {
 		log.Panicf("failed to register handler: %s", err)
 	}
