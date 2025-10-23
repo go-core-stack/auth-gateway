@@ -26,6 +26,124 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Matching criteria types for resource-based permissions
+type ResourceMatchCriteria int32
+
+const (
+	// Unspecified/default (treated as wildcard)
+	ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_UNSPECIFIED ResourceMatchCriteria = 0
+	// Exact resource name match
+	ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_EXACT ResourceMatchCriteria = 1
+	// Resource name starts with the key
+	ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_PREFIX ResourceMatchCriteria = 2
+	// Resource name ends with the key
+	ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_SUFFIX ResourceMatchCriteria = 3
+	// Resource name matches the regex pattern in key
+	ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_REGEX ResourceMatchCriteria = 4
+	// Key uses wildcard matching with * (e.g., "bucket-*", "*-prod", "*")
+	ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_WILDCARD ResourceMatchCriteria = 5
+)
+
+// Enum value maps for ResourceMatchCriteria.
+var (
+	ResourceMatchCriteria_name = map[int32]string{
+		0: "RESOURCE_MATCH_CRITERIA_UNSPECIFIED",
+		1: "RESOURCE_MATCH_CRITERIA_EXACT",
+		2: "RESOURCE_MATCH_CRITERIA_PREFIX",
+		3: "RESOURCE_MATCH_CRITERIA_SUFFIX",
+		4: "RESOURCE_MATCH_CRITERIA_REGEX",
+		5: "RESOURCE_MATCH_CRITERIA_WILDCARD",
+	}
+	ResourceMatchCriteria_value = map[string]int32{
+		"RESOURCE_MATCH_CRITERIA_UNSPECIFIED": 0,
+		"RESOURCE_MATCH_CRITERIA_EXACT":       1,
+		"RESOURCE_MATCH_CRITERIA_PREFIX":      2,
+		"RESOURCE_MATCH_CRITERIA_SUFFIX":      3,
+		"RESOURCE_MATCH_CRITERIA_REGEX":       4,
+		"RESOURCE_MATCH_CRITERIA_WILDCARD":    5,
+	}
+)
+
+func (x ResourceMatchCriteria) Enum() *ResourceMatchCriteria {
+	p := new(ResourceMatchCriteria)
+	*p = x
+	return p
+}
+
+func (x ResourceMatchCriteria) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ResourceMatchCriteria) Descriptor() protoreflect.EnumDescriptor {
+	return file_org_unit_role_proto_enumTypes[0].Descriptor()
+}
+
+func (ResourceMatchCriteria) Type() protoreflect.EnumType {
+	return &file_org_unit_role_proto_enumTypes[0]
+}
+
+func (x ResourceMatchCriteria) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ResourceMatchCriteria.Descriptor instead.
+func (ResourceMatchCriteria) EnumDescriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{0}
+}
+
+// Action types for role permissions
+type RolePermissionAction int32
+
+const (
+	// Unspecified action (invalid)
+	RolePermissionAction_ROLE_PERMISSION_ACTION_UNSPECIFIED RolePermissionAction = 0
+	// Allow the specified verbs on the resource
+	RolePermissionAction_ROLE_PERMISSION_ACTION_ALLOW RolePermissionAction = 1
+	// Deny the specified verbs on the resource (takes precedence over Allow)
+	RolePermissionAction_ROLE_PERMISSION_ACTION_DENY RolePermissionAction = 2
+)
+
+// Enum value maps for RolePermissionAction.
+var (
+	RolePermissionAction_name = map[int32]string{
+		0: "ROLE_PERMISSION_ACTION_UNSPECIFIED",
+		1: "ROLE_PERMISSION_ACTION_ALLOW",
+		2: "ROLE_PERMISSION_ACTION_DENY",
+	}
+	RolePermissionAction_value = map[string]int32{
+		"ROLE_PERMISSION_ACTION_UNSPECIFIED": 0,
+		"ROLE_PERMISSION_ACTION_ALLOW":       1,
+		"ROLE_PERMISSION_ACTION_DENY":        2,
+	}
+)
+
+func (x RolePermissionAction) Enum() *RolePermissionAction {
+	p := new(RolePermissionAction)
+	*p = x
+	return p
+}
+
+func (x RolePermissionAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RolePermissionAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_org_unit_role_proto_enumTypes[1].Descriptor()
+}
+
+func (RolePermissionAction) Type() protoreflect.EnumType {
+	return &file_org_unit_role_proto_enumTypes[1]
+}
+
+func (x RolePermissionAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RolePermissionAction.Descriptor instead.
+func (RolePermissionAction) EnumDescriptor() ([]byte, []int) {
+	return file_org_unit_role_proto_rawDescGZIP(), []int{1}
+}
+
 // org unit roles list request
 type OrgUnitRolesListReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -211,13 +329,8 @@ func (x *OrgUnitRolesListResp) GetItems() []*OrgUnitRolesListEntry {
 // Resource matching criteria for fine-grained permission control
 type ResourceMatch struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Matching criteria type: "exact", "prefix", "suffix", "regex", "wildcard"
-	// - exact: Exact resource name match
-	// - prefix: Resource name starts with the key
-	// - suffix: Resource name ends with the key
-	// - regex: Resource name matches the regex pattern in key
-	// - wildcard: Key with * for wildcard matching (default if empty)
-	Criteria string `protobuf:"bytes,1,opt,name=criteria,proto3" json:"criteria,omitempty"`
+	// Matching criteria type
+	Criteria ResourceMatchCriteria `protobuf:"varint,1,opt,name=criteria,proto3,enum=api.ResourceMatchCriteria" json:"criteria,omitempty"`
 	// The matching key/pattern based on criteria
 	// For wildcard: supports * (e.g., "bucket-*", "*-prod", "*")
 	// For regex: valid regex pattern
@@ -257,11 +370,11 @@ func (*ResourceMatch) Descriptor() ([]byte, []int) {
 	return file_org_unit_role_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ResourceMatch) GetCriteria() string {
+func (x *ResourceMatch) GetCriteria() ResourceMatchCriteria {
 	if x != nil {
 		return x.Criteria
 	}
-	return ""
+	return ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_UNSPECIFIED
 }
 
 func (x *ResourceMatch) GetKey() string {
@@ -280,8 +393,8 @@ type RolePermission struct {
 	Match *ResourceMatch `protobuf:"bytes,2,opt,name=match,proto3" json:"match,omitempty"`
 	// List of allowed verbs/actions for this resource (supports "*" for all verbs)
 	Verbs []string `protobuf:"bytes,3,rep,name=verbs,proto3" json:"verbs,omitempty"`
-	// Action type: "Allow" or "Deny" (Deny takes precedence over Allow)
-	Action        string `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"`
+	// Action type: Allow or Deny (Deny takes precedence over Allow)
+	Action        RolePermissionAction `protobuf:"varint,4,opt,name=action,proto3,enum=api.RolePermissionAction" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -337,11 +450,11 @@ func (x *RolePermission) GetVerbs() []string {
 	return nil
 }
 
-func (x *RolePermission) GetAction() string {
+func (x *RolePermission) GetAction() RolePermissionAction {
 	if x != nil {
 		return x.Action
 	}
-	return ""
+	return RolePermissionAction_ROLE_PERMISSION_ACTION_UNSPECIFIED
 }
 
 // Create custom role request
@@ -880,15 +993,15 @@ const file_org_unit_role_proto_rawDesc = "" +
 	"\acreated\x18\x05 \x01(\x03R\acreated\x12\x1c\n" +
 	"\tcreatedBy\x18\x06 \x01(\tR\tcreatedBy\"H\n" +
 	"\x14OrgUnitRolesListResp\x120\n" +
-	"\x05items\x18\x02 \x03(\v2\x1a.api.OrgUnitRolesListEntryR\x05items\"=\n" +
-	"\rResourceMatch\x12\x1a\n" +
-	"\bcriteria\x18\x01 \x01(\tR\bcriteria\x12\x10\n" +
-	"\x03key\x18\x02 \x01(\tR\x03key\"\x84\x01\n" +
+	"\x05items\x18\x02 \x03(\v2\x1a.api.OrgUnitRolesListEntryR\x05items\"Y\n" +
+	"\rResourceMatch\x126\n" +
+	"\bcriteria\x18\x01 \x01(\x0e2\x1a.api.ResourceMatchCriteriaR\bcriteria\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"\x9f\x01\n" +
 	"\x0eRolePermission\x12\x1a\n" +
 	"\bresource\x18\x01 \x01(\tR\bresource\x12(\n" +
 	"\x05match\x18\x02 \x01(\v2\x12.api.ResourceMatchR\x05match\x12\x14\n" +
-	"\x05verbs\x18\x03 \x03(\tR\x05verbs\x12\x16\n" +
-	"\x06action\x18\x04 \x01(\tR\x06action\"\xb4\x01\n" +
+	"\x05verbs\x18\x03 \x03(\tR\x05verbs\x121\n" +
+	"\x06action\x18\x04 \x01(\x0e2\x19.api.RolePermissionActionR\x06action\"\xb4\x01\n" +
 	"\x13CreateCustomRoleReq\x12\x0e\n" +
 	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -921,18 +1034,29 @@ const file_org_unit_role_proto_rawDesc = "" +
 	"\x02ou\x18\x01 \x01(\tR\x02ou\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"0\n" +
 	"\x14DeleteCustomRoleResp\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\xf3\x05\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage*\xf4\x01\n" +
+	"\x15ResourceMatchCriteria\x12'\n" +
+	"#RESOURCE_MATCH_CRITERIA_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dRESOURCE_MATCH_CRITERIA_EXACT\x10\x01\x12\"\n" +
+	"\x1eRESOURCE_MATCH_CRITERIA_PREFIX\x10\x02\x12\"\n" +
+	"\x1eRESOURCE_MATCH_CRITERIA_SUFFIX\x10\x03\x12!\n" +
+	"\x1dRESOURCE_MATCH_CRITERIA_REGEX\x10\x04\x12$\n" +
+	" RESOURCE_MATCH_CRITERIA_WILDCARD\x10\x05*\x81\x01\n" +
+	"\x14RolePermissionAction\x12&\n" +
+	"\"ROLE_PERMISSION_ACTION_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cROLE_PERMISSION_ACTION_ALLOW\x10\x01\x12\x1f\n" +
+	"\x1bROLE_PERMISSION_ACTION_DENY\x10\x022\xd7\x05\n" +
 	"\vOrgUnitRole\x12\x88\x01\n" +
 	"\x10ListOrgUnitRoles\x12\x18.api.OrgUnitRolesListReq\x1a\x19.api.OrgUnitRolesListResp\"?\x8a\xb5\x18\x19\n" +
-	"\rorg-unit-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/roles\x12\x93\x01\n" +
-	"\x10CreateCustomRole\x12\x18.api.CreateCustomRoleReq\x1a\x19.api.CreateCustomRoleResp\"J\x8a\xb5\x18\"\n" +
-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06create\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/auth/v1/ou/{ou}/role\x12\x9a\x01\n" +
-	"\x10UpdateCustomRole\x12\x18.api.UpdateCustomRoleReq\x1a\x19.api.UpdateCustomRoleResp\"Q\x8a\xb5\x18\"\n" +
-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/auth/v1/ou/{ou}/role/{name}\x12\x8b\x01\n" +
-	"\rGetCustomRole\x12\x15.api.GetCustomRoleReq\x1a\x16.api.GetCustomRoleResp\"K\x8a\xb5\x18\x1f\n" +
-	"\x14org-unit-custom-role\x12\x02ou\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/auth/v1/ou/{ou}/role/{name}\x12\x97\x01\n" +
-	"\x10DeleteCustomRole\x12\x18.api.DeleteCustomRoleReq\x1a\x19.api.DeleteCustomRoleResp\"N\x8a\xb5\x18\"\n" +
-	"\x14org-unit-custom-role\x12\x02ou\x1a\x06delete\x82\xd3\xe4\x93\x02\"* /api/auth/v1/ou/{ou}/role/{name}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\rorg-unit-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/roles\x12\x8c\x01\n" +
+	"\x10CreateCustomRole\x12\x18.api.CreateCustomRoleReq\x1a\x19.api.CreateCustomRoleResp\"C\x8a\xb5\x18\x1b\n" +
+	"\rorg-unit-role\x12\x02ou\x1a\x06create\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/auth/v1/ou/{ou}/role\x12\x93\x01\n" +
+	"\x10UpdateCustomRole\x12\x18.api.UpdateCustomRoleReq\x1a\x19.api.UpdateCustomRoleResp\"J\x8a\xb5\x18\x1b\n" +
+	"\rorg-unit-role\x12\x02ou\x1a\x06update\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/auth/v1/ou/{ou}/role/{name}\x12\x84\x01\n" +
+	"\rGetCustomRole\x12\x15.api.GetCustomRoleReq\x1a\x16.api.GetCustomRoleResp\"D\x8a\xb5\x18\x18\n" +
+	"\rorg-unit-role\x12\x02ou\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/auth/v1/ou/{ou}/role/{name}\x12\x90\x01\n" +
+	"\x10DeleteCustomRole\x12\x18.api.DeleteCustomRoleReq\x1a\x19.api.DeleteCustomRoleResp\"G\x8a\xb5\x18\x1b\n" +
+	"\rorg-unit-role\x12\x02ou\x1a\x06delete\x82\xd3\xe4\x93\x02\"* /api/auth/v1/ou/{ou}/role/{name}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_org_unit_role_proto_rawDescOnce sync.Once
@@ -946,43 +1070,48 @@ func file_org_unit_role_proto_rawDescGZIP() []byte {
 	return file_org_unit_role_proto_rawDescData
 }
 
+var file_org_unit_role_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_org_unit_role_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_org_unit_role_proto_goTypes = []any{
-	(*OrgUnitRolesListReq)(nil),   // 0: api.OrgUnitRolesListReq
-	(*OrgUnitRolesListEntry)(nil), // 1: api.OrgUnitRolesListEntry
-	(*OrgUnitRolesListResp)(nil),  // 2: api.OrgUnitRolesListResp
-	(*ResourceMatch)(nil),         // 3: api.ResourceMatch
-	(*RolePermission)(nil),        // 4: api.RolePermission
-	(*CreateCustomRoleReq)(nil),   // 5: api.CreateCustomRoleReq
-	(*CreateCustomRoleResp)(nil),  // 6: api.CreateCustomRoleResp
-	(*UpdateCustomRoleReq)(nil),   // 7: api.UpdateCustomRoleReq
-	(*UpdateCustomRoleResp)(nil),  // 8: api.UpdateCustomRoleResp
-	(*GetCustomRoleReq)(nil),      // 9: api.GetCustomRoleReq
-	(*GetCustomRoleResp)(nil),     // 10: api.GetCustomRoleResp
-	(*DeleteCustomRoleReq)(nil),   // 11: api.DeleteCustomRoleReq
-	(*DeleteCustomRoleResp)(nil),  // 12: api.DeleteCustomRoleResp
+	(ResourceMatchCriteria)(0),    // 0: api.ResourceMatchCriteria
+	(RolePermissionAction)(0),     // 1: api.RolePermissionAction
+	(*OrgUnitRolesListReq)(nil),   // 2: api.OrgUnitRolesListReq
+	(*OrgUnitRolesListEntry)(nil), // 3: api.OrgUnitRolesListEntry
+	(*OrgUnitRolesListResp)(nil),  // 4: api.OrgUnitRolesListResp
+	(*ResourceMatch)(nil),         // 5: api.ResourceMatch
+	(*RolePermission)(nil),        // 6: api.RolePermission
+	(*CreateCustomRoleReq)(nil),   // 7: api.CreateCustomRoleReq
+	(*CreateCustomRoleResp)(nil),  // 8: api.CreateCustomRoleResp
+	(*UpdateCustomRoleReq)(nil),   // 9: api.UpdateCustomRoleReq
+	(*UpdateCustomRoleResp)(nil),  // 10: api.UpdateCustomRoleResp
+	(*GetCustomRoleReq)(nil),      // 11: api.GetCustomRoleReq
+	(*GetCustomRoleResp)(nil),     // 12: api.GetCustomRoleResp
+	(*DeleteCustomRoleReq)(nil),   // 13: api.DeleteCustomRoleReq
+	(*DeleteCustomRoleResp)(nil),  // 14: api.DeleteCustomRoleResp
 }
 var file_org_unit_role_proto_depIdxs = []int32{
-	1,  // 0: api.OrgUnitRolesListResp.items:type_name -> api.OrgUnitRolesListEntry
-	3,  // 1: api.RolePermission.match:type_name -> api.ResourceMatch
-	4,  // 2: api.CreateCustomRoleReq.permissions:type_name -> api.RolePermission
-	4,  // 3: api.UpdateCustomRoleReq.permissions:type_name -> api.RolePermission
-	4,  // 4: api.GetCustomRoleResp.permissions:type_name -> api.RolePermission
-	0,  // 5: api.OrgUnitRole.ListOrgUnitRoles:input_type -> api.OrgUnitRolesListReq
-	5,  // 6: api.OrgUnitRole.CreateCustomRole:input_type -> api.CreateCustomRoleReq
-	7,  // 7: api.OrgUnitRole.UpdateCustomRole:input_type -> api.UpdateCustomRoleReq
-	9,  // 8: api.OrgUnitRole.GetCustomRole:input_type -> api.GetCustomRoleReq
-	11, // 9: api.OrgUnitRole.DeleteCustomRole:input_type -> api.DeleteCustomRoleReq
-	2,  // 10: api.OrgUnitRole.ListOrgUnitRoles:output_type -> api.OrgUnitRolesListResp
-	6,  // 11: api.OrgUnitRole.CreateCustomRole:output_type -> api.CreateCustomRoleResp
-	8,  // 12: api.OrgUnitRole.UpdateCustomRole:output_type -> api.UpdateCustomRoleResp
-	10, // 13: api.OrgUnitRole.GetCustomRole:output_type -> api.GetCustomRoleResp
-	12, // 14: api.OrgUnitRole.DeleteCustomRole:output_type -> api.DeleteCustomRoleResp
-	10, // [10:15] is the sub-list for method output_type
-	5,  // [5:10] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	3,  // 0: api.OrgUnitRolesListResp.items:type_name -> api.OrgUnitRolesListEntry
+	0,  // 1: api.ResourceMatch.criteria:type_name -> api.ResourceMatchCriteria
+	5,  // 2: api.RolePermission.match:type_name -> api.ResourceMatch
+	1,  // 3: api.RolePermission.action:type_name -> api.RolePermissionAction
+	6,  // 4: api.CreateCustomRoleReq.permissions:type_name -> api.RolePermission
+	6,  // 5: api.UpdateCustomRoleReq.permissions:type_name -> api.RolePermission
+	6,  // 6: api.GetCustomRoleResp.permissions:type_name -> api.RolePermission
+	2,  // 7: api.OrgUnitRole.ListOrgUnitRoles:input_type -> api.OrgUnitRolesListReq
+	7,  // 8: api.OrgUnitRole.CreateCustomRole:input_type -> api.CreateCustomRoleReq
+	9,  // 9: api.OrgUnitRole.UpdateCustomRole:input_type -> api.UpdateCustomRoleReq
+	11, // 10: api.OrgUnitRole.GetCustomRole:input_type -> api.GetCustomRoleReq
+	13, // 11: api.OrgUnitRole.DeleteCustomRole:input_type -> api.DeleteCustomRoleReq
+	4,  // 12: api.OrgUnitRole.ListOrgUnitRoles:output_type -> api.OrgUnitRolesListResp
+	8,  // 13: api.OrgUnitRole.CreateCustomRole:output_type -> api.CreateCustomRoleResp
+	10, // 14: api.OrgUnitRole.UpdateCustomRole:output_type -> api.UpdateCustomRoleResp
+	12, // 15: api.OrgUnitRole.GetCustomRole:output_type -> api.GetCustomRoleResp
+	14, // 16: api.OrgUnitRole.DeleteCustomRole:output_type -> api.DeleteCustomRoleResp
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_org_unit_role_proto_init() }
@@ -995,13 +1124,14 @@ func file_org_unit_role_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_org_unit_role_proto_rawDesc), len(file_org_unit_role_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      2,
 			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_org_unit_role_proto_goTypes,
 		DependencyIndexes: file_org_unit_role_proto_depIdxs,
+		EnumInfos:         file_org_unit_role_proto_enumTypes,
 		MessageInfos:      file_org_unit_role_proto_msgTypes,
 	}.Build()
 	File_org_unit_role_proto = out.File
