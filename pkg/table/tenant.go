@@ -4,8 +4,6 @@
 package table
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
-
 	"github.com/go-core-stack/core/db"
 	"github.com/go-core-stack/core/errors"
 	"github.com/go-core-stack/core/table"
@@ -16,90 +14,6 @@ var tenantTable *TenantTable
 type TenantKey struct {
 	// Name as a key for the tenant
 	Name string `bson:"name,omitempty"`
-}
-
-type AccountType int32
-
-const (
-	UnknownAccount AccountType = iota
-	CompanyAccount
-	PersonalAccount
-)
-
-type Address struct {
-	// Postal Code
-	PostalCode string `bson:"postalCode,omitempty"`
-
-	// Country Code
-	Country string `bson:"country,omitempty"`
-
-	// State / Province / Region / County
-	State string `bson:"state,omitempty"`
-
-	// City
-	City string `bson:"city,omitempty"`
-
-	// Address Line 1
-	Addr1 string `bson:"addr1,omitempty"`
-
-	// Address Line 2
-	Addr2 string `bson:"addr2,omitempty"`
-
-	// Address Line 3
-	Addr3 string `bson:"addr3,omitempty"`
-
-	// Name for which the address is
-	Name string `bson:"name,omitempty"`
-}
-
-type TenantContact struct {
-	// Contact Person - relevant only if address type is company
-	Name string `bson:"contact,omitempty"`
-
-	// Phone number
-	Phone string `bson:"phone,omitempty"`
-
-	// email address
-	Email string `bson:"email,omitempty"`
-}
-
-type TenantInfo struct {
-	// Tax ID, typically GST No / VAT Number / ABN / EIN number
-	TaxID string `bson:"taxId,omitempty"`
-
-	// Personal Tax ID, typicall PAN, Social security number etc.
-	PTaxID string `bson:"pTaxId,omitempty"`
-}
-
-type UserCredentials struct {
-	// User Id - username or email id using which user would login
-	UserID string `bson:"userID,omitempty"`
-
-	// Password - first time password for the user
-	// this will be stored by cryptographically encoding
-	Password string `bson:"password,omitempty"`
-}
-
-func (c *UserCredentials) MarshalBSON() ([]byte, error) {
-	type UserCredentialsAlias UserCredentials
-	pass, _ := encryptor.EncryptString(c.Password)
-	raw := &UserCredentialsAlias{
-		UserID:   c.UserID,
-		Password: pass,
-	}
-	return bson.Marshal(raw)
-}
-
-func (c *UserCredentials) UnmarshalBSON(data []byte) error {
-	type UserCredentialsAlias UserCredentials
-	raw := &UserCredentialsAlias{}
-	err := bson.Unmarshal(data, raw)
-	if err != nil {
-		return err
-	}
-	c.UserID = raw.UserID
-	c.Password, _ = encryptor.DecryptString(raw.Password)
-	return nil
 }
 
 type TenantConfig struct {
@@ -113,14 +27,14 @@ type TenantConfig struct {
 	Addr *Address `bson:"addr,omitempty"`
 
 	// Billing Contact for the tenant
-	Contact *TenantContact `bson:"contact,omitempty"`
+	Contact *Contact `bson:"contact,omitempty"`
 
 	// User ID of Default Admin for the tenant
 	DefaultAdmin *UserCredentials `bson:"defaultAdmin,omitempty"`
 
 	// additional tenant information, requirement based on
 	// local laws
-	Info *TenantInfo `bson:"info,omitempty"`
+	Info *TaxInfo `bson:"info,omitempty"`
 
 	// is this tenant root tenant
 	IsRoot bool `bson:"isRoot,omitempty"`

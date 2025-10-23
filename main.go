@@ -388,6 +388,12 @@ func main() {
 		log.Panicf("failed to locate Org Unit User table: %s", err)
 	}
 
+	// locate customer table
+	_, err = table.LocateCustomerTable(client)
+	if err != nil {
+		log.Panicf("failed to locate customer table: %s", err)
+	}
+
 	err = ouUserTbl.StartEventLogger()
 	if err != nil {
 		log.Panicf("failed to start event logger for Org Unit User table: %s", err)
