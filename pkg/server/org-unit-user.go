@@ -22,7 +22,28 @@ import (
 
 type OrgUnitUserServer struct {
 	api.UnimplementedOrgUnitUserServer
-	tbl *table.OrgUnitUserTable
+	tbl             *table.OrgUnitUserTable
+	customRoleTable *table.OrgUnitCustomRoleTable
+}
+
+// isValidRole checks if a role is valid (either built-in or custom)
+func (s *OrgUnitUserServer) isValidRole(ctx context.Context, tenant, orgUnitId, role string) error {
+	// Check if it's a built-in role
+	if role == "admin" || role == "auditor" {
+		return nil
+	}
+
+	// Check if it's a valid custom role
+	_, err := s.customRoleTable.FindByNameAndOrgUnit(ctx, tenant, orgUnitId, role)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return status.Errorf(codes.InvalidArgument, "Invalid role: '%s'. Must be 'admin', 'auditor', or a valid custom role", role)
+		}
+		log.Printf("failed to check custom role existence: %s", err)
+		return status.Errorf(codes.Internal, "Failed to validate role")
+	}
+
+	return nil
 }
 
 func (s *OrgUnitUserServer) ListOrgUnitUsers(ctx context.Context, req *api.OrgUnitUsersListReq) (*api.OrgUnitUsersListResp, error) {
@@ -62,9 +83,10 @@ func (s *OrgUnitUserServer) AddOrgUnitUser(ctx context.Context, req *api.OrgUnit
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 
-	// validate role, currently only admin, default and auditor roles are allowed
-	if req.Role != "admin" && req.Role != "default" && req.Role != "auditor" {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s", req.Role)
+	// Validate role (built-in or custom)
+	err := s.isValidRole(ctx, authInfo.Realm, req.Ou, req.Role)
+	if err != nil {
+		return nil, err
 	}
 
 	// TODO: validate if user exists, this might be never done to allow adding users
@@ -81,7 +103,7 @@ func (s *OrgUnitUserServer) AddOrgUnitUser(ctx context.Context, req *api.OrgUnit
 		Role:      req.Role,
 	}
 
-	err := s.tbl.Insert(ctx, entry.Key, entry)
+	err = s.tbl.Insert(ctx, entry.Key, entry)
 	if err != nil {
 		if errors.IsAlreadyExists(err) {
 			return nil, status.Errorf(codes.AlreadyExists, "Org Unit User %s, already exists", req.User)
@@ -99,9 +121,10 @@ func (s *OrgUnitUserServer) UpdateOrgUnitUser(ctx context.Context, req *api.OrgU
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 
-	// validate role, currently only admin, default and auditor roles are allowed
-	if req.Role != "admin" && req.Role != "default" && req.Role != "auditor" {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s", req.Role)
+	// Validate role (built-in or custom)
+	err := s.isValidRole(ctx, authInfo.Realm, req.Ou, req.Role)
+	if err != nil {
+		return nil, err
 	}
 
 	update := &table.OrgUnitUser{
@@ -113,7 +136,7 @@ func (s *OrgUnitUserServer) UpdateOrgUnitUser(ctx context.Context, req *api.OrgU
 		Role: req.Role,
 	}
 
-	err := s.tbl.Update(ctx, update.Key, update)
+	err = s.tbl.Update(ctx, update.Key, update)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil, status.Errorf(codes.NotFound, "Org Unit User %s, not found", req.User)
@@ -153,8 +176,15 @@ func NewOrgUnitUserServer(ctx *model.GrpcServerContext, ep string) *OrgUnitUserS
 	if err != nil {
 		log.Panicf("failed to get org unit user table: %s", err)
 	}
+
+	customRoleTable, err := table.GetOrgUnitCustomRoleTable()
+	if err != nil {
+		log.Panicf("failed to get org unit custom role table: %s", err)
+	}
+
 	srv := &OrgUnitUserServer{
-		tbl: tbl,
+		tbl:             tbl,
+		customRoleTable: customRoleTable,
 	}
 	api.RegisterOrgUnitUserServer(ctx.Server, srv)
 	err = api.RegisterOrgUnitUserHandler(context.Background(), ctx.Mux, ctx.Conn)

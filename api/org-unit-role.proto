@@ -31,7 +31,7 @@ service OrgUnitRole {
       body: "*"
     };
     option (api.role) = {
-      resource: "org-unit-custom-role"
+      resource: "org-unit-role"
       scope: "ou"
       verb: "create"
     };
@@ -44,7 +44,7 @@ service OrgUnitRole {
       body: "*"
     };
     option (api.role) = {
-      resource: "org-unit-custom-role"
+      resource: "org-unit-role"
       scope: "ou"
       verb: "update"
     };
@@ -56,7 +56,7 @@ service OrgUnitRole {
       get: "/api/auth/v1/ou/{ou}/role/{name}"
     };
     option (api.role) = {
-      resource: "org-unit-custom-role"
+      resource: "org-unit-role"
       scope: "ou"
       verb: "get"
     };
@@ -68,7 +68,7 @@ service OrgUnitRole {
       delete: "/api/auth/v1/ou/{ou}/role/{name}"
     };
     option (api.role) = {
-      resource: "org-unit-custom-role"
+      resource: "org-unit-role"
       scope: "ou"
       verb: "delete"
     };
@@ -111,15 +111,36 @@ message OrgUnitRolesListResp {
   repeated OrgUnitRolesListEntry items = 2;
 }
 
+// Matching criteria types for resource-based permissions
+enum ResourceMatchCriteria {
+  // Unspecified/default (treated as wildcard)
+  RESOURCE_MATCH_CRITERIA_UNSPECIFIED = 0;
+  // Exact resource name match
+  RESOURCE_MATCH_CRITERIA_EXACT = 1;
+  // Resource name starts with the key
+  RESOURCE_MATCH_CRITERIA_PREFIX = 2;
+  // Resource name ends with the key
+  RESOURCE_MATCH_CRITERIA_SUFFIX = 3;
+  // Resource name matches the regex pattern in key
+  RESOURCE_MATCH_CRITERIA_REGEX = 4;
+  // Key uses wildcard matching with * (e.g., "bucket-*", "*-prod", "*")
+  RESOURCE_MATCH_CRITERIA_WILDCARD = 5;
+}
+
+// Action types for role permissions
+enum RolePermissionAction {
+  // Unspecified action (invalid)
+  ROLE_PERMISSION_ACTION_UNSPECIFIED = 0;
+  // Allow the specified verbs on the resource
+  ROLE_PERMISSION_ACTION_ALLOW = 1;
+  // Deny the specified verbs on the resource (takes precedence over Allow)
+  ROLE_PERMISSION_ACTION_DENY = 2;
+}
+
 // Resource matching criteria for fine-grained permission control
 message ResourceMatch {
-  // Matching criteria type: "exact", "prefix", "suffix", "regex", "wildcard"
-  // - exact: Exact resource name match
-  // - prefix: Resource name starts with the key
-  // - suffix: Resource name ends with the key
-  // - regex: Resource name matches the regex pattern in key
-  // - wildcard: Key with * for wildcard matching (default if empty)
-  string criteria = 1;
+  // Matching criteria type
+  ResourceMatchCriteria criteria = 1;
 
   // The matching key/pattern based on criteria
   // For wildcard: supports * (e.g., "bucket-*", "*-prod", "*")
@@ -139,8 +160,8 @@ message RolePermission {
   // List of allowed verbs/actions for this resource (supports "*" for all verbs)
   repeated string verbs = 3;
 
-  // Action type: "Allow" or "Deny" (Deny takes precedence over Allow)
-  string action = 4;
+  // Action type: Allow or Deny (Deny takes precedence over Allow)
+  RolePermissionAction action = 4;
 }
 
 // Create custom role request
