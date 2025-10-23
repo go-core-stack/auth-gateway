@@ -104,6 +104,48 @@ func parseFlags() {
 }
 
 func locateRootTenant() {
+	now := time.Now().Unix()
+	// locate customer table
+	customerTbl, err := table.LocateCustomerTable(client)
+	if err != nil {
+		log.Panicf("failed to locate customer table: %s", err)
+	}
+
+	custKey := &table.CustomerKey{
+		Id: rootTenantName,
+	}
+
+	_, err = customerTbl.Find(context.Background(), custKey)
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			log.Panicf("failed to find root customer entry: %s", err)
+		}
+		// locate root customer entry
+		custEntry := &table.CustomerEntry{
+			Key:     *custKey,
+			Type:    table.CompanyAccount,
+			Tenancy: table.DedicatedTenancy,
+			Tenant:  rootTenantName,
+			Config: table.CustomerConfig{
+				Name: "Root Customer",
+				Desc: "Root Customer for the system, created by default",
+				DefaultAdmin: &table.UserCredentials{
+					UserID:   "admin",
+					Password: "password",
+				},
+			},
+			IsRoot:    true,
+			CreatedBy: "system",
+			Created:   now,
+			Updated:   now,
+		}
+
+		err := customerTbl.Locate(context.Background(), custKey, custEntry)
+		if err != nil {
+			log.Panicf("failed to locate root customer entry: %s", err)
+		}
+	}
+
 	// locate the tenant table to work with
 	tenantTbl, err := table.LocateTenantTable(client)
 	if err != nil {
@@ -140,7 +182,6 @@ func locateRootTenant() {
 		log.Panicf("failed to locate root tenant entry: %s", err)
 	}
 
-	now := time.Now().Unix()
 	uEntry := &table.UserEntry{
 		Key: &table.UserKey{
 			Tenant:   rootTenantName,
@@ -386,12 +427,6 @@ func main() {
 	ouUserTbl, err := table.LocateOrgUnitUserTable(client)
 	if err != nil {
 		log.Panicf("failed to locate Org Unit User table: %s", err)
-	}
-
-	// locate customer table
-	_, err = table.LocateCustomerTable(client)
-	if err != nil {
-		log.Panicf("failed to locate customer table: %s", err)
 	}
 
 	err = ouUserTbl.StartEventLogger()
