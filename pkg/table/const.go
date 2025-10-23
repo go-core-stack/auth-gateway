@@ -9,6 +9,9 @@ const (
 )
 
 const (
+	// customers collection name
+	CustomersCollectionName = "customers"
+
 	// tenants collection name
 	TenantsCollectionName = "tenants"
 
