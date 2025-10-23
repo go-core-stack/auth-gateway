@@ -4186,6 +4186,7 @@
     },
     "apiUpdateCustomRoleResp": {
       "type": "object",
+      "description": "Empty response - returns 200 OK on success",
       "title": "Update custom role response"
     },
     "apiUserCreateReq": {

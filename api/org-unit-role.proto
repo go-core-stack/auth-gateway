@@ -31,7 +31,7 @@ service OrgUnitRole {
       body: "*"
     };
     option (api.role) = {
-      resource: "org-unit-role"
+      resource: "org-unit-custom-role"
       scope: "ou"
       verb: "create"
     };
@@ -44,7 +44,7 @@ service OrgUnitRole {
       body: "*"
     };
     option (api.role) = {
-      resource: "org-unit-role"
+      resource: "org-unit-custom-role"
       scope: "ou"
       verb: "update"
     };
@@ -56,7 +56,7 @@ service OrgUnitRole {
       get: "/api/auth/v1/ou/{ou}/role/{name}"
     };
     option (api.role) = {
-      resource: "org-unit-role"
+      resource: "org-unit-custom-role"
       scope: "ou"
       verb: "get"
     };
@@ -68,7 +68,7 @@ service OrgUnitRole {
       delete: "/api/auth/v1/ou/{ou}/role/{name}"
     };
     option (api.role) = {
-      resource: "org-unit-role"
+      resource: "org-unit-custom-role"
       scope: "ou"
       verb: "delete"
     };
@@ -200,6 +200,7 @@ message UpdateCustomRoleReq {
 
 // Update custom role response
 message UpdateCustomRoleResp {
+  // Empty response - returns 200 OK on success
 }
 
 // Get custom role request
