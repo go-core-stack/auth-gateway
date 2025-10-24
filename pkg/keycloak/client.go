@@ -7,11 +7,13 @@ import (
 	"context"
 	"crypto/tls"
 	"log"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/Nerzal/gocloak/v13"
+	"github.com/go-resty/resty/v2"
 
 	"github.com/go-core-stack/core/errors"
 )
@@ -235,4 +237,197 @@ func (c *Client) GetClientUserSessionsCount(ctx context.Context, token, realm, i
 	}
 
 	return result.Count, nil
+}
+
+// CopyAuthenticationFlow duplicates the existing authentication flow
+// into a new flow with the provided name
+func (c *Client) CopyAuthenticationFlow(ctx context.Context, token, realm, src, dest string) error {
+	data := &struct {
+		NewName *string `json:"newName,omitempty"`
+	}{
+		NewName: gocloak.StringP(dest),
+	}
+	resp, err := c.GetRequestWithBearerAuth(ctx, token).
+		SetBody(data).
+		Post(c.getAdminRealmURL(c.url, realm, "authentication", "flows", src, "copy"))
+
+	if err != nil {
+		return err
+	}
+
+	if resp == nil || resp.IsError() {
+		return errors.Wrapf(errors.Unknown, "failed to create of copy authentication flow %s, status code: %d", src, resp.StatusCode())
+	}
+
+	return nil
+}
+
+func (c *Client) LocateAuthenticationExecution(ctx context.Context, token, realm, flowId, executionProvider string) (ret *gocloak.ModifyAuthenticationExecutionRepresentation, err error) {
+	var list []*gocloak.ModifyAuthenticationExecutionRepresentation
+	list, err = c.GetAuthenticationExecutions(ctx, token, realm, flowId)
+	if err != nil {
+		return
+	}
+	for _, e := range list {
+		if e.Level != nil && *e.Level != 0 {
+			// lets consider only top level executions
+			// and ignore sub flows.
+			continue
+		}
+		if e.ProviderID != nil && *e.ProviderID == executionProvider {
+			// execution is already available, return the same
+			ret = e
+			return
+		}
+	}
+	execCreateRequest := gocloak.CreateAuthenticationExecutionRepresentation{
+		Provider: gocloak.StringP(executionProvider),
+	}
+	err = c.CreateAuthenticationExecution(ctx, token, realm, flowId, execCreateRequest)
+	if err != nil {
+		return
+	}
+	// fetch the list of Executions again to locate the created execution and return
+	list, err = c.GetAuthenticationExecutions(ctx, token, realm, flowId)
+	if err != nil {
+		return
+	}
+	for _, e := range list {
+		if e.Level != nil && *e.Level != 0 {
+			// lets consider only top level executions
+			// and ignore sub flows.
+			continue
+		}
+		if e.ProviderID != nil && *e.ProviderID == executionProvider {
+			ret = e
+			return
+		}
+	}
+	err = errors.Wrapf(errors.Unknown, "failed to locate execution for provider %s in flow %s", executionProvider, flowId)
+	return
+}
+
+func (c *Client) ConfigureUserSessionLimit(ctx context.Context, token, realm string, e *gocloak.ModifyAuthenticationExecutionRepresentation, sessions int, denyNewSession bool, alias, errorMsg string) error {
+	var err error
+	behavior := "Deny new session"
+	if !denyNewSession {
+		behavior = "Terminate oldest session"
+	}
+	config := struct {
+		//ID     *string            `json:"id,omitempty"`
+		Alias  *string            `json:"alias,omitempty"`
+		Config *map[string]string `json:"config,omitempty"`
+	}{
+		Alias: gocloak.StringP(alias),
+		Config: &map[string]string{
+			"userRealmLimit":  strconv.Itoa(sessions),
+			"behavior":        behavior,
+			"userClientLimit": "0",
+			"errorMessage":    errorMsg,
+		},
+	}
+	var resp *resty.Response
+	if e.AuthenticationConfig == nil {
+		resp, err = c.GetRequestWithBearerAuth(ctx, token).
+			SetBody(config).
+			Post(c.getAdminRealmURL(c.url, realm, "authentication", "executions", *e.ID, "config"))
+	} else {
+		resp, err = c.GetRequestWithBearerAuth(ctx, token).
+			SetBody(config).
+			Put(c.getAdminRealmURL(c.url, realm, "authentication", "config", *e.AuthenticationConfig))
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if resp == nil || resp.IsError() {
+		return errors.Wrapf(errors.Unknown, "failed to configure user session limit, status code: %d", resp.StatusCode())
+	}
+	return nil
+}
+
+func (c *Client) LowerAuthenticationExecutionPriority(ctx context.Context, token, realm, executionId string) error {
+	resp, err := c.GetRequestWithBearerAuth(ctx, token).
+		Post(c.getAdminRealmURL(c.url, realm, "authentication", "executions", executionId, "lower-priority"))
+
+	if err != nil {
+		return err
+	}
+
+	if resp == nil || resp.IsError() {
+		return errors.Wrapf(errors.Unknown, "failed to lower authentication execution priority, status code: %d", resp.StatusCode())
+	}
+
+	return nil
+}
+
+// SetExecutionToLastPosition moves an execution to the last position by using LowerAuthenticationExecutionPriority repeatedly
+func (c *Client) SetExecutionToPosition(ctx context.Context, token, realm, flowId, executionId string) error {
+	maxAttempts := 20 // Safety limit to prevent infinite loops
+
+	for attempt := 0; attempt < maxAttempts; attempt++ {
+		// Get current executions to check position
+		executions, err := c.GetAuthenticationExecutions(ctx, token, realm, flowId)
+		if err != nil {
+			return err
+		}
+
+		// Find our execution's current position
+		var ourExecution *gocloak.ModifyAuthenticationExecutionRepresentation
+		ourIndex := -1
+		for i, exec := range executions {
+			if exec.ID != nil && *exec.ID == executionId {
+				ourExecution = exec
+				ourIndex = i
+				break
+			}
+		}
+
+		if ourExecution == nil {
+			return errors.Wrapf(errors.Unknown, "execution %s not found in flow %s", executionId, flowId)
+		}
+
+		// Check if we're already at the last position among same-level executions
+		isLast := true
+		for i := ourIndex + 1; i < len(executions); i++ {
+			nextExec := executions[i]
+			if nextExec.Level != nil && ourExecution.Level != nil && *nextExec.Level == *ourExecution.Level {
+				isLast = false
+				break
+			}
+		}
+
+		if isLast {
+			return nil
+		}
+
+		// Lower priority once
+		err = c.LowerAuthenticationExecutionPriority(ctx, token, realm, executionId)
+		if err != nil {
+			return errors.Wrapf(errors.Unknown, "failed to lower execution priority on attempt %d: %v", attempt, err)
+		}
+	}
+
+	return errors.Wrapf(errors.Unknown, "failed to position execution %s to last after %d attempts", executionId, maxAttempts)
+}
+
+// GetMaxExecutionPriority returns the maximum priority among top-level executions in a flow
+// Since Priority field is not exposed in the struct using position based calculation
+func (c *Client) GetMaxExecutionPriority(ctx context.Context, token, realm, flowId string) (int, error) {
+	executions, err := c.GetAuthenticationExecutions(ctx, token, realm, flowId)
+	if err != nil {
+		return 0, err
+	}
+
+	// Count top-level executions to estimate max priority
+	topLevelCount := 0
+	for _, exec := range executions {
+		if exec.Level != nil && *exec.Level == 0 { // Only top-level executions
+			topLevelCount++
+		}
+	}
+
+	// Return estimated max priority
+	return topLevelCount * 10, nil
 }
