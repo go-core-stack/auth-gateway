@@ -39,4 +39,10 @@ func init() {
 	route.Resource = "org-unit"
 	route.Verb = "delete"
 	RoutesOrgUnit = append(RoutesOrgUnit, route)
+
+	// Adding Route information for GetOrgUnitAccessLogs RPC
+	route = model.NewRoute("/api/mytenant/v1/ou/{id}/access-logs", "GET")
+	route.Resource = "org-unit"
+	route.Verb = "get-access-logs"
+	RoutesOrgUnit = append(RoutesOrgUnit, route)
 }

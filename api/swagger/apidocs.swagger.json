@@ -1763,6 +1763,54 @@
         ]
       }
     },
+    "/api/mytenant/v1/ou/{id}/access-logs": {
+      "get": {
+        "summary": "get Access logs for org unit for my tenant",
+        "operationId": "OrgUnit_GetOrgUnitAccessLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiOrgUnitAccessLogsGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "org unit id under consideration",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "start",
+            "description": "start timestamp",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "end",
+            "description": "end timestamp",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "OrgUnit"
+        ]
+      }
+    },
     "/api/mytenant/v1/ous": {
       "get": {
         "summary": "Get List of existing org units in my tenant",
@@ -3080,6 +3128,61 @@
     "apiMySessionsLogoutResp": {
       "type": "object",
       "title": "session logout empty response"
+    },
+    "apiOrgUnitAccessLog": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "int64",
+          "title": "Timestamp of the log"
+        },
+        "ou": {
+          "type": "string",
+          "title": "ou name"
+        },
+        "user": {
+          "type": "string",
+          "title": "User"
+        },
+        "ipAddr": {
+          "type": "string",
+          "title": "requester IP address"
+        },
+        "method": {
+          "type": "string",
+          "title": "http method"
+        },
+        "path": {
+          "type": "string",
+          "title": "url path"
+        },
+        "status": {
+          "type": "string",
+          "title": "HTTP status code for success/failure"
+        },
+        "userAgent": {
+          "type": "string",
+          "title": "user agent info"
+        },
+        "tenant": {
+          "type": "string",
+          "title": "tenant name"
+        }
+      }
+    },
+    "apiOrgUnitAccessLogsGetResp": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiOrgUnitAccessLog"
+          },
+          "title": "list of access log"
+        }
+      }
     },
     "apiOrgUnitCreateReq": {
       "type": "object",
