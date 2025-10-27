@@ -305,6 +305,8 @@ func (s *OrgUnitRoleServer) convertProtoActionToTable(action api.RolePermissionA
 		return table.RolePermissionActionAllow
 	case api.RolePermissionAction_ROLE_PERMISSION_ACTION_DENY:
 		return table.RolePermissionActionDeny
+	case api.RolePermissionAction_ROLE_PERMISSION_ACTION_LOG:
+		return table.RolePermissionActionLog
 	case api.RolePermissionAction_ROLE_PERMISSION_ACTION_UNSPECIFIED:
 		fallthrough
 	default:
@@ -319,6 +321,8 @@ func (s *OrgUnitRoleServer) convertTableActionToProto(action table.RolePermissio
 		return api.RolePermissionAction_ROLE_PERMISSION_ACTION_ALLOW
 	case table.RolePermissionActionDeny:
 		return api.RolePermissionAction_ROLE_PERMISSION_ACTION_DENY
+	case table.RolePermissionActionLog:
+		return api.RolePermissionAction_ROLE_PERMISSION_ACTION_LOG
 	case table.RolePermissionActionUnspecified:
 		fallthrough
 	default:

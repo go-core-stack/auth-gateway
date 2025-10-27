@@ -101,6 +101,8 @@ const (
 	RolePermissionAction_ROLE_PERMISSION_ACTION_ALLOW RolePermissionAction = 1
 	// Deny the specified verbs on the resource (takes precedence over Allow)
 	RolePermissionAction_ROLE_PERMISSION_ACTION_DENY RolePermissionAction = 2
+	// Log the specified verbs on the resource (allows access but logs for audit)
+	RolePermissionAction_ROLE_PERMISSION_ACTION_LOG RolePermissionAction = 3
 )
 
 // Enum value maps for RolePermissionAction.
@@ -109,11 +111,13 @@ var (
 		0: "ROLE_PERMISSION_ACTION_UNSPECIFIED",
 		1: "ROLE_PERMISSION_ACTION_ALLOW",
 		2: "ROLE_PERMISSION_ACTION_DENY",
+		3: "ROLE_PERMISSION_ACTION_LOG",
 	}
 	RolePermissionAction_value = map[string]int32{
 		"ROLE_PERMISSION_ACTION_UNSPECIFIED": 0,
 		"ROLE_PERMISSION_ACTION_ALLOW":       1,
 		"ROLE_PERMISSION_ACTION_DENY":        2,
+		"ROLE_PERMISSION_ACTION_LOG":         3,
 	}
 )
 
@@ -1041,11 +1045,12 @@ const file_org_unit_role_proto_rawDesc = "" +
 	"\x1eRESOURCE_MATCH_CRITERIA_PREFIX\x10\x02\x12\"\n" +
 	"\x1eRESOURCE_MATCH_CRITERIA_SUFFIX\x10\x03\x12!\n" +
 	"\x1dRESOURCE_MATCH_CRITERIA_REGEX\x10\x04\x12$\n" +
-	" RESOURCE_MATCH_CRITERIA_WILDCARD\x10\x05*\x81\x01\n" +
+	" RESOURCE_MATCH_CRITERIA_WILDCARD\x10\x05*\xa1\x01\n" +
 	"\x14RolePermissionAction\x12&\n" +
 	"\"ROLE_PERMISSION_ACTION_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cROLE_PERMISSION_ACTION_ALLOW\x10\x01\x12\x1f\n" +
-	"\x1bROLE_PERMISSION_ACTION_DENY\x10\x022\xd7\x05\n" +
+	"\x1bROLE_PERMISSION_ACTION_DENY\x10\x02\x12\x1e\n" +
+	"\x1aROLE_PERMISSION_ACTION_LOG\x10\x032\xd7\x05\n" +
 	"\vOrgUnitRole\x12\x88\x01\n" +
 	"\x10ListOrgUnitRoles\x12\x18.api.OrgUnitRolesListReq\x1a\x19.api.OrgUnitRolesListResp\"?\x8a\xb5\x18\x19\n" +
 	"\rorg-unit-role\x12\x02ou\x1a\x04list\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/auth/v1/ou/{ou}/roles\x12\x8c\x01\n" +

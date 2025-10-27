@@ -3662,10 +3662,11 @@
       "enum": [
         "ROLE_PERMISSION_ACTION_UNSPECIFIED",
         "ROLE_PERMISSION_ACTION_ALLOW",
-        "ROLE_PERMISSION_ACTION_DENY"
+        "ROLE_PERMISSION_ACTION_DENY",
+        "ROLE_PERMISSION_ACTION_LOG"
       ],
       "default": "ROLE_PERMISSION_ACTION_UNSPECIFIED",
-      "description": "- ROLE_PERMISSION_ACTION_UNSPECIFIED: Unspecified action (invalid)\n - ROLE_PERMISSION_ACTION_ALLOW: Allow the specified verbs on the resource\n - ROLE_PERMISSION_ACTION_DENY: Deny the specified verbs on the resource (takes precedence over Allow)",
+      "description": "- ROLE_PERMISSION_ACTION_UNSPECIFIED: Unspecified action (invalid)\n - ROLE_PERMISSION_ACTION_ALLOW: Allow the specified verbs on the resource\n - ROLE_PERMISSION_ACTION_DENY: Deny the specified verbs on the resource (takes precedence over Allow)\n - ROLE_PERMISSION_ACTION_LOG: Log the specified verbs on the resource (allows access but logs for audit)",
       "title": "Action types for role permissions"
     },
     "apiTenantAdminCreateConfig": {

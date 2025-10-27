@@ -52,6 +52,7 @@ const (
 	RolePermissionActionUnspecified RolePermissionAction = ""
 	RolePermissionActionAllow       RolePermissionAction = "Allow"
 	RolePermissionActionDeny        RolePermissionAction = "Deny"
+	RolePermissionActionLog         RolePermissionAction = "Log"
 )
 
 // RolePermission defines individual permission for a resource
