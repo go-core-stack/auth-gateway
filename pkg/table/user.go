@@ -64,6 +64,7 @@ type UserEntry struct {
 	Disabled   *bool               `bson:"disabled,omitempty"`
 	Deleted    *bool               `bson:"deleted,omitempty"`
 	KCStatus   *UserKeycloakStatus `bson:"kcStatus,omitempty"`
+	RealmRoles *[]string           `bson:"realmRoles,omitempty"`
 }
 
 type UserTable struct {
