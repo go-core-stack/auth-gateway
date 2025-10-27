@@ -434,6 +434,17 @@ func main() {
 		log.Panicf("failed to start event logger for Org Unit User table: %s", err)
 	}
 
+	// locate Org Unit Custom Role table
+	ouCustomRoleTbl, err := table.LocateOrgUnitCustomRoleTable(client)
+	if err != nil {
+		log.Panicf("failed to locate Org Unit Custom Role table: %s", err)
+	}
+
+	err = ouCustomRoleTbl.StartEventLogger()
+	if err != nil {
+		log.Panicf("failed to start event logger for Org Unit Custom Role table: %s", err)
+	}
+
 	// ensure that the root tenant exists to work with as the default
 	// tenancy
 	locateRootTenant()

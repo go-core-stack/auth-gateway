@@ -23,6 +23,8 @@ type routeData struct {
 	isRoot         bool
 	isUserSpecific bool
 	scopes         []string
+	resource       string
+	verb           string
 }
 
 type routeNodes map[route.MethodType]routeData
@@ -49,6 +51,8 @@ func populateRoutes(routes *route.RouteTable) {
 					isRoot:         utils.Dereference(r.IsRoot),
 					isUserSpecific: utils.Dereference(r.IsUserSpecific),
 					scopes:         r.Scopes,
+					resource:       r.Resource,
+					verb:           r.Verb,
 				},
 			}
 			nRoutes.Insert(r.Key.Url, node)
@@ -60,6 +64,8 @@ func populateRoutes(routes *route.RouteTable) {
 				isRoot:         utils.Dereference(r.IsRoot),
 				isUserSpecific: utils.Dereference(r.IsUserSpecific),
 				scopes:         r.Scopes,
+				resource:       r.Resource,
+				verb:           r.Verb,
 			}
 		}
 	}
@@ -69,7 +75,7 @@ func populateRoutes(routes *route.RouteTable) {
 	gwRoutes = nRoutes
 }
 
-func matchRoute(m string, url string) (*routeData, string, error) {
+func matchRoute(m string, url string) (*routeData, string, []string, []string, error) {
 	var node *routeNodes
 	var ok bool
 	var keys, values []string
@@ -82,7 +88,7 @@ func matchRoute(m string, url string) (*routeData, string, error) {
 	}()
 
 	if !ok {
-		return nil, "", errors.Wrapf(errors.NotFound, "route not found for %s", url)
+		return nil, "", nil, nil, errors.Wrapf(errors.NotFound, "route not found for %s", url)
 	}
 
 	var method route.MethodType
@@ -106,19 +112,19 @@ func matchRoute(m string, url string) (*routeData, string, error) {
 	case http.MethodTrace:
 		method = route.TRACE
 	default:
-		return nil, "", errors.Wrapf(errors.InvalidArgument, "invalid method %s", m)
+		return nil, "", nil, nil, errors.Wrapf(errors.InvalidArgument, "invalid method %s", m)
 	}
 
 	data, ok := (*node)[method]
 	if !ok {
-		return nil, "", errors.Wrapf(errors.NotFound, "route not found for %s", url)
+		return nil, "", nil, nil, errors.Wrapf(errors.NotFound, "route not found for %s", url)
 	}
 
 	orgUnit := ""
 	switch len(data.scopes) {
 	case 1:
 		if data.scopes[0] != "ou" {
-			return nil, "", errors.Wrapf(errors.InvalidArgument, "invalid scope %s for %s", data.scopes[0], url)
+			return nil, "", nil, nil, errors.Wrapf(errors.InvalidArgument, "invalid scope %s for %s", data.scopes[0], url)
 		}
 		for i, k := range keys {
 			if k == "ou" {
@@ -127,13 +133,13 @@ func matchRoute(m string, url string) (*routeData, string, error) {
 			}
 		}
 		if orgUnit == "" {
-			return nil, "", errors.Wrapf(errors.InvalidArgument, "org unit not found")
+			return nil, "", nil, nil, errors.Wrapf(errors.InvalidArgument, "org unit not found")
 		}
 	case 0:
 		break
 	default:
-		return nil, "", errors.Wrapf(errors.InvalidArgument, "multiple scopes found for %s", url)
+		return nil, "", nil, nil, errors.Wrapf(errors.InvalidArgument, "multiple scopes found for %s", url)
 	}
 
-	return &data, orgUnit, nil
+	return &data, orgUnit, keys, values, nil
 }
