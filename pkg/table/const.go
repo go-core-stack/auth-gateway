@@ -32,4 +32,7 @@ const (
 
 	// Identity Provider collection name
 	IdentityProviderCollectionName = "identity-providers"
+
+	// Org Unit Custom Role collection name
+	OrgUnitCustomRoleCollectionName = "org-unit-roles"
 )
