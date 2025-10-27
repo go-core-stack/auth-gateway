@@ -628,6 +628,231 @@ func (*OrgUnitDeleteResp) Descriptor() ([]byte, []int) {
 	return file_org_unit_proto_rawDescGZIP(), []int{10}
 }
 
+type OrgUnitAccessLogsGetReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// org unit id under consideration
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// start timestamp
+	Start int64 `protobuf:"varint,2,opt,name=start,proto3" json:"start,omitempty"`
+	// end timestamp
+	End           int64 `protobuf:"varint,3,opt,name=end,proto3" json:"end,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OrgUnitAccessLogsGetReq) Reset() {
+	*x = OrgUnitAccessLogsGetReq{}
+	mi := &file_org_unit_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrgUnitAccessLogsGetReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrgUnitAccessLogsGetReq) ProtoMessage() {}
+
+func (x *OrgUnitAccessLogsGetReq) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrgUnitAccessLogsGetReq.ProtoReflect.Descriptor instead.
+func (*OrgUnitAccessLogsGetReq) Descriptor() ([]byte, []int) {
+	return file_org_unit_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *OrgUnitAccessLogsGetReq) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *OrgUnitAccessLogsGetReq) GetStart() int64 {
+	if x != nil {
+		return x.Start
+	}
+	return 0
+}
+
+func (x *OrgUnitAccessLogsGetReq) GetEnd() int64 {
+	if x != nil {
+		return x.End
+	}
+	return 0
+}
+
+type OrgUnitAccessLog struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Timestamp of the log
+	Timestamp int64 `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// ou name
+	Ou string `protobuf:"bytes,2,opt,name=ou,proto3" json:"ou,omitempty"`
+	// User
+	User string `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`
+	// requester IP address
+	IpAddr string `protobuf:"bytes,4,opt,name=ipAddr,proto3" json:"ipAddr,omitempty"`
+	// http method
+	Method string `protobuf:"bytes,5,opt,name=method,proto3" json:"method,omitempty"`
+	// url path
+	Path string `protobuf:"bytes,6,opt,name=path,proto3" json:"path,omitempty"`
+	// HTTP status code for success/failure
+	Status string `protobuf:"bytes,7,opt,name=status,proto3" json:"status,omitempty"`
+	// user agent info
+	UserAgent string `protobuf:"bytes,8,opt,name=userAgent,proto3" json:"userAgent,omitempty"`
+	// tenant name
+	Tenant        string `protobuf:"bytes,9,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OrgUnitAccessLog) Reset() {
+	*x = OrgUnitAccessLog{}
+	mi := &file_org_unit_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrgUnitAccessLog) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrgUnitAccessLog) ProtoMessage() {}
+
+func (x *OrgUnitAccessLog) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrgUnitAccessLog.ProtoReflect.Descriptor instead.
+func (*OrgUnitAccessLog) Descriptor() ([]byte, []int) {
+	return file_org_unit_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *OrgUnitAccessLog) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+func (x *OrgUnitAccessLog) GetOu() string {
+	if x != nil {
+		return x.Ou
+	}
+	return ""
+}
+
+func (x *OrgUnitAccessLog) GetUser() string {
+	if x != nil {
+		return x.User
+	}
+	return ""
+}
+
+func (x *OrgUnitAccessLog) GetIpAddr() string {
+	if x != nil {
+		return x.IpAddr
+	}
+	return ""
+}
+
+func (x *OrgUnitAccessLog) GetMethod() string {
+	if x != nil {
+		return x.Method
+	}
+	return ""
+}
+
+func (x *OrgUnitAccessLog) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *OrgUnitAccessLog) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *OrgUnitAccessLog) GetUserAgent() string {
+	if x != nil {
+		return x.UserAgent
+	}
+	return ""
+}
+
+func (x *OrgUnitAccessLog) GetTenant() string {
+	if x != nil {
+		return x.Tenant
+	}
+	return ""
+}
+
+type OrgUnitAccessLogsGetResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// list of access log
+	Items         []*OrgUnitAccessLog `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OrgUnitAccessLogsGetResp) Reset() {
+	*x = OrgUnitAccessLogsGetResp{}
+	mi := &file_org_unit_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrgUnitAccessLogsGetResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrgUnitAccessLogsGetResp) ProtoMessage() {}
+
+func (x *OrgUnitAccessLogsGetResp) ProtoReflect() protoreflect.Message {
+	mi := &file_org_unit_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrgUnitAccessLogsGetResp.ProtoReflect.Descriptor instead.
+func (*OrgUnitAccessLogsGetResp) Descriptor() ([]byte, []int) {
+	return file_org_unit_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *OrgUnitAccessLogsGetResp) GetItems() []*OrgUnitAccessLog {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_org_unit_proto protoreflect.FileDescriptor
 
 const file_org_unit_proto_rawDesc = "" +
@@ -665,7 +890,23 @@ const file_org_unit_proto_rawDesc = "" +
 	"\acreated\x18\x05 \x01(\x03R\acreated\"\"\n" +
 	"\x10OrgUnitDeleteReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x13\n" +
-	"\x11OrgUnitDeleteResp2\xcd\x04\n" +
+	"\x11OrgUnitDeleteResp\"Q\n" +
+	"\x17OrgUnitAccessLogsGetReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05start\x18\x02 \x01(\x03R\x05start\x12\x10\n" +
+	"\x03end\x18\x03 \x01(\x03R\x03end\"\xe6\x01\n" +
+	"\x10OrgUnitAccessLog\x12\x1c\n" +
+	"\ttimestamp\x18\x01 \x01(\x03R\ttimestamp\x12\x0e\n" +
+	"\x02ou\x18\x02 \x01(\tR\x02ou\x12\x12\n" +
+	"\x04user\x18\x03 \x01(\tR\x04user\x12\x16\n" +
+	"\x06ipAddr\x18\x04 \x01(\tR\x06ipAddr\x12\x16\n" +
+	"\x06method\x18\x05 \x01(\tR\x06method\x12\x12\n" +
+	"\x04path\x18\x06 \x01(\tR\x04path\x12\x16\n" +
+	"\x06status\x18\a \x01(\tR\x06status\x12\x1c\n" +
+	"\tuserAgent\x18\b \x01(\tR\tuserAgent\x12\x16\n" +
+	"\x06tenant\x18\t \x01(\tR\x06tenant\"G\n" +
+	"\x18OrgUnitAccessLogsGetResp\x12+\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.api.OrgUnitAccessLogR\x05items2\xf0\x05\n" +
 	"\aOrgUnit\x12m\n" +
 	"\fListOrgUnits\x12\x14.api.OrgUnitsListReq\x1a\x15.api.OrgUnitsListResp\"0\x8a\xb5\x18\x10\n" +
 	"\borg-unit\x1a\x04list\x82\xd3\xe4\x93\x02\x16\x12\x14/api/mytenant/v1/ous\x12t\n" +
@@ -677,7 +918,9 @@ const file_org_unit_proto_rawDesc = "" +
 	"GetOrgUnit\x12\x12.api.OrgUnitGetReq\x1a\x13.api.OrgUnitGetResp\"3\x8a\xb5\x18\x0f\n" +
 	"\borg-unit\x1a\x03get\x82\xd3\xe4\x93\x02\x1a\x12\x18/api/mytenant/v1/ou/{id}\x12v\n" +
 	"\rDeleteOrgUnit\x12\x15.api.OrgUnitDeleteReq\x1a\x16.api.OrgUnitDeleteResp\"6\x8a\xb5\x18\x12\n" +
-	"\borg-unit\x1a\x06delete\x82\xd3\xe4\x93\x02\x1a*\x18/api/mytenant/v1/ou/{id}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"\borg-unit\x1a\x06delete\x82\xd3\xe4\x93\x02\x1a*\x18/api/mytenant/v1/ou/{id}\x12\xa0\x01\n" +
+	"\x14GetOrgUnitAccessLogs\x12\x1c.api.OrgUnitAccessLogsGetReq\x1a\x1d.api.OrgUnitAccessLogsGetResp\"K\x8a\xb5\x18\x1b\n" +
+	"\borg-unit\x1a\x0fget-access-logs\x82\xd3\xe4\x93\x02&\x12$/api/mytenant/v1/ou/{id}/access-logsB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_org_unit_proto_rawDescOnce sync.Once
@@ -691,37 +934,43 @@ func file_org_unit_proto_rawDescGZIP() []byte {
 	return file_org_unit_proto_rawDescData
 }
 
-var file_org_unit_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_org_unit_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_org_unit_proto_goTypes = []any{
-	(*OrgUnitsListReq)(nil),   // 0: api.OrgUnitsListReq
-	(*OrgUnitsListEntry)(nil), // 1: api.OrgUnitsListEntry
-	(*OrgUnitsListResp)(nil),  // 2: api.OrgUnitsListResp
-	(*OrgUnitCreateReq)(nil),  // 3: api.OrgUnitCreateReq
-	(*OrgUnitCreateResp)(nil), // 4: api.OrgUnitCreateResp
-	(*OrgUnitUpdateReq)(nil),  // 5: api.OrgUnitUpdateReq
-	(*OrgUnitUpdateResp)(nil), // 6: api.OrgUnitUpdateResp
-	(*OrgUnitGetReq)(nil),     // 7: api.OrgUnitGetReq
-	(*OrgUnitGetResp)(nil),    // 8: api.OrgUnitGetResp
-	(*OrgUnitDeleteReq)(nil),  // 9: api.OrgUnitDeleteReq
-	(*OrgUnitDeleteResp)(nil), // 10: api.OrgUnitDeleteResp
+	(*OrgUnitsListReq)(nil),          // 0: api.OrgUnitsListReq
+	(*OrgUnitsListEntry)(nil),        // 1: api.OrgUnitsListEntry
+	(*OrgUnitsListResp)(nil),         // 2: api.OrgUnitsListResp
+	(*OrgUnitCreateReq)(nil),         // 3: api.OrgUnitCreateReq
+	(*OrgUnitCreateResp)(nil),        // 4: api.OrgUnitCreateResp
+	(*OrgUnitUpdateReq)(nil),         // 5: api.OrgUnitUpdateReq
+	(*OrgUnitUpdateResp)(nil),        // 6: api.OrgUnitUpdateResp
+	(*OrgUnitGetReq)(nil),            // 7: api.OrgUnitGetReq
+	(*OrgUnitGetResp)(nil),           // 8: api.OrgUnitGetResp
+	(*OrgUnitDeleteReq)(nil),         // 9: api.OrgUnitDeleteReq
+	(*OrgUnitDeleteResp)(nil),        // 10: api.OrgUnitDeleteResp
+	(*OrgUnitAccessLogsGetReq)(nil),  // 11: api.OrgUnitAccessLogsGetReq
+	(*OrgUnitAccessLog)(nil),         // 12: api.OrgUnitAccessLog
+	(*OrgUnitAccessLogsGetResp)(nil), // 13: api.OrgUnitAccessLogsGetResp
 }
 var file_org_unit_proto_depIdxs = []int32{
 	1,  // 0: api.OrgUnitsListResp.items:type_name -> api.OrgUnitsListEntry
-	0,  // 1: api.OrgUnit.ListOrgUnits:input_type -> api.OrgUnitsListReq
-	3,  // 2: api.OrgUnit.CreateOrgUnit:input_type -> api.OrgUnitCreateReq
-	5,  // 3: api.OrgUnit.UpdateOrgUnit:input_type -> api.OrgUnitUpdateReq
-	7,  // 4: api.OrgUnit.GetOrgUnit:input_type -> api.OrgUnitGetReq
-	9,  // 5: api.OrgUnit.DeleteOrgUnit:input_type -> api.OrgUnitDeleteReq
-	2,  // 6: api.OrgUnit.ListOrgUnits:output_type -> api.OrgUnitsListResp
-	4,  // 7: api.OrgUnit.CreateOrgUnit:output_type -> api.OrgUnitCreateResp
-	6,  // 8: api.OrgUnit.UpdateOrgUnit:output_type -> api.OrgUnitUpdateResp
-	8,  // 9: api.OrgUnit.GetOrgUnit:output_type -> api.OrgUnitGetResp
-	10, // 10: api.OrgUnit.DeleteOrgUnit:output_type -> api.OrgUnitDeleteResp
-	6,  // [6:11] is the sub-list for method output_type
-	1,  // [1:6] is the sub-list for method input_type
-	1,  // [1:1] is the sub-list for extension type_name
-	1,  // [1:1] is the sub-list for extension extendee
-	0,  // [0:1] is the sub-list for field type_name
+	12, // 1: api.OrgUnitAccessLogsGetResp.items:type_name -> api.OrgUnitAccessLog
+	0,  // 2: api.OrgUnit.ListOrgUnits:input_type -> api.OrgUnitsListReq
+	3,  // 3: api.OrgUnit.CreateOrgUnit:input_type -> api.OrgUnitCreateReq
+	5,  // 4: api.OrgUnit.UpdateOrgUnit:input_type -> api.OrgUnitUpdateReq
+	7,  // 5: api.OrgUnit.GetOrgUnit:input_type -> api.OrgUnitGetReq
+	9,  // 6: api.OrgUnit.DeleteOrgUnit:input_type -> api.OrgUnitDeleteReq
+	11, // 7: api.OrgUnit.GetOrgUnitAccessLogs:input_type -> api.OrgUnitAccessLogsGetReq
+	2,  // 8: api.OrgUnit.ListOrgUnits:output_type -> api.OrgUnitsListResp
+	4,  // 9: api.OrgUnit.CreateOrgUnit:output_type -> api.OrgUnitCreateResp
+	6,  // 10: api.OrgUnit.UpdateOrgUnit:output_type -> api.OrgUnitUpdateResp
+	8,  // 11: api.OrgUnit.GetOrgUnit:output_type -> api.OrgUnitGetResp
+	10, // 12: api.OrgUnit.DeleteOrgUnit:output_type -> api.OrgUnitDeleteResp
+	13, // 13: api.OrgUnit.GetOrgUnitAccessLogs:output_type -> api.OrgUnitAccessLogsGetResp
+	8,  // [8:14] is the sub-list for method output_type
+	2,  // [2:8] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_org_unit_proto_init() }
@@ -735,7 +984,7 @@ func file_org_unit_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_org_unit_proto_rawDesc), len(file_org_unit_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

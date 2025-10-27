@@ -22,11 +22,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrgUnit_ListOrgUnits_FullMethodName  = "/api.OrgUnit/ListOrgUnits"
-	OrgUnit_CreateOrgUnit_FullMethodName = "/api.OrgUnit/CreateOrgUnit"
-	OrgUnit_UpdateOrgUnit_FullMethodName = "/api.OrgUnit/UpdateOrgUnit"
-	OrgUnit_GetOrgUnit_FullMethodName    = "/api.OrgUnit/GetOrgUnit"
-	OrgUnit_DeleteOrgUnit_FullMethodName = "/api.OrgUnit/DeleteOrgUnit"
+	OrgUnit_ListOrgUnits_FullMethodName         = "/api.OrgUnit/ListOrgUnits"
+	OrgUnit_CreateOrgUnit_FullMethodName        = "/api.OrgUnit/CreateOrgUnit"
+	OrgUnit_UpdateOrgUnit_FullMethodName        = "/api.OrgUnit/UpdateOrgUnit"
+	OrgUnit_GetOrgUnit_FullMethodName           = "/api.OrgUnit/GetOrgUnit"
+	OrgUnit_DeleteOrgUnit_FullMethodName        = "/api.OrgUnit/DeleteOrgUnit"
+	OrgUnit_GetOrgUnitAccessLogs_FullMethodName = "/api.OrgUnit/GetOrgUnitAccessLogs"
 )
 
 // OrgUnitClient is the client API for OrgUnit service.
@@ -45,6 +46,8 @@ type OrgUnitClient interface {
 	GetOrgUnit(ctx context.Context, in *OrgUnitGetReq, opts ...grpc.CallOption) (*OrgUnitGetResp, error)
 	// delete an existing org unit for my tenant
 	DeleteOrgUnit(ctx context.Context, in *OrgUnitDeleteReq, opts ...grpc.CallOption) (*OrgUnitDeleteResp, error)
+	// get Access logs for org unit for my tenant
+	GetOrgUnitAccessLogs(ctx context.Context, in *OrgUnitAccessLogsGetReq, opts ...grpc.CallOption) (*OrgUnitAccessLogsGetResp, error)
 }
 
 type orgUnitClient struct {
@@ -105,6 +108,16 @@ func (c *orgUnitClient) DeleteOrgUnit(ctx context.Context, in *OrgUnitDeleteReq,
 	return out, nil
 }
 
+func (c *orgUnitClient) GetOrgUnitAccessLogs(ctx context.Context, in *OrgUnitAccessLogsGetReq, opts ...grpc.CallOption) (*OrgUnitAccessLogsGetResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OrgUnitAccessLogsGetResp)
+	err := c.cc.Invoke(ctx, OrgUnit_GetOrgUnitAccessLogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrgUnitServer is the server API for OrgUnit service.
 // All implementations must embed UnimplementedOrgUnitServer
 // for forward compatibility.
@@ -121,6 +134,8 @@ type OrgUnitServer interface {
 	GetOrgUnit(context.Context, *OrgUnitGetReq) (*OrgUnitGetResp, error)
 	// delete an existing org unit for my tenant
 	DeleteOrgUnit(context.Context, *OrgUnitDeleteReq) (*OrgUnitDeleteResp, error)
+	// get Access logs for org unit for my tenant
+	GetOrgUnitAccessLogs(context.Context, *OrgUnitAccessLogsGetReq) (*OrgUnitAccessLogsGetResp, error)
 	mustEmbedUnimplementedOrgUnitServer()
 }
 
@@ -145,6 +160,9 @@ func (UnimplementedOrgUnitServer) GetOrgUnit(context.Context, *OrgUnitGetReq) (*
 }
 func (UnimplementedOrgUnitServer) DeleteOrgUnit(context.Context, *OrgUnitDeleteReq) (*OrgUnitDeleteResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrgUnit not implemented")
+}
+func (UnimplementedOrgUnitServer) GetOrgUnitAccessLogs(context.Context, *OrgUnitAccessLogsGetReq) (*OrgUnitAccessLogsGetResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrgUnitAccessLogs not implemented")
 }
 func (UnimplementedOrgUnitServer) mustEmbedUnimplementedOrgUnitServer() {}
 func (UnimplementedOrgUnitServer) testEmbeddedByValue()                 {}
@@ -257,6 +275,24 @@ func _OrgUnit_DeleteOrgUnit_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrgUnit_GetOrgUnitAccessLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrgUnitAccessLogsGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgUnitServer).GetOrgUnitAccessLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgUnit_GetOrgUnitAccessLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgUnitServer).GetOrgUnitAccessLogs(ctx, req.(*OrgUnitAccessLogsGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrgUnit_ServiceDesc is the grpc.ServiceDesc for OrgUnit service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -283,6 +319,10 @@ var OrgUnit_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteOrgUnit",
 			Handler:    _OrgUnit_DeleteOrgUnit_Handler,
+		},
+		{
+			MethodName: "GetOrgUnitAccessLogs",
+			Handler:    _OrgUnit_GetOrgUnitAccessLogs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

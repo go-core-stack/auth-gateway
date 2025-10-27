@@ -146,6 +146,46 @@ func (s *OrgUnitServer) DeleteOrgUnit(ctx context.Context, req *api.OrgUnitDelet
 	return nil, status.Errorf(codes.Unimplemented, "DeleteOrgUnit is not implemented yet")
 }
 
+func (s *OrgUnitServer) GetOrgUnitAccessLogs(ctx context.Context, req *api.OrgUnitAccessLogsGetReq) (*api.OrgUnitAccessLogsGetResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	if req.Start == 0 || req.Start >= req.End {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid time range specified")
+	}
+
+	resp := &api.OrgUnitAccessLogsGetResp{
+		Items: []*api.OrgUnitAccessLog{
+			{
+				Timestamp: int64(1761550423),
+				Ou:        "ou-123",
+				User:      "admin",
+				IpAddr:    "111.93.189.6",
+				Method:    "GET",
+				Status:    "200",
+				Path:      "/api/v1",
+				UserAgent: "Mozilla/5.0",
+				Tenant:    "tenant-123",
+			},
+			{
+				Timestamp: int64(1761540423),
+				Ou:        "ou-123",
+				User:      "admin",
+				IpAddr:    "111.93.189.6",
+				Method:    "PUT",
+				Status:    "200",
+				Path:      "/api/v1",
+				UserAgent: "Mozilla/5.0",
+				Tenant:    "tenant-123",
+			},
+		},
+	}
+
+	return resp, nil
+}
+
 func NewOrgUnitServer(ctx *model.GrpcServerContext, ep string) *OrgUnitServer {
 	ouTbl, err := table.GetOrgUnitTable()
 	if err != nil {

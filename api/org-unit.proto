@@ -68,6 +68,17 @@ service OrgUnit {
       verb: "delete"
     };
   }
+
+  // get Access logs for org unit for my tenant
+  rpc GetOrgUnitAccessLogs(OrgUnitAccessLogsGetReq) returns (OrgUnitAccessLogsGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/ou/{id}/access-logs"
+    };
+    option (api.role) = {
+      resource: "org-unit"
+      verb: "get-access-logs"
+    };
+  }
 }
 
 // list org units for my tenant
@@ -166,4 +177,49 @@ message OrgUnitDeleteReq {
 }
 
 message OrgUnitDeleteResp {
+}
+
+message OrgUnitAccessLogsGetReq {
+  // org unit id under consideration
+  string id = 1;
+ 
+  // start timestamp
+  int64 start = 2;
+
+  // end timestamp
+  int64 end = 3;
+}
+
+message OrgUnitAccessLog {
+  // Timestamp of the log 
+  int64 timestamp = 1;
+  
+  // ou name
+  string ou = 2;
+
+  // User
+  string user = 3;
+
+  // requester IP address
+  string ipAddr = 4;
+
+  // http method
+  string method = 5;
+
+  // url path
+  string path = 6;
+
+  // HTTP status code for success/failure
+  string status = 7;
+
+  // user agent info
+  string userAgent = 8;
+
+  // tenant name
+  string tenant = 9;
+}
+
+message OrgUnitAccessLogsGetResp {
+  // list of access log
+  repeated OrgUnitAccessLog items = 1;
 }
