@@ -47,6 +47,7 @@ type gateway struct {
 	validator hash.Validator
 	apiKeys   *table.ApiKeyTable
 	userTbl   *table.UserTable
+	tenantTbl *table.TenantTable
 	routes    *route.RouteTable
 	ouTbl     *table.OrgUnitTable
 	ouUserTbl *table.OrgUnitUserTable
@@ -124,6 +125,27 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 			FullName:  user.Info.FirstName + " " + user.Info.LastName,
 		}
 
+		// Populate IsRoot and Roles from database (stored during bearer token auth)
+		tenantKey := &table.TenantKey{
+			Name: user.Key.Tenant,
+		}
+		tenant, err := s.tenantTbl.Find(r.Context(), tenantKey)
+		if err != nil {
+			if !errors.IsNotFound(err) {
+				log.Printf("Failed to find tenant %s: %s", user.Key.Tenant, err)
+			}
+			authInfo.IsRoot = false
+		} else if tenant.Config != nil {
+			authInfo.IsRoot = tenant.Config.IsRoot
+		}
+
+		// Use roles stored in database from last bearer token login
+		if user.RealmRoles != nil {
+			authInfo.Roles = *user.RealmRoles
+		} else {
+			authInfo.Roles = []string{}
+		}
+
 		// trigger an update to lastUsed timestamp for ApiKey
 		if entry.LastUsed == 0 || (entry.LastUsed+60) <= now {
 			update := &table.ApiKeyEntry{
@@ -176,7 +198,7 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 			user = update
 		}
 
-		// trigger an update to lastAccess timestamp
+		// trigger an update to lastAccess timestamp and store roles
 		if user.LastAccess == 0 || (user.LastAccess+60) <= now {
 			update := &table.UserEntry{
 				Key: &table.UserKey{
@@ -184,6 +206,7 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 					Username: authInfo.UserName,
 				},
 				LastAccess: now,
+				RealmRoles: &authInfo.Roles, // Store roles from bearer token
 			}
 			err = s.userTbl.Update(r.Context(), update.Key, update)
 			if err != nil {
@@ -466,6 +489,11 @@ func New() http.Handler {
 		log.Panicf("unable to get org unit user table: %s", err)
 	}
 
+	tenantTbl, err := table.GetTenantTable()
+	if err != nil {
+		log.Panicf("unable to get tenant table: %s", err)
+	}
+
 	director := func(req *http.Request) {
 		// we don't use director we will handle request modification
 		// of our own
@@ -487,6 +515,7 @@ func New() http.Handler {
 		routes:    routes,
 		ouTbl:     ouTbl,
 		ouUserTbl: ouUserTbl,
+		tenantTbl: tenantTbl,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,
