@@ -36,20 +36,18 @@ func (s *OrgUnitRoleServer) ListOrgUnitRoles(ctx context.Context, req *api.OrgUn
 
 	items := []*api.OrgUnitRolesListEntry{
 		{
-			Name:        "admin",
-			Desc:        "Administrator role to provide access to everything in the Organization Unit including management of users and resources",
-			Type:        "built-in",
-			DisplayName: "Administrator",
-			Created:     0,
-			CreatedBy:   "",
+			Name:      "admin",
+			Desc:      "Administrator role to provide access to everything in the Organization Unit including management of users and resources",
+			Type:      "built-in",
+			Created:   0,
+			CreatedBy: "",
 		},
 		{
-			Name:        "auditor",
-			Desc:        "Auditor role to provide read-only access to all the resources available in the Organization Unit",
-			Type:        "built-in",
-			DisplayName: "Auditor",
-			Created:     0,
-			CreatedBy:   "",
+			Name:      "auditor",
+			Desc:      "Auditor role to provide read-only access to all the resources available in the Organization Unit",
+			Type:      "built-in",
+			Created:   0,
+			CreatedBy: "",
 		},
 	}
 
@@ -60,12 +58,11 @@ func (s *OrgUnitRoleServer) ListOrgUnitRoles(ctx context.Context, req *api.OrgUn
 	} else {
 		for _, role := range customRoles {
 			items = append(items, &api.OrgUnitRolesListEntry{
-				Name:        role.Key.Name,
-				Desc:        role.Description,
-				Type:        "custom",
-				DisplayName: role.DisplayName,
-				Created:     role.Created,
-				CreatedBy:   role.CreatedBy,
+				Name:      role.Key.Name,
+				Desc:      role.Description,
+				Type:      "custom",
+				Created:   role.Created,
+				CreatedBy: role.CreatedBy,
 			})
 		}
 	}
@@ -137,7 +134,6 @@ func (s *OrgUnitRoleServer) CreateCustomRole(ctx context.Context, req *api.Creat
 			OrgUnitId: req.Ou,
 			Name:      req.Name,
 		},
-		DisplayName: req.DisplayName,
 		Description: req.Description,
 		Permissions: permissions,
 		Created:     time.Now().Unix(),
@@ -155,9 +151,7 @@ func (s *OrgUnitRoleServer) CreateCustomRole(ctx context.Context, req *api.Creat
 		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
 	}
 
-	return &api.CreateCustomRoleResp{
-		Message: "Custom role created successfully",
-	}, nil
+	return &api.CreateCustomRoleResp{}, nil
 }
 
 // UpdateCustomRole updates an existing custom role
@@ -174,7 +168,6 @@ func (s *OrgUnitRoleServer) UpdateCustomRole(ctx context.Context, req *api.Updat
 	permissions := s.convertProtoPermissionsToTable(req.Permissions)
 
 	updateRole := &table.OrgUnitCustomRole{
-		DisplayName: req.DisplayName,
 		Description: req.Description,
 		Permissions: permissions,
 		Updated:     time.Now().Unix(),
@@ -196,9 +189,7 @@ func (s *OrgUnitRoleServer) UpdateCustomRole(ctx context.Context, req *api.Updat
 		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
 	}
 
-	return &api.UpdateCustomRoleResp{
-		Message: "Custom role updated successfully",
-	}, nil
+	return &api.UpdateCustomRoleResp{}, nil
 }
 
 // GetCustomRole retrieves details of a specific custom role
@@ -221,7 +212,6 @@ func (s *OrgUnitRoleServer) GetCustomRole(ctx context.Context, req *api.GetCusto
 
 	return &api.GetCustomRoleResp{
 		Name:        customRole.Key.Name,
-		DisplayName: customRole.DisplayName,
 		Description: customRole.Description,
 		Permissions: permissions,
 		Created:     customRole.Created,
@@ -259,70 +249,83 @@ func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.Delet
 }
 
 // convertProtoResourceMatchCriteriaToTable converts protobuf enum to table string constant
-func (s *OrgUnitRoleServer) convertProtoResourceMatchCriteriaToTable(criteria api.ResourceMatchCriteria) table.ResourceMatchCriteria {
+func (s *OrgUnitRoleServer) convertProtoResourceMatchCriteriaToTable(criteria api.ResourceMatchCriteriaDefs_Criteria) table.ResourceMatchCriteria {
 	switch criteria {
-	case api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_EXACT:
-		return table.ResourceMatchCriteriaExact
-	case api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_PREFIX:
-		return table.ResourceMatchCriteriaPrefix
-	case api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_SUFFIX:
-		return table.ResourceMatchCriteriaSuffix
-	case api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_REGEX:
-		return table.ResourceMatchCriteriaRegex
-	case api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_WILDCARD:
+	case api.ResourceMatchCriteriaDefs_Any:
 		return table.ResourceMatchCriteriaWildcard
-	case api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_UNSPECIFIED:
-		fallthrough
+	case api.ResourceMatchCriteriaDefs_Exact:
+		return table.ResourceMatchCriteriaExact
+	case api.ResourceMatchCriteriaDefs_Prefix:
+		return table.ResourceMatchCriteriaPrefix
+	case api.ResourceMatchCriteriaDefs_Suffix:
+		return table.ResourceMatchCriteriaSuffix
+	case api.ResourceMatchCriteriaDefs_Regex:
+		return table.ResourceMatchCriteriaRegex
 	default:
-		return table.ResourceMatchCriteriaUnspecified
+		// Unknown/Unspecified criteria - default to Wildcard (show all)
+		log.Printf("Unknown or unspecified resource match criteria: %v, defaulting to Wildcard (show all)", criteria)
+		return table.ResourceMatchCriteriaWildcard
 	}
 }
 
 // convertTableResourceMatchCriteriaToProto converts table string constant to protobuf enum
-func (s *OrgUnitRoleServer) convertTableResourceMatchCriteriaToProto(criteria table.ResourceMatchCriteria) api.ResourceMatchCriteria {
+func (s *OrgUnitRoleServer) convertTableResourceMatchCriteriaToProto(criteria table.ResourceMatchCriteria) api.ResourceMatchCriteriaDefs_Criteria {
 	switch criteria {
 	case table.ResourceMatchCriteriaExact:
-		return api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_EXACT
+		return api.ResourceMatchCriteriaDefs_Exact
 	case table.ResourceMatchCriteriaPrefix:
-		return api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_PREFIX
+		return api.ResourceMatchCriteriaDefs_Prefix
 	case table.ResourceMatchCriteriaSuffix:
-		return api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_SUFFIX
+		return api.ResourceMatchCriteriaDefs_Suffix
 	case table.ResourceMatchCriteriaRegex:
-		return api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_REGEX
+		return api.ResourceMatchCriteriaDefs_Regex
 	case table.ResourceMatchCriteriaWildcard:
-		return api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_WILDCARD
+		return api.ResourceMatchCriteriaDefs_Any
 	case table.ResourceMatchCriteriaUnspecified:
-		fallthrough
+		// UNSPECIFIED in database - default to Any (show all)
+		log.Printf("Unspecified resource match criteria in database, defaulting to Any")
+		return api.ResourceMatchCriteriaDefs_Any
 	default:
-		return api.ResourceMatchCriteria_RESOURCE_MATCH_CRITERIA_UNSPECIFIED
+		log.Printf("Unknown table resource match criteria: %v, defaulting to Any", criteria)
+		return api.ResourceMatchCriteriaDefs_Any
 	}
 }
 
 // convertProtoActionToTable converts protobuf enum to table string constant
-func (s *OrgUnitRoleServer) convertProtoActionToTable(action api.RolePermissionAction) table.RolePermissionAction {
+func (s *OrgUnitRoleServer) convertProtoActionToTable(action api.RolePermissionActionDefs_Action) table.RolePermissionAction {
 	switch action {
-	case api.RolePermissionAction_ROLE_PERMISSION_ACTION_ALLOW:
+	case api.RolePermissionActionDefs_Allow:
 		return table.RolePermissionActionAllow
-	case api.RolePermissionAction_ROLE_PERMISSION_ACTION_DENY:
+	case api.RolePermissionActionDefs_Deny:
 		return table.RolePermissionActionDeny
-	case api.RolePermissionAction_ROLE_PERMISSION_ACTION_UNSPECIFIED:
-		fallthrough
+	case api.RolePermissionActionDefs_Log:
+		return table.RolePermissionActionLog
+	case api.RolePermissionActionDefs_Unspecified:
+		// UNSPECIFIED action - default to Deny for security
+		log.Printf("Unspecified action encountered, defaulting to Deny")
+		return table.RolePermissionActionDeny
 	default:
-		return table.RolePermissionActionUnspecified
+		log.Printf("Unknown action: %v, defaulting to Deny", action)
+		return table.RolePermissionActionDeny
 	}
 }
 
 // convertTableActionToProto converts table string constant to protobuf enum
-func (s *OrgUnitRoleServer) convertTableActionToProto(action table.RolePermissionAction) api.RolePermissionAction {
+func (s *OrgUnitRoleServer) convertTableActionToProto(action table.RolePermissionAction) api.RolePermissionActionDefs_Action {
 	switch action {
 	case table.RolePermissionActionAllow:
-		return api.RolePermissionAction_ROLE_PERMISSION_ACTION_ALLOW
+		return api.RolePermissionActionDefs_Allow
 	case table.RolePermissionActionDeny:
-		return api.RolePermissionAction_ROLE_PERMISSION_ACTION_DENY
+		return api.RolePermissionActionDefs_Deny
+	case table.RolePermissionActionLog:
+		return api.RolePermissionActionDefs_Log
 	case table.RolePermissionActionUnspecified:
-		fallthrough
+		// UNSPECIFIED in database - default to Deny for security
+		log.Printf("Unspecified action in database, defaulting to Deny")
+		return api.RolePermissionActionDefs_Deny
 	default:
-		return api.RolePermissionAction_ROLE_PERMISSION_ACTION_UNSPECIFIED
+		log.Printf("Unknown table action: %v, defaulting to Deny", action)
+		return api.RolePermissionActionDefs_Deny
 	}
 }
 
@@ -382,13 +385,6 @@ func (s *OrgUnitRoleServer) validateCreateCustomRoleRequest(req *api.CreateCusto
 		return errors.New("role name cannot exceed 50 characters")
 	}
 
-	if req.DisplayName == "" {
-		return errors.New("display name cannot be empty")
-	}
-	if len(req.DisplayName) > 100 {
-		return errors.New("display name cannot exceed 100 characters")
-	}
-
 	// Description is optional, but if provided, validate length
 	if len(req.Description) > 500 {
 		return errors.New("description cannot exceed 500 characters")
@@ -413,9 +409,12 @@ func (s *OrgUnitRoleServer) validateCreateCustomRoleRequest(req *api.CreateCusto
 				return fmt.Errorf("permission %d, verb %d: verb cannot be empty", i+1, j+1)
 			}
 		}
-		if perm.Action != api.RolePermissionAction_ROLE_PERMISSION_ACTION_UNSPECIFIED &&
-			perm.Action != api.RolePermissionAction_ROLE_PERMISSION_ACTION_ALLOW &&
-			perm.Action != api.RolePermissionAction_ROLE_PERMISSION_ACTION_DENY {
+		if perm.Action == api.RolePermissionActionDefs_Unspecified {
+			return fmt.Errorf("permission %d: action must be specified (Allow, Deny, or Log)", i+1)
+		}
+		if perm.Action != api.RolePermissionActionDefs_Allow &&
+			perm.Action != api.RolePermissionActionDefs_Deny &&
+			perm.Action != api.RolePermissionActionDefs_Log {
 			return fmt.Errorf("permission %d: invalid action value: %v", i+1, perm.Action)
 		}
 	}
@@ -425,13 +424,6 @@ func (s *OrgUnitRoleServer) validateCreateCustomRoleRequest(req *api.CreateCusto
 
 // validateUpdateCustomRoleRequest validates the UpdateCustomRole request fields
 func (s *OrgUnitRoleServer) validateUpdateCustomRoleRequest(req *api.UpdateCustomRoleReq) error {
-	if req.DisplayName == "" {
-		return errors.New("display name cannot be empty")
-	}
-	if len(req.DisplayName) > 100 {
-		return errors.New("display name cannot exceed 100 characters")
-	}
-
 	// Description is optional, but if provided, validate length
 	if len(req.Description) > 500 {
 		return errors.New("description cannot exceed 500 characters")
@@ -456,9 +448,12 @@ func (s *OrgUnitRoleServer) validateUpdateCustomRoleRequest(req *api.UpdateCusto
 				return fmt.Errorf("permission %d, verb %d: verb cannot be empty", i+1, j+1)
 			}
 		}
-		if perm.Action != api.RolePermissionAction_ROLE_PERMISSION_ACTION_UNSPECIFIED &&
-			perm.Action != api.RolePermissionAction_ROLE_PERMISSION_ACTION_ALLOW &&
-			perm.Action != api.RolePermissionAction_ROLE_PERMISSION_ACTION_DENY {
+		if perm.Action == api.RolePermissionActionDefs_Unspecified {
+			return fmt.Errorf("permission %d: action must be specified (Allow, Deny, or Log)", i+1)
+		}
+		if perm.Action != api.RolePermissionActionDefs_Allow &&
+			perm.Action != api.RolePermissionActionDefs_Deny &&
+			perm.Action != api.RolePermissionActionDefs_Log {
 			return fmt.Errorf("permission %d: invalid action value: %v", i+1, perm.Action)
 		}
 	}

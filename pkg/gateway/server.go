@@ -246,14 +246,24 @@ func (s *gateway) performOrgUnitRoleCheck(authInfo *common.AuthInfo, ou string, 
 	}
 
 	// Evaluate permissions
-	return s.evaluateCustomRolePermissions(customRole.Permissions, resource, verb, resourceInstance)
+	allowed, shouldLog := s.evaluateCustomRolePermissions(customRole.Permissions, resource, verb, resourceInstance)
+
+	// Log entry if Log action was matched
+	if shouldLog {
+		log.Printf("[LOG] User: %s, Tenant: %s, OrgUnit: %s, Role: %s, Resource: %s, Verb: %s, Instance: %s, Method: %s, Path: %s, Allowed: %v",
+			authInfo.UserName, authInfo.Realm, ou, ouUser.Role, resource, verb, resourceInstance, r.Method, r.URL.Path, allowed)
+	}
+
+	return allowed
 }
 
 // evaluateCustomRolePermissions checks if the custom role's permissions allow the requested resource and verb
 // For non-list operations, resourceInstance is checked against the permission's match criteria
-func (s *gateway) evaluateCustomRolePermissions(permissions []*table.RolePermission, resource, verb, resourceInstance string) bool {
+// Returns (allowed bool, shouldLog bool)
+func (s *gateway) evaluateCustomRolePermissions(permissions []*table.RolePermission, resource, verb, resourceInstance string) (bool, bool) {
 	var allowMatched bool
 	var denyMatched bool
+	var logMatched bool
 
 	for _, perm := range permissions {
 		// Check if resource matches
@@ -282,22 +292,26 @@ func (s *gateway) evaluateCustomRolePermissions(permissions []*table.RolePermiss
 			}
 		}
 
-		// Apply action (Deny takes precedence)
+		// Apply action (Deny takes precedence, Log enables audit logging)
 		switch perm.Action {
 		case table.RolePermissionActionDeny:
 			denyMatched = true
+		case table.RolePermissionActionLog:
+			// Log action allows access but marks it for audit logging
+			logMatched = true
+			allowMatched = true
 		case table.RolePermissionActionAllow, table.RolePermissionActionUnspecified:
 			// Treat UNSPECIFIED or empty as Allow (default permissive behavior)
 			allowMatched = true
 		}
 	}
 
-	// Deny takes precedence over Allow
+	// Deny takes precedence over Allow and Log
 	if denyMatched {
-		return false
+		return false, false
 	}
 
-	return allowMatched
+	return allowMatched, logMatched
 }
 
 // matchesResource checks if a requested resource matches the permission's resource pattern

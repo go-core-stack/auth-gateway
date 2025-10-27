@@ -52,6 +52,7 @@ const (
 	RolePermissionActionUnspecified RolePermissionAction = ""
 	RolePermissionActionAllow       RolePermissionAction = "Allow"
 	RolePermissionActionDeny        RolePermissionAction = "Deny"
+	RolePermissionActionLog         RolePermissionAction = "Log"
 )
 
 // RolePermission defines individual permission for a resource
@@ -70,8 +71,6 @@ type RolePermission struct {
 type OrgUnitCustomRole struct {
 	// Custom role key
 	Key *OrgUnitCustomRoleKey `bson:"key,omitempty"`
-	// Display name for the custom role
-	DisplayName string `bson:"displayName,omitempty"`
 	// Description explaining the purpose of this custom role
 	Description string `bson:"description,omitempty"`
 	// List of permissions granted by this custom role
