@@ -85,6 +85,19 @@ func (t *OrgUnitUserTable) CountByOrgUnitId(ctx context.Context, orgUnitId strin
 	return int32(count), err
 }
 
+func (t *OrgUnitUserTable) HasRoleBindings(ctx context.Context, tenant, orgUnitId, roleName string) (bool, error) {
+	filter := bson.M{
+		"key.tenant":    tenant,
+		"key.orgUnitId": orgUnitId,
+		"role":          roleName,
+	}
+	count, err := t.col.Count(ctx, filter)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (t *OrgUnitUserTable) StartEventLogger() error {
 	logger := db.NewEventLogger[OrgUnitUserKey, OrgUnitUser](t.col, nil)
 	return logger.Start(context.Background())
