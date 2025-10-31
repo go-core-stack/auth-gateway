@@ -30,6 +30,9 @@ const (
 	// Org Unit User collection name
 	OrgUnitUserCollectionName = "org-unit-users"
 
+	// Org Unit Custom Role collection name
+	OrgUnitCustomRoleCollectionName = "org-unit-roles"
+
 	// Identity Provider collection name
 	IdentityProviderCollectionName = "identity-providers"
 )
