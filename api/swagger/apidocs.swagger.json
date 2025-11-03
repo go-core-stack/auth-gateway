@@ -656,6 +656,52 @@
         ]
       }
     },
+    "/api/auth/v1/role/criteria": {
+      "get": {
+        "summary": "Get available resource match criteria options",
+        "operationId": "OrgUnitRole_GetAvailableResourceMatchCriteria",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiGetAvailableResourceMatchCriteriaResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "OrgUnitRole"
+        ]
+      }
+    },
+    "/api/auth/v1/role/permission": {
+      "get": {
+        "summary": "Get available role permission action options",
+        "operationId": "OrgUnitRole_GetAvailableRolePermissionActions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiGetAvailableRolePermissionActionsResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "OrgUnitRole"
+        ]
+      }
+    },
     "/api/auth/v1/tenant": {
       "post": {
         "summary": "Create a new Tenant",
@@ -2886,6 +2932,32 @@
         }
       },
       "title": "Delete custom role response"
+    },
+    "apiGetAvailableResourceMatchCriteriaResp": {
+      "type": "object",
+      "properties": {
+        "criteria": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceMatchCriteriaDefsCriteria"
+          },
+          "title": "List of available resource match criteria"
+        }
+      },
+      "title": "Get available resource match criteria response"
+    },
+    "apiGetAvailableRolePermissionActionsResp": {
+      "type": "object",
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RolePermissionActionDefsAction"
+          },
+          "title": "List of available role permission actions"
+        }
+      },
+      "title": "Get available role permission actions response"
     },
     "apiGetCustomRoleResp": {
       "type": "object",

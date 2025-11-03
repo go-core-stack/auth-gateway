@@ -14,10 +14,61 @@ import (
 
 	"github.com/go-core-stack/auth-gateway/api"
 	"github.com/go-core-stack/auth-gateway/pkg/model"
+	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
 type OrgUnitRoleServer struct {
 	api.UnimplementedOrgUnitRoleServer
+}
+
+// GetAvailableResourceMatchCriteria returns all available resource matching criteria
+func (s *OrgUnitRoleServer) GetAvailableResourceMatchCriteria(ctx context.Context, req *api.GetAvailableResourceMatchCriteriaReq) (*api.GetAvailableResourceMatchCriteriaResp, error) {
+	log.Printf("received request for available resource match criteria: %v", req)
+	criteria := []api.ResourceMatchCriteriaDefs_Criteria{}
+
+	// Convert table constants to API enums
+	tableCriteria := table.GetAvailableResourceMatchCriteria()
+
+	for _, c := range tableCriteria {
+		switch c {
+		case table.ResourceMatchCriteriaAny:
+			criteria = append(criteria, api.ResourceMatchCriteriaDefs_Any)
+		case table.ResourceMatchCriteriaExact:
+			criteria = append(criteria, api.ResourceMatchCriteriaDefs_Exact)
+		case table.ResourceMatchCriteriaPrefix:
+			criteria = append(criteria, api.ResourceMatchCriteriaDefs_Prefix)
+		case table.ResourceMatchCriteriaSuffix:
+			criteria = append(criteria, api.ResourceMatchCriteriaDefs_Suffix)
+		}
+	}
+
+	log.Printf("returning %d criteria options", len(criteria))
+	return &api.GetAvailableResourceMatchCriteriaResp{
+		Criteria: criteria,
+	}, nil
+}
+
+// GetAvailableRolePermissionActions returns all available role permission actions
+func (s *OrgUnitRoleServer) GetAvailableRolePermissionActions(ctx context.Context, req *api.GetAvailableRolePermissionActionsReq) (*api.GetAvailableRolePermissionActionsResp, error) {
+	log.Printf("received request for available role permission actions: %v", req)
+	actions := []api.RolePermissionActionDefs_Action{}
+
+	// Convert table constants to API enums
+	tableActions := table.GetAvailableRolePermissionAction()
+
+	for _, action := range tableActions {
+		switch action {
+		case table.RolePermissionActionDeny:
+			actions = append(actions, api.RolePermissionActionDefs_Deny)
+		case table.RolePermissionActionAllow:
+			actions = append(actions, api.RolePermissionActionDefs_Allow)
+		}
+	}
+
+	log.Printf("returning %d action options", len(actions))
+	return &api.GetAvailableRolePermissionActionsResp{
+		Actions: actions,
+	}, nil
 }
 
 // Return only built-in roles (hardcoded)
@@ -87,9 +138,26 @@ func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.Delet
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 
+	// TODO: Implement DeleteRoleWithBindingCheck logic here with proper atomicity:
+	// Get table instances: table.GetOrgUnitRoleTable() and table.GetOrgUnitUserTable()
+	// Check if role has bindings using HasRoleBindings() from OrgUnitUserTable
+	// If has bindings:
+	// -> Mark as deleted: Update() with isDeleted=true
+	// -> Set updatedBy to authInfo.UserName
+	// -> Role preserved in DB for audit/history
+	// If no bindings:
+	// -> Remove from database using DeleteKey()
+	// Use database transaction or locks to ensure atomicity between check and delete
+
 	// Stub implementation
 	return nil, status.Errorf(codes.Unimplemented, "Custom role deletion not yet implemented")
 }
+
+// TODO: Implement CleanupOrphanedRoles as a background job or admin endpoint:
+//   Query all roles with isDeleted=true for given tenant/orgUnit using FindMany()
+//   For each deleted role, check if it still has bindings
+//   If no bindings, remove from database using DeleteKey()
+//   This reclaims space for roles that were marked deleted but users have since been removed
 
 func NewOrgUnitRoleServer(ctx *model.GrpcServerContext, ep string) *OrgUnitRoleServer {
 	srv := &OrgUnitRoleServer{}

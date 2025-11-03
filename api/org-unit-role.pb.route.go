@@ -44,4 +44,16 @@ func init() {
 	route.Scopes = append(route.Scopes, "ou")
 	route.Verb = "delete"
 	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
+
+	// Adding Route information for GetAvailableResourceMatchCriteria RPC
+	route = model.NewRoute("/api/auth/v1/role/criteria", "GET")
+	route.Resource = "org-unit-role"
+	route.Verb = "get"
+	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
+
+	// Adding Route information for GetAvailableRolePermissionActions RPC
+	route = model.NewRoute("/api/auth/v1/role/permission", "GET")
+	route.Resource = "org-unit-role"
+	route.Verb = "get"
+	RoutesOrgUnitRole = append(RoutesOrgUnitRole, route)
 }

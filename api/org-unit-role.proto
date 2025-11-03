@@ -73,6 +73,28 @@ service OrgUnitRole {
       verb: "delete"
     };
   }
+
+  // Get available resource match criteria options
+  rpc GetAvailableResourceMatchCriteria(GetAvailableResourceMatchCriteriaReq) returns (GetAvailableResourceMatchCriteriaResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/role/criteria"
+    };
+    option (api.role) = {
+      resource: "org-unit-role"
+      verb: "get"
+    };
+  }
+
+  // Get available role permission action options
+  rpc GetAvailableRolePermissionActions(GetAvailableRolePermissionActionsReq) returns (GetAvailableRolePermissionActionsResp) {
+    option (google.api.http) = {
+      get: "/api/auth/v1/role/permission"
+    };
+    option (api.role) = {
+      resource: "org-unit-role"
+      verb: "get"
+    };
+  }
 }
 
 // org unit roles list request
@@ -248,4 +270,26 @@ message DeleteCustomRoleReq {
 message DeleteCustomRoleResp {
   // Confirmation message
   string message = 1;
+}
+
+// Get available resource match criteria request
+message GetAvailableResourceMatchCriteriaReq {
+  // No parameters needed - returns global options
+}
+
+// Get available resource match criteria response
+message GetAvailableResourceMatchCriteriaResp {
+  // List of available resource match criteria
+  repeated ResourceMatchCriteriaDefs.Criteria criteria = 1;
+}
+
+// Get available role permission actions request
+message GetAvailableRolePermissionActionsReq {
+  // No parameters needed - returns global options
+}
+
+// Get available role permission actions response
+message GetAvailableRolePermissionActionsResp {
+  // List of available role permission actions
+  repeated RolePermissionActionDefs.Action actions = 1;
 }

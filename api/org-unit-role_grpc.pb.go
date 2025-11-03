@@ -22,11 +22,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrgUnitRole_ListOrgUnitRoles_FullMethodName = "/api.OrgUnitRole/ListOrgUnitRoles"
-	OrgUnitRole_CreateCustomRole_FullMethodName = "/api.OrgUnitRole/CreateCustomRole"
-	OrgUnitRole_UpdateCustomRole_FullMethodName = "/api.OrgUnitRole/UpdateCustomRole"
-	OrgUnitRole_GetCustomRole_FullMethodName    = "/api.OrgUnitRole/GetCustomRole"
-	OrgUnitRole_DeleteCustomRole_FullMethodName = "/api.OrgUnitRole/DeleteCustomRole"
+	OrgUnitRole_ListOrgUnitRoles_FullMethodName                  = "/api.OrgUnitRole/ListOrgUnitRoles"
+	OrgUnitRole_CreateCustomRole_FullMethodName                  = "/api.OrgUnitRole/CreateCustomRole"
+	OrgUnitRole_UpdateCustomRole_FullMethodName                  = "/api.OrgUnitRole/UpdateCustomRole"
+	OrgUnitRole_GetCustomRole_FullMethodName                     = "/api.OrgUnitRole/GetCustomRole"
+	OrgUnitRole_DeleteCustomRole_FullMethodName                  = "/api.OrgUnitRole/DeleteCustomRole"
+	OrgUnitRole_GetAvailableResourceMatchCriteria_FullMethodName = "/api.OrgUnitRole/GetAvailableResourceMatchCriteria"
+	OrgUnitRole_GetAvailableRolePermissionActions_FullMethodName = "/api.OrgUnitRole/GetAvailableRolePermissionActions"
 )
 
 // OrgUnitRoleClient is the client API for OrgUnitRole service.
@@ -45,6 +47,10 @@ type OrgUnitRoleClient interface {
 	GetCustomRole(ctx context.Context, in *GetCustomRoleReq, opts ...grpc.CallOption) (*GetCustomRoleResp, error)
 	// Delete (soft delete) a custom role from the organization unit
 	DeleteCustomRole(ctx context.Context, in *DeleteCustomRoleReq, opts ...grpc.CallOption) (*DeleteCustomRoleResp, error)
+	// Get available resource match criteria options
+	GetAvailableResourceMatchCriteria(ctx context.Context, in *GetAvailableResourceMatchCriteriaReq, opts ...grpc.CallOption) (*GetAvailableResourceMatchCriteriaResp, error)
+	// Get available role permission action options
+	GetAvailableRolePermissionActions(ctx context.Context, in *GetAvailableRolePermissionActionsReq, opts ...grpc.CallOption) (*GetAvailableRolePermissionActionsResp, error)
 }
 
 type orgUnitRoleClient struct {
@@ -105,6 +111,26 @@ func (c *orgUnitRoleClient) DeleteCustomRole(ctx context.Context, in *DeleteCust
 	return out, nil
 }
 
+func (c *orgUnitRoleClient) GetAvailableResourceMatchCriteria(ctx context.Context, in *GetAvailableResourceMatchCriteriaReq, opts ...grpc.CallOption) (*GetAvailableResourceMatchCriteriaResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAvailableResourceMatchCriteriaResp)
+	err := c.cc.Invoke(ctx, OrgUnitRole_GetAvailableResourceMatchCriteria_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orgUnitRoleClient) GetAvailableRolePermissionActions(ctx context.Context, in *GetAvailableRolePermissionActionsReq, opts ...grpc.CallOption) (*GetAvailableRolePermissionActionsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAvailableRolePermissionActionsResp)
+	err := c.cc.Invoke(ctx, OrgUnitRole_GetAvailableRolePermissionActions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrgUnitRoleServer is the server API for OrgUnitRole service.
 // All implementations must embed UnimplementedOrgUnitRoleServer
 // for forward compatibility.
@@ -121,6 +147,10 @@ type OrgUnitRoleServer interface {
 	GetCustomRole(context.Context, *GetCustomRoleReq) (*GetCustomRoleResp, error)
 	// Delete (soft delete) a custom role from the organization unit
 	DeleteCustomRole(context.Context, *DeleteCustomRoleReq) (*DeleteCustomRoleResp, error)
+	// Get available resource match criteria options
+	GetAvailableResourceMatchCriteria(context.Context, *GetAvailableResourceMatchCriteriaReq) (*GetAvailableResourceMatchCriteriaResp, error)
+	// Get available role permission action options
+	GetAvailableRolePermissionActions(context.Context, *GetAvailableRolePermissionActionsReq) (*GetAvailableRolePermissionActionsResp, error)
 	mustEmbedUnimplementedOrgUnitRoleServer()
 }
 
@@ -145,6 +175,12 @@ func (UnimplementedOrgUnitRoleServer) GetCustomRole(context.Context, *GetCustomR
 }
 func (UnimplementedOrgUnitRoleServer) DeleteCustomRole(context.Context, *DeleteCustomRoleReq) (*DeleteCustomRoleResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCustomRole not implemented")
+}
+func (UnimplementedOrgUnitRoleServer) GetAvailableResourceMatchCriteria(context.Context, *GetAvailableResourceMatchCriteriaReq) (*GetAvailableResourceMatchCriteriaResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableResourceMatchCriteria not implemented")
+}
+func (UnimplementedOrgUnitRoleServer) GetAvailableRolePermissionActions(context.Context, *GetAvailableRolePermissionActionsReq) (*GetAvailableRolePermissionActionsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableRolePermissionActions not implemented")
 }
 func (UnimplementedOrgUnitRoleServer) mustEmbedUnimplementedOrgUnitRoleServer() {}
 func (UnimplementedOrgUnitRoleServer) testEmbeddedByValue()                     {}
@@ -257,6 +293,42 @@ func _OrgUnitRole_DeleteCustomRole_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrgUnitRole_GetAvailableResourceMatchCriteria_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvailableResourceMatchCriteriaReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgUnitRoleServer).GetAvailableResourceMatchCriteria(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgUnitRole_GetAvailableResourceMatchCriteria_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgUnitRoleServer).GetAvailableResourceMatchCriteria(ctx, req.(*GetAvailableResourceMatchCriteriaReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrgUnitRole_GetAvailableRolePermissionActions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvailableRolePermissionActionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgUnitRoleServer).GetAvailableRolePermissionActions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgUnitRole_GetAvailableRolePermissionActions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgUnitRoleServer).GetAvailableRolePermissionActions(ctx, req.(*GetAvailableRolePermissionActionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrgUnitRole_ServiceDesc is the grpc.ServiceDesc for OrgUnitRole service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -283,6 +355,14 @@ var OrgUnitRole_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteCustomRole",
 			Handler:    _OrgUnitRole_DeleteCustomRole_Handler,
+		},
+		{
+			MethodName: "GetAvailableResourceMatchCriteria",
+			Handler:    _OrgUnitRole_GetAvailableResourceMatchCriteria_Handler,
+		},
+		{
+			MethodName: "GetAvailableRolePermissionActions",
+			Handler:    _OrgUnitRole_GetAvailableRolePermissionActions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

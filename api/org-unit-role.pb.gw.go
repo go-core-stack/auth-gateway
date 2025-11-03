@@ -278,6 +278,44 @@ func local_request_OrgUnitRole_DeleteCustomRole_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
+func request_OrgUnitRole_GetAvailableResourceMatchCriteria_0(ctx context.Context, marshaler runtime.Marshaler, client OrgUnitRoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetAvailableResourceMatchCriteriaReq
+		metadata runtime.ServerMetadata
+	)
+	io.Copy(io.Discard, req.Body)
+	msg, err := client.GetAvailableResourceMatchCriteria(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_OrgUnitRole_GetAvailableResourceMatchCriteria_0(ctx context.Context, marshaler runtime.Marshaler, server OrgUnitRoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetAvailableResourceMatchCriteriaReq
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.GetAvailableResourceMatchCriteria(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_OrgUnitRole_GetAvailableRolePermissionActions_0(ctx context.Context, marshaler runtime.Marshaler, client OrgUnitRoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetAvailableRolePermissionActionsReq
+		metadata runtime.ServerMetadata
+	)
+	io.Copy(io.Discard, req.Body)
+	msg, err := client.GetAvailableRolePermissionActions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_OrgUnitRole_GetAvailableRolePermissionActions_0(ctx context.Context, marshaler runtime.Marshaler, server OrgUnitRoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetAvailableRolePermissionActionsReq
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.GetAvailableRolePermissionActions(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 // RegisterOrgUnitRoleHandlerServer registers the http handlers for service OrgUnitRole to "mux".
 // UnaryRPC     :call OrgUnitRoleServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -383,6 +421,46 @@ func RegisterOrgUnitRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 		forward_OrgUnitRole_DeleteCustomRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_OrgUnitRole_GetAvailableResourceMatchCriteria_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/GetAvailableResourceMatchCriteria", runtime.WithHTTPPathPattern("/api/auth/v1/role/criteria"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OrgUnitRole_GetAvailableResourceMatchCriteria_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OrgUnitRole_GetAvailableResourceMatchCriteria_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_OrgUnitRole_GetAvailableRolePermissionActions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/api.OrgUnitRole/GetAvailableRolePermissionActions", runtime.WithHTTPPathPattern("/api/auth/v1/role/permission"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OrgUnitRole_GetAvailableRolePermissionActions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OrgUnitRole_GetAvailableRolePermissionActions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -509,21 +587,59 @@ func RegisterOrgUnitRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 		forward_OrgUnitRole_DeleteCustomRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_OrgUnitRole_GetAvailableResourceMatchCriteria_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/GetAvailableResourceMatchCriteria", runtime.WithHTTPPathPattern("/api/auth/v1/role/criteria"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OrgUnitRole_GetAvailableResourceMatchCriteria_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OrgUnitRole_GetAvailableResourceMatchCriteria_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_OrgUnitRole_GetAvailableRolePermissionActions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/api.OrgUnitRole/GetAvailableRolePermissionActions", runtime.WithHTTPPathPattern("/api/auth/v1/role/permission"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OrgUnitRole_GetAvailableRolePermissionActions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OrgUnitRole_GetAvailableRolePermissionActions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
 var (
-	pattern_OrgUnitRole_ListOrgUnitRoles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "ou", "roles"}, ""))
-	pattern_OrgUnitRole_CreateCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "ou", "role"}, ""))
-	pattern_OrgUnitRole_UpdateCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
-	pattern_OrgUnitRole_GetCustomRole_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
-	pattern_OrgUnitRole_DeleteCustomRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
+	pattern_OrgUnitRole_ListOrgUnitRoles_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "ou", "roles"}, ""))
+	pattern_OrgUnitRole_CreateCustomRole_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "auth", "v1", "ou", "role"}, ""))
+	pattern_OrgUnitRole_UpdateCustomRole_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
+	pattern_OrgUnitRole_GetCustomRole_0                     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
+	pattern_OrgUnitRole_DeleteCustomRole_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "auth", "v1", "ou", "role", "name"}, ""))
+	pattern_OrgUnitRole_GetAvailableResourceMatchCriteria_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "auth", "v1", "role", "criteria"}, ""))
+	pattern_OrgUnitRole_GetAvailableRolePermissionActions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "auth", "v1", "role", "permission"}, ""))
 )
 
 var (
-	forward_OrgUnitRole_ListOrgUnitRoles_0 = runtime.ForwardResponseMessage
-	forward_OrgUnitRole_CreateCustomRole_0 = runtime.ForwardResponseMessage
-	forward_OrgUnitRole_UpdateCustomRole_0 = runtime.ForwardResponseMessage
-	forward_OrgUnitRole_GetCustomRole_0    = runtime.ForwardResponseMessage
-	forward_OrgUnitRole_DeleteCustomRole_0 = runtime.ForwardResponseMessage
+	forward_OrgUnitRole_ListOrgUnitRoles_0                  = runtime.ForwardResponseMessage
+	forward_OrgUnitRole_CreateCustomRole_0                  = runtime.ForwardResponseMessage
+	forward_OrgUnitRole_UpdateCustomRole_0                  = runtime.ForwardResponseMessage
+	forward_OrgUnitRole_GetCustomRole_0                     = runtime.ForwardResponseMessage
+	forward_OrgUnitRole_DeleteCustomRole_0                  = runtime.ForwardResponseMessage
+	forward_OrgUnitRole_GetAvailableResourceMatchCriteria_0 = runtime.ForwardResponseMessage
+	forward_OrgUnitRole_GetAvailableRolePermissionActions_0 = runtime.ForwardResponseMessage
 )
