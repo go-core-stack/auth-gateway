@@ -57,4 +57,16 @@ func init() {
 	route.Resource = "tenant-idp"
 	route.Verb = "delete"
 	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for GetMySSOSessionSettings RPC
+	route = model.NewRoute("/api/mytenant/v1/sso-session-settings", "GET")
+	route.Resource = "sso-session-settings"
+	route.Verb = "get"
+	RoutesMyTenant = append(RoutesMyTenant, route)
+
+	// Adding Route information for UpdateMySSOSessionSettings RPC
+	route = model.NewRoute("/api/mytenant/v1/sso-session-settings", "PUT")
+	route.Resource = "sso-session-settings"
+	route.Verb = "update"
+	RoutesMyTenant = append(RoutesMyTenant, route)
 }

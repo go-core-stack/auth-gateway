@@ -30,6 +30,8 @@ const (
 	MyTenant_GetMyIdentityProvider_FullMethodName      = "/api.MyTenant/GetMyIdentityProvider"
 	MyTenant_UpdateMyIdentityProvider_FullMethodName   = "/api.MyTenant/UpdateMyIdentityProvider"
 	MyTenant_DeleteMyIdentityProvider_FullMethodName   = "/api.MyTenant/DeleteMyIdentityProvider"
+	MyTenant_GetMySSOSessionSettings_FullMethodName    = "/api.MyTenant/GetMySSOSessionSettings"
+	MyTenant_UpdateMySSOSessionSettings_FullMethodName = "/api.MyTenant/UpdateMySSOSessionSettings"
 )
 
 // MyTenantClient is the client API for MyTenant service.
@@ -54,6 +56,10 @@ type MyTenantClient interface {
 	UpdateMyIdentityProvider(ctx context.Context, in *MyIdentityProviderUpdateReq, opts ...grpc.CallOption) (*MyIdentityProviderUpdateResp, error)
 	// Delete identity provider (like Keycloak instances endpoint)
 	DeleteMyIdentityProvider(ctx context.Context, in *MyIdentityProviderDeleteReq, opts ...grpc.CallOption) (*MyIdentityProviderDeleteResp, error)
+	// Get SSO Session Settings configuration
+	GetMySSOSessionSettings(ctx context.Context, in *MySSOSessionSettingsGetReq, opts ...grpc.CallOption) (*MySSOSessionSettingsGetResp, error)
+	// Update SSO Session Settings configuration
+	UpdateMySSOSessionSettings(ctx context.Context, in *MySSOSessionSettingsUpdateReq, opts ...grpc.CallOption) (*MySSOSessionSettingsUpdateResp, error)
 }
 
 type myTenantClient struct {
@@ -144,6 +150,26 @@ func (c *myTenantClient) DeleteMyIdentityProvider(ctx context.Context, in *MyIde
 	return out, nil
 }
 
+func (c *myTenantClient) GetMySSOSessionSettings(ctx context.Context, in *MySSOSessionSettingsGetReq, opts ...grpc.CallOption) (*MySSOSessionSettingsGetResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MySSOSessionSettingsGetResp)
+	err := c.cc.Invoke(ctx, MyTenant_GetMySSOSessionSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myTenantClient) UpdateMySSOSessionSettings(ctx context.Context, in *MySSOSessionSettingsUpdateReq, opts ...grpc.CallOption) (*MySSOSessionSettingsUpdateResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MySSOSessionSettingsUpdateResp)
+	err := c.cc.Invoke(ctx, MyTenant_UpdateMySSOSessionSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MyTenantServer is the server API for MyTenant service.
 // All implementations must embed UnimplementedMyTenantServer
 // for forward compatibility.
@@ -166,6 +192,10 @@ type MyTenantServer interface {
 	UpdateMyIdentityProvider(context.Context, *MyIdentityProviderUpdateReq) (*MyIdentityProviderUpdateResp, error)
 	// Delete identity provider (like Keycloak instances endpoint)
 	DeleteMyIdentityProvider(context.Context, *MyIdentityProviderDeleteReq) (*MyIdentityProviderDeleteResp, error)
+	// Get SSO Session Settings configuration
+	GetMySSOSessionSettings(context.Context, *MySSOSessionSettingsGetReq) (*MySSOSessionSettingsGetResp, error)
+	// Update SSO Session Settings configuration
+	UpdateMySSOSessionSettings(context.Context, *MySSOSessionSettingsUpdateReq) (*MySSOSessionSettingsUpdateResp, error)
 	mustEmbedUnimplementedMyTenantServer()
 }
 
@@ -199,6 +229,12 @@ func (UnimplementedMyTenantServer) UpdateMyIdentityProvider(context.Context, *My
 }
 func (UnimplementedMyTenantServer) DeleteMyIdentityProvider(context.Context, *MyIdentityProviderDeleteReq) (*MyIdentityProviderDeleteResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMyIdentityProvider not implemented")
+}
+func (UnimplementedMyTenantServer) GetMySSOSessionSettings(context.Context, *MySSOSessionSettingsGetReq) (*MySSOSessionSettingsGetResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMySSOSessionSettings not implemented")
+}
+func (UnimplementedMyTenantServer) UpdateMySSOSessionSettings(context.Context, *MySSOSessionSettingsUpdateReq) (*MySSOSessionSettingsUpdateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateMySSOSessionSettings not implemented")
 }
 func (UnimplementedMyTenantServer) mustEmbedUnimplementedMyTenantServer() {}
 func (UnimplementedMyTenantServer) testEmbeddedByValue()                  {}
@@ -365,6 +401,42 @@ func _MyTenant_DeleteMyIdentityProvider_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MyTenant_GetMySSOSessionSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MySSOSessionSettingsGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).GetMySSOSessionSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_GetMySSOSessionSettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).GetMySSOSessionSettings(ctx, req.(*MySSOSessionSettingsGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyTenant_UpdateMySSOSessionSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MySSOSessionSettingsUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyTenantServer).UpdateMySSOSessionSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MyTenant_UpdateMySSOSessionSettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyTenantServer).UpdateMySSOSessionSettings(ctx, req.(*MySSOSessionSettingsUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MyTenant_ServiceDesc is the grpc.ServiceDesc for MyTenant service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -403,6 +475,14 @@ var MyTenant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteMyIdentityProvider",
 			Handler:    _MyTenant_DeleteMyIdentityProvider_Handler,
+		},
+		{
+			MethodName: "GetMySSOSessionSettings",
+			Handler:    _MyTenant_GetMySSOSessionSettings_Handler,
+		},
+		{
+			MethodName: "UpdateMySSOSessionSettings",
+			Handler:    _MyTenant_UpdateMySSOSessionSettings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

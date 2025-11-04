@@ -2161,6 +2161,60 @@
         ]
       }
     },
+    "/api/mytenant/v1/sso-session-settings": {
+      "get": {
+        "summary": "Get SSO Session Settings configuration",
+        "operationId": "MyTenant_GetMySSOSessionSettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMySSOSessionSettingsGetResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "MyTenant"
+        ]
+      },
+      "put": {
+        "summary": "Update SSO Session Settings configuration",
+        "operationId": "MyTenant_UpdateMySSOSessionSettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiMySSOSessionSettingsUpdateResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiMySSOSessionSettingsUpdateReq"
+            }
+          }
+        ],
+        "tags": [
+          "MyTenant"
+        ]
+      }
+    },
     "/api/mytenant/v1/user": {
       "post": {
         "summary": "Create a new user for the given tenant",
@@ -3424,6 +3478,42 @@
           "title": "list of available regions for the tenant\ninclusive of the set default region"
         }
       }
+    },
+    "apiMySSOSessionSettingsGetResp": {
+      "type": "object",
+      "properties": {
+        "ssoSessionIdleTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "SSO Session Idle timeout in seconds"
+        },
+        "ssoSessionMaxTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "SSO Session Max timeout in seconds"
+        }
+      },
+      "title": "SSO Session Settings get response"
+    },
+    "apiMySSOSessionSettingsUpdateReq": {
+      "type": "object",
+      "properties": {
+        "ssoSessionIdleTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "SSO Session Idle timeout in seconds"
+        },
+        "ssoSessionMaxTimeout": {
+          "type": "integer",
+          "format": "int32",
+          "title": "SSO Session Max timeout in seconds"
+        }
+      },
+      "title": "SSO Session Settings update request"
+    },
+    "apiMySSOSessionSettingsUpdateResp": {
+      "type": "object",
+      "title": "SSO Session Settings update response"
     },
     "apiMySessionInfo": {
       "type": "object",

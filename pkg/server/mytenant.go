@@ -777,6 +777,77 @@ func (s *MyTenantServer) DeleteMyIdentityProvider(ctx context.Context, req *api.
 	return &api.MyIdentityProviderDeleteResp{}, nil
 }
 
+func (s *MyTenantServer) GetMySSOSessionSettings(ctx context.Context, req *api.MySSOSessionSettingsGetReq) (*api.MySSOSessionSettingsGetResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	token, _ := s.client.GetAccessToken()
+	realm, err := s.client.GetRealm(ctx, token, authInfo.Realm)
+	if err != nil {
+		// sanity check
+		log.Printf("failed to get realm %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	resp := &api.MySSOSessionSettingsGetResp{}
+
+	// Get SSO Session Idle Timeout (in seconds)
+	if realm.SsoSessionIdleTimeout != nil {
+		resp.SsoSessionIdleTimeout = int32(*realm.SsoSessionIdleTimeout)
+	}
+
+	// Get SSO Session Max Lifespan/Max Timeout (in seconds)
+	if realm.SsoSessionMaxLifespan != nil {
+		resp.SsoSessionMaxTimeout = int32(*realm.SsoSessionMaxLifespan)
+	}
+
+	return resp, nil
+}
+
+func (s *MyTenantServer) UpdateMySSOSessionSettings(ctx context.Context, req *api.MySSOSessionSettingsUpdateReq) (*api.MySSOSessionSettingsUpdateResp, error) {
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	// Validate input values
+	if req.SsoSessionIdleTimeout < 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "SSO Session Idle timeout cannot be negative")
+	}
+
+	if req.SsoSessionMaxTimeout < 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "SSO Session Max timeout cannot be negative")
+	}
+
+	if req.SsoSessionMaxTimeout > 0 && req.SsoSessionIdleTimeout > req.SsoSessionMaxTimeout {
+		return nil, status.Errorf(codes.InvalidArgument, "SSO Session Idle timeout cannot be greater than Max timeout")
+	}
+
+	token, _ := s.client.GetAccessToken()
+	_, err := s.client.GetRealm(ctx, token, authInfo.Realm)
+	if err != nil {
+		// sanity check
+		log.Printf("failed to get realm %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	update := gocloak.RealmRepresentation{
+		Realm:                 gocloak.StringP(authInfo.Realm),
+		SsoSessionIdleTimeout: gocloak.IntP(int(req.SsoSessionIdleTimeout)),
+		SsoSessionMaxLifespan: gocloak.IntP(int(req.SsoSessionMaxTimeout)),
+	}
+
+	err = s.client.UpdateRealm(ctx, token, update)
+	if err != nil {
+		log.Printf("failed to update SSO session settings for realm %s: %s", authInfo.Realm, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+
+	return &api.MySSOSessionSettingsUpdateResp{}, nil
+}
+
 // Helper methods for Identity Provider Management
 
 func NewMyTenantServer(ctx *model.GrpcServerContext, client *keycloak.Client, ep string) *MyTenantServer {

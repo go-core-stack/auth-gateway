@@ -102,6 +102,29 @@ service MyTenant {
       verb: "delete"
     };
   }
+
+  // Get SSO Session Settings configuration
+  rpc GetMySSOSessionSettings(MySSOSessionSettingsGetReq) returns (MySSOSessionSettingsGetResp) {
+    option (google.api.http) = {
+      get: "/api/mytenant/v1/sso-session-settings"
+    };
+    option (api.role) = {
+      resource: "sso-session-settings"
+      verb: "get"
+    };
+  }
+
+  // Update SSO Session Settings configuration
+  rpc UpdateMySSOSessionSettings(MySSOSessionSettingsUpdateReq) returns (MySSOSessionSettingsUpdateResp) {
+    option (google.api.http) = {
+      put: "/api/mytenant/v1/sso-session-settings"
+      body: "*"
+    };
+    option (api.role) = {
+      resource: "sso-session-settings"
+      verb: "update"
+    };
+  }
 }
 
 // password policy get request
@@ -374,4 +397,30 @@ message MyIdentityProviderDeleteReq {
 
 // Identity provider delete response
 message MyIdentityProviderDeleteResp {
+}
+
+// SSO Session Settings get request
+message MySSOSessionSettingsGetReq {
+}
+
+// SSO Session Settings get response
+message MySSOSessionSettingsGetResp {
+  // SSO Session Idle timeout in seconds
+  int32 ssoSessionIdleTimeout = 1;
+
+  // SSO Session Max timeout in seconds
+  int32 ssoSessionMaxTimeout = 2;
+}
+
+// SSO Session Settings update request
+message MySSOSessionSettingsUpdateReq {
+  // SSO Session Idle timeout in seconds
+  int32 ssoSessionIdleTimeout = 1;
+
+  // SSO Session Max timeout in seconds
+  int32 ssoSessionMaxTimeout = 2;
+}
+
+// SSO Session Settings update response
+message MySSOSessionSettingsUpdateResp {
 }
