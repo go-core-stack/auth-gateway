@@ -1489,6 +1489,190 @@ func (*MyIdentityProviderDeleteResp) Descriptor() ([]byte, []int) {
 	return file_mytenant_proto_rawDescGZIP(), []int{21}
 }
 
+// SSO Session Settings get request
+type MySSOSessionSettingsGetReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MySSOSessionSettingsGetReq) Reset() {
+	*x = MySSOSessionSettingsGetReq{}
+	mi := &file_mytenant_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySSOSessionSettingsGetReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySSOSessionSettingsGetReq) ProtoMessage() {}
+
+func (x *MySSOSessionSettingsGetReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySSOSessionSettingsGetReq.ProtoReflect.Descriptor instead.
+func (*MySSOSessionSettingsGetReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{22}
+}
+
+// SSO Session Settings get response
+type MySSOSessionSettingsGetResp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// SSO Session Idle timeout in seconds
+	SsoSessionIdleTimeout int32 `protobuf:"varint,1,opt,name=ssoSessionIdleTimeout,proto3" json:"ssoSessionIdleTimeout,omitempty"`
+	// SSO Session Max timeout in seconds
+	SsoSessionMaxTimeout int32 `protobuf:"varint,2,opt,name=ssoSessionMaxTimeout,proto3" json:"ssoSessionMaxTimeout,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *MySSOSessionSettingsGetResp) Reset() {
+	*x = MySSOSessionSettingsGetResp{}
+	mi := &file_mytenant_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySSOSessionSettingsGetResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySSOSessionSettingsGetResp) ProtoMessage() {}
+
+func (x *MySSOSessionSettingsGetResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySSOSessionSettingsGetResp.ProtoReflect.Descriptor instead.
+func (*MySSOSessionSettingsGetResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *MySSOSessionSettingsGetResp) GetSsoSessionIdleTimeout() int32 {
+	if x != nil {
+		return x.SsoSessionIdleTimeout
+	}
+	return 0
+}
+
+func (x *MySSOSessionSettingsGetResp) GetSsoSessionMaxTimeout() int32 {
+	if x != nil {
+		return x.SsoSessionMaxTimeout
+	}
+	return 0
+}
+
+// SSO Session Settings update request
+type MySSOSessionSettingsUpdateReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// SSO Session Idle timeout in seconds
+	SsoSessionIdleTimeout int32 `protobuf:"varint,1,opt,name=ssoSessionIdleTimeout,proto3" json:"ssoSessionIdleTimeout,omitempty"`
+	// SSO Session Max timeout in seconds
+	SsoSessionMaxTimeout int32 `protobuf:"varint,2,opt,name=ssoSessionMaxTimeout,proto3" json:"ssoSessionMaxTimeout,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *MySSOSessionSettingsUpdateReq) Reset() {
+	*x = MySSOSessionSettingsUpdateReq{}
+	mi := &file_mytenant_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySSOSessionSettingsUpdateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySSOSessionSettingsUpdateReq) ProtoMessage() {}
+
+func (x *MySSOSessionSettingsUpdateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySSOSessionSettingsUpdateReq.ProtoReflect.Descriptor instead.
+func (*MySSOSessionSettingsUpdateReq) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *MySSOSessionSettingsUpdateReq) GetSsoSessionIdleTimeout() int32 {
+	if x != nil {
+		return x.SsoSessionIdleTimeout
+	}
+	return 0
+}
+
+func (x *MySSOSessionSettingsUpdateReq) GetSsoSessionMaxTimeout() int32 {
+	if x != nil {
+		return x.SsoSessionMaxTimeout
+	}
+	return 0
+}
+
+// SSO Session Settings update response
+type MySSOSessionSettingsUpdateResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MySSOSessionSettingsUpdateResp) Reset() {
+	*x = MySSOSessionSettingsUpdateResp{}
+	mi := &file_mytenant_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MySSOSessionSettingsUpdateResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MySSOSessionSettingsUpdateResp) ProtoMessage() {}
+
+func (x *MySSOSessionSettingsUpdateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_mytenant_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MySSOSessionSettingsUpdateResp.ProtoReflect.Descriptor instead.
+func (*MySSOSessionSettingsUpdateResp) Descriptor() ([]byte, []int) {
+	return file_mytenant_proto_rawDescGZIP(), []int{25}
+}
+
 var File_mytenant_proto protoreflect.FileDescriptor
 
 const file_mytenant_proto_rawDesc = "" +
@@ -1600,8 +1784,15 @@ const file_mytenant_proto_rawDesc = "" +
 	"\x1cMyIdentityProviderUpdateResp\"/\n" +
 	"\x1bMyIdentityProviderDeleteReq\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\"\x1e\n" +
-	"\x1cMyIdentityProviderDeleteResp2\xbf\n" +
-	"\n" +
+	"\x1cMyIdentityProviderDeleteResp\"\x1c\n" +
+	"\x1aMySSOSessionSettingsGetReq\"\x87\x01\n" +
+	"\x1bMySSOSessionSettingsGetResp\x124\n" +
+	"\x15ssoSessionIdleTimeout\x18\x01 \x01(\x05R\x15ssoSessionIdleTimeout\x122\n" +
+	"\x14ssoSessionMaxTimeout\x18\x02 \x01(\x05R\x14ssoSessionMaxTimeout\"\x89\x01\n" +
+	"\x1dMySSOSessionSettingsUpdateReq\x124\n" +
+	"\x15ssoSessionIdleTimeout\x18\x01 \x01(\x05R\x15ssoSessionIdleTimeout\x122\n" +
+	"\x14ssoSessionMaxTimeout\x18\x02 \x01(\x05R\x14ssoSessionMaxTimeout\" \n" +
+	"\x1eMySSOSessionSettingsUpdateResp2\xa8\r\n" +
 	"\bMyTenant\x12\x94\x01\n" +
 	"\x13GetMyPasswordPolicy\x12\x1b.api.MyPasswordPolicyGetReq\x1a\x1c.api.MyPasswordPolicyGetResp\"B\x8a\xb5\x18\x16\n" +
 	"\x0fpassword-policy\x1a\x03get\x82\xd3\xe4\x93\x02\"\x12 /api/mytenant/v1/password-policy\x12\xa3\x01\n" +
@@ -1625,7 +1816,11 @@ const file_mytenant_proto_rawDesc = "" +
 	"tenant-idp\x1a\x06update\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/mytenant/v1/identity-provider/{key}\x12\xa9\x01\n" +
 	"\x18DeleteMyIdentityProvider\x12 .api.MyIdentityProviderDeleteReq\x1a!.api.MyIdentityProviderDeleteResp\"H\x8a\xb5\x18\x14\n" +
 	"\n" +
-	"tenant-idp\x1a\x06delete\x82\xd3\xe4\x93\x02**(/api/mytenant/v1/identity-provider/{key}B+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
+	"tenant-idp\x1a\x06delete\x82\xd3\xe4\x93\x02**(/api/mytenant/v1/identity-provider/{key}\x12\xaa\x01\n" +
+	"\x17GetMySSOSessionSettings\x12\x1f.api.MySSOSessionSettingsGetReq\x1a .api.MySSOSessionSettingsGetResp\"L\x8a\xb5\x18\x1b\n" +
+	"\x14sso-session-settings\x1a\x03get\x82\xd3\xe4\x93\x02'\x12%/api/mytenant/v1/sso-session-settings\x12\xb9\x01\n" +
+	"\x1aUpdateMySSOSessionSettings\x12\".api.MySSOSessionSettingsUpdateReq\x1a#.api.MySSOSessionSettingsUpdateResp\"R\x8a\xb5\x18\x1e\n" +
+	"\x14sso-session-settings\x1a\x06update\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/mytenant/v1/sso-session-settingsB+Z)github.com/go-core-stack/auth-gateway/apib\x06proto3"
 
 var (
 	file_mytenant_proto_rawDescOnce sync.Once
@@ -1640,7 +1835,7 @@ func file_mytenant_proto_rawDescGZIP() []byte {
 }
 
 var file_mytenant_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_mytenant_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_mytenant_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_mytenant_proto_goTypes = []any{
 	(IdentityProviderDefs_Type)(0),         // 0: api.IdentityProviderDefs.Type
 	(*MyPasswordPolicyGetReq)(nil),         // 1: api.MyPasswordPolicyGetReq
@@ -1665,6 +1860,10 @@ var file_mytenant_proto_goTypes = []any{
 	(*MyIdentityProviderUpdateResp)(nil),   // 20: api.MyIdentityProviderUpdateResp
 	(*MyIdentityProviderDeleteReq)(nil),    // 21: api.MyIdentityProviderDeleteReq
 	(*MyIdentityProviderDeleteResp)(nil),   // 22: api.MyIdentityProviderDeleteResp
+	(*MySSOSessionSettingsGetReq)(nil),     // 23: api.MySSOSessionSettingsGetReq
+	(*MySSOSessionSettingsGetResp)(nil),    // 24: api.MySSOSessionSettingsGetResp
+	(*MySSOSessionSettingsUpdateReq)(nil),  // 25: api.MySSOSessionSettingsUpdateReq
+	(*MySSOSessionSettingsUpdateResp)(nil), // 26: api.MySSOSessionSettingsUpdateResp
 }
 var file_mytenant_proto_depIdxs = []int32{
 	8,  // 0: api.IdentityProviderTypesGetResp.providers:type_name -> api.IdentityProviderTypesListEntry
@@ -1688,16 +1887,20 @@ var file_mytenant_proto_depIdxs = []int32{
 	17, // 18: api.MyTenant.GetMyIdentityProvider:input_type -> api.MyIdentityProviderGetReq
 	19, // 19: api.MyTenant.UpdateMyIdentityProvider:input_type -> api.MyIdentityProviderUpdateReq
 	21, // 20: api.MyTenant.DeleteMyIdentityProvider:input_type -> api.MyIdentityProviderDeleteReq
-	2,  // 21: api.MyTenant.GetMyPasswordPolicy:output_type -> api.MyPasswordPolicyGetResp
-	4,  // 22: api.MyTenant.UpdateMyPasswordPolicy:output_type -> api.MyPasswordPolicyUpdateResp
-	9,  // 23: api.MyTenant.GetMyIdentityProviderTypes:output_type -> api.IdentityProviderTypesGetResp
-	13, // 24: api.MyTenant.CreateMyIdentityProvider:output_type -> api.MyIdentityProviderCreateResp
-	16, // 25: api.MyTenant.ListMyIdentityProviders:output_type -> api.MyIdentityProvidersListResp
-	18, // 26: api.MyTenant.GetMyIdentityProvider:output_type -> api.MyIdentityProviderGetResp
-	20, // 27: api.MyTenant.UpdateMyIdentityProvider:output_type -> api.MyIdentityProviderUpdateResp
-	22, // 28: api.MyTenant.DeleteMyIdentityProvider:output_type -> api.MyIdentityProviderDeleteResp
-	21, // [21:29] is the sub-list for method output_type
-	13, // [13:21] is the sub-list for method input_type
+	23, // 21: api.MyTenant.GetMySSOSessionSettings:input_type -> api.MySSOSessionSettingsGetReq
+	25, // 22: api.MyTenant.UpdateMySSOSessionSettings:input_type -> api.MySSOSessionSettingsUpdateReq
+	2,  // 23: api.MyTenant.GetMyPasswordPolicy:output_type -> api.MyPasswordPolicyGetResp
+	4,  // 24: api.MyTenant.UpdateMyPasswordPolicy:output_type -> api.MyPasswordPolicyUpdateResp
+	9,  // 25: api.MyTenant.GetMyIdentityProviderTypes:output_type -> api.IdentityProviderTypesGetResp
+	13, // 26: api.MyTenant.CreateMyIdentityProvider:output_type -> api.MyIdentityProviderCreateResp
+	16, // 27: api.MyTenant.ListMyIdentityProviders:output_type -> api.MyIdentityProvidersListResp
+	18, // 28: api.MyTenant.GetMyIdentityProvider:output_type -> api.MyIdentityProviderGetResp
+	20, // 29: api.MyTenant.UpdateMyIdentityProvider:output_type -> api.MyIdentityProviderUpdateResp
+	22, // 30: api.MyTenant.DeleteMyIdentityProvider:output_type -> api.MyIdentityProviderDeleteResp
+	24, // 31: api.MyTenant.GetMySSOSessionSettings:output_type -> api.MySSOSessionSettingsGetResp
+	26, // 32: api.MyTenant.UpdateMySSOSessionSettings:output_type -> api.MySSOSessionSettingsUpdateResp
+	23, // [23:33] is the sub-list for method output_type
+	13, // [13:23] is the sub-list for method input_type
 	13, // [13:13] is the sub-list for extension type_name
 	13, // [13:13] is the sub-list for extension extendee
 	0,  // [0:13] is the sub-list for field type_name
@@ -1715,7 +1918,7 @@ func file_mytenant_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_mytenant_proto_rawDesc), len(file_mytenant_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   22,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
