@@ -3,11 +3,11 @@ module github.com/go-core-stack/auth-gateway
 go 1.24
 
 require (
-	github.com/go-core-stack/auth v0.0.0-20250703132332-24ef7e70de0e
-	github.com/go-core-stack/core v0.0.0-20251008102250-104cf0673a8d
-	github.com/go-core-stack/grpc-core v0.0.0-20250612052530-de9a8693884f
+	github.com/go-core-stack/auth v0.0.1-beta
+	github.com/go-core-stack/core v0.0.1
+	github.com/go-core-stack/grpc-core v0.0.1
 	github.com/go-core-stack/location-services v0.0.1
-	github.com/go-core-stack/patricia v0.0.0-20250613164405-ac1bcd231c34
+	github.com/go-core-stack/patricia v0.0.1
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
 	go.uber.org/zap v1.27.0
