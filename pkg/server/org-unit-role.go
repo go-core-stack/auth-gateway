@@ -87,9 +87,26 @@ func (s *OrgUnitRoleServer) DeleteCustomRole(ctx context.Context, req *api.Delet
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 
+	// TODO: Implement DeleteRoleWithBindingCheck logic here with proper atomicity:
+	// Get table instances: table.GetOrgUnitRoleTable() and table.GetOrgUnitUserTable()
+	// Check if role has bindings using HasRoleBindings() from OrgUnitUserTable
+	// If has bindings:
+	// -> Mark as deleted: Update() with isDeleted=true
+	// -> Set updatedBy to authInfo.UserName
+	// -> Role preserved in DB for audit/history
+	// If no bindings:
+	// -> Remove from database using DeleteKey()
+	// Use database transaction or locks to ensure atomicity between check and delete
+
 	// Stub implementation
 	return nil, status.Errorf(codes.Unimplemented, "Custom role deletion not yet implemented")
 }
+
+// TODO: Implement CleanupOrphanedRoles as a background job or admin endpoint:
+//   Query all roles with isDeleted=true for given tenant/orgUnit using FindMany()
+//   For each deleted role, check if it still has bindings
+//   If no bindings, remove from database using DeleteKey()
+//   This reclaims space for roles that were marked deleted but users have since been removed
 
 func NewOrgUnitRoleServer(ctx *model.GrpcServerContext, ep string) *OrgUnitRoleServer {
 	srv := &OrgUnitRoleServer{}
