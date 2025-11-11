@@ -53,6 +53,14 @@ type gateway struct {
 	ouUserTbl *table.OrgUnitUserTable
 	proxyV1   *httputil.ReverseProxy
 	proxyV2   *httputil.ReverseProxy
+	// internal indicates whether this gateway instance is configured for internal routing.
+	// When true, the gateway:
+	// - Accepts pre-processed authentication headers (X-Auth-Context) from trusted sources
+	// - Skips normal authentication (AuthN) flows (API keys, bearer tokens)
+	// - Still performs full authorization (AuthZ) checks (RBAC, PBAC, org unit roles)
+	// - Enables service-to-service communication while maintaining user context
+	// This should only be enabled for gateways deployed in trusted internal networks.
+	internal bool
 }
 
 type gatewayReconciler struct {
@@ -78,6 +86,28 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 	var authInfo *common.AuthInfo
 	var user *table.UserEntry
 	var err error
+	// Internal gateway fast path: accept pre-processed auth headers.
+	// When the gateway is configured as internal (internal=true), it first attempts
+	// to extract authentication information from the X-Auth-Context header that was
+	// set by the external gateway during the initial authentication.
+	//
+	// This enables service-to-service routing scenarios:
+	// 1. External gateway authenticates the user (API key or bearer token)
+	// 2. External gateway sets X-Auth-Context header with user info
+	// 3. Request is routed to internal gateway
+	// 4. Internal gateway extracts auth info from header (this code block)
+	// 5. Internal gateway performs authorization checks and proxies to backend
+	//
+	// If the header is not present or invalid, the gateway falls through to
+	// the standard authentication flow below (API key or bearer token validation).
+	if s.internal {
+		authInfo, err = common.GetAuthInfoHeader(r)
+		if err == nil {
+			return authInfo, nil
+		}
+		// Note: If header extraction fails, we fall through to normal auth flow
+		// This allows the internal gateway to also accept direct authenticated requests
+	}
 	now := time.Now().Unix()
 	keyId := s.validator.GetKeyId(r)
 	// check if an API key is used
@@ -461,9 +491,27 @@ func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
 	http.Error(w, "Service temporarily unavailable, please try after sometime", http.StatusServiceUnavailable)
 }
 
-// Create a new Auth Gateway server, wrapped around
-// locally hosted insecure server
-func New() http.Handler {
+// New creates a new Auth Gateway server instance.
+//
+// The gateway acts as a reverse proxy that authenticates and authorizes incoming HTTP requests
+// before forwarding them to backend services. It supports both HTTP/1.1 and HTTP/2 protocols.
+//
+// Parameters:
+//   - internal: Configures the gateway for internal or external use.
+//     * false (external gateway): Performs full authentication using API keys or bearer tokens,
+//       then creates and injects auth context headers for backend services.
+//     * true (internal gateway): Accepts pre-processed auth headers (X-Auth-Context) from
+//       trusted sources (typically the external gateway), skipping authentication but still
+//       performing full authorization checks. This enables service-to-service routing while
+//       maintaining user context.
+//
+// Security considerations:
+//   - External gateways should be deployed at the network edge and handle all client authentication.
+//   - Internal gateways should only be accessible from within the trusted network and never
+//     exposed directly to external clients, as they trust pre-processed auth headers.
+//
+// Returns an http.Handler that can be used with http.Serve or similar functions.
+func New(internal bool) http.Handler {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("unable to get api keys table: %s", err)
@@ -516,6 +564,7 @@ func New() http.Handler {
 		ouTbl:     ouTbl,
 		ouUserTbl: ouUserTbl,
 		tenantTbl: tenantTbl,
+		internal:  internal, // Configure authentication mode (internal vs external)
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,
