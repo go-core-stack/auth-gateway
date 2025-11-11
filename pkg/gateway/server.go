@@ -498,12 +498,12 @@ func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
 //
 // Parameters:
 //   - internal: Configures the gateway for internal or external use.
-//     * false (external gateway): Performs full authentication using API keys or bearer tokens,
-//       then creates and injects auth context headers for backend services.
-//     * true (internal gateway): Accepts pre-processed auth headers (X-Auth-Context) from
-//       trusted sources (typically the external gateway), skipping authentication but still
-//       performing full authorization checks. This enables service-to-service routing while
-//       maintaining user context.
+//     1. false (external gateway): Performs full authentication using API keys or bearer tokens,
+//     then creates and injects auth context headers for backend services.
+//     2. true (internal gateway): Accepts pre-processed auth headers (X-Auth-Context) from
+//     trusted sources (typically the external gateway), skipping authentication but still
+//     performing full authorization checks. This enables service-to-service routing while
+//     maintaining user context.
 //
 // Security considerations:
 //   - External gateways should be deployed at the network edge and handle all client authentication.
@@ -585,7 +585,11 @@ func New(internal bool) http.Handler {
 		gw: gateway,
 	}
 
-	err = routes.Register("GatewayController", r)
+	controller := "GatewayController"
+	if internal {
+		controller = "InternalGatewayController"
+	}
+	err = routes.Register(controller, r)
 	if err != nil {
 		log.Panicf("Failed to register GatewayController: %s", err)
 	}
