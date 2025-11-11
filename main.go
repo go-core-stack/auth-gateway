@@ -66,6 +66,15 @@ var (
 	// Port serving Auth Gateway
 	GatewayPort = ":8080"
 
+	// Port serving Internal Auth Gateway.
+	// The internal gateway is designed for service-to-service communication where
+	// authentication has already been performed by the external gateway. It accepts
+	// pre-processed auth headers (X-Auth-Context) and performs only authorization checks,
+	// bypassing the normal authentication flow. This enables secure request routing
+	// between internal services while maintaining the original user context.
+	// Can be overridden with INTERNAL_GATEWAY_PORT environment variable.
+	InternalGatewayPort = ":8081"
+
 	// API Port for the server
 	APIPort = ":8085"
 
@@ -85,6 +94,13 @@ func evaluatePorts() {
 	port, ok = os.LookupEnv("GATEWAY_PORT")
 	if ok {
 		GatewayPort = ":" + port
+	}
+
+	// Check for internal gateway port override.
+	// The internal gateway enables service-to-service routing with pre-authenticated requests.
+	port, ok = os.LookupEnv("INTERNAL_GATEWAY_PORT")
+	if ok {
+		InternalGatewayPort = ":" + port
 	}
 
 	port, ok = os.LookupEnv("GRPC_PORT")
@@ -285,8 +301,11 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 		log.Panic(http.Serve(lis, serverCtx.Mux))
 	}()
 
+	// Start external Auth Gateway server.
+	// This gateway performs full authentication (AuthN) and authorization (AuthZ) for all incoming requests.
+	// It validates API keys or bearer tokens, creates auth context, and enforces RBAC/PBAC policies.
 	go func() {
-		gw := gateway.New()
+		gw := gateway.New(false)
 		oa := apidocs.NewApiDocsServer()
 		rs := public.NewRealmInfoServer()
 		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -308,6 +327,27 @@ func startServerContext(serverCtx *model.GrpcServerContext) {
 			log.Panicf("failed to start Auth Gateway Server: %s", err)
 		}
 		log.Panic(http.Serve(lis, handleCORS(gwHandler)))
+	}()
+
+	// Start internal Auth Gateway server for service-to-service communication.
+	// This gateway is designed for internal routing scenarios where authentication
+	// has already been performed by the external gateway. It accepts pre-processed
+	// auth headers (X-Auth-Context) and performs only authorization (AuthZ) checks,
+	// bypassing the normal authentication (AuthN) flow.
+	//
+	// Use cases:
+	// - Request re-routing between internal microservices
+	// - Internal service triggers that need to maintain user context
+	// - Backend service communication through the auth gateway
+	//
+	// Security: This gateway should only be accessible from within the trusted network
+	// and never exposed directly to external clients.
+	go func() {
+		lis, err := net.Listen("tcp", InternalGatewayPort)
+		if err != nil {
+			log.Panicf("failed to start Internal Auth Gateway Server: %s", err)
+		}
+		log.Panic(http.Serve(lis, handleCORS(gateway.New(true))))
 	}()
 }
 
