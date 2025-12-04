@@ -7,7 +7,7 @@ require (
 	github.com/go-core-stack/core v0.0.1
 	github.com/go-core-stack/grpc-core v0.0.1
 	github.com/go-core-stack/location-services v0.0.1
-	github.com/go-core-stack/patricia v0.0.1
+	github.com/go-core-stack/patricia v0.0.2-0.20251203094222-7893ec56683f
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
 	go.uber.org/zap v1.27.0
