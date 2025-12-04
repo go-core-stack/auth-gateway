@@ -15,8 +15,8 @@ github.com/go-core-stack/grpc-core v0.0.1 h1:sqeYhFuCsc+vO//x2weDw2rfEbQdObwTSg+
 github.com/go-core-stack/grpc-core v0.0.1/go.mod h1:69IvnRYY+3UkO3m1Y5tWfGG4K3RdBdI1bOnq01Ev638=
 github.com/go-core-stack/location-services v0.0.1 h1:9xMpUDbHwlga9RPVHYuzVvQBN3CVuhX7SzC6oSqPnRs=
 github.com/go-core-stack/location-services v0.0.1/go.mod h1:gXRumRuDgdaBaOnyfFWsWuG0XNebjZqmqBvY3yBhNFY=
-github.com/go-core-stack/patricia v0.0.1 h1:Mr7h0/98KoEJt7Tf+rJOKPwB2J45IZST8dOxqa2y/cs=
-github.com/go-core-stack/patricia v0.0.1/go.mod h1:bZvyBLDqui1L1wFJCuaZy9BHG4r9Rx3/dVcfxukPwrM=
+github.com/go-core-stack/patricia v0.0.2-0.20251203094222-7893ec56683f h1:TsXb8r0YEsbar+7q6rYdtNUPurzx7uwAqYF+bfYu+1g=
+github.com/go-core-stack/patricia v0.0.2-0.20251203094222-7893ec56683f/go.mod h1:bZvyBLDqui1L1wFJCuaZy9BHG4r9Rx3/dVcfxukPwrM=
 github.com/go-jose/go-jose/v4 v4.0.5 h1:M6T8+mKZl/+fNNuFHvGIzDz7BTLQPIounk/b9dw3AaE=
 github.com/go-jose/go-jose/v4 v4.0.5/go.mod h1:s3P1lRrkT8igV8D9OjyL4WRyHvjB6a4JSllnOrmmBOA=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
