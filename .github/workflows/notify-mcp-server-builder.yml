@@ -19,7 +19,7 @@ jobs:
             https://api.github.com/repos/go-core-stack/mcp-server/dispatches \
             -d @- <<EOF
           {
-            "event_type": "upstream_main_changed",
+            "event_type": "auth_gateway_proto_changed",
             "client_payload": {
               "ref": "${{ github.ref }}",
               "sha": "${{ github.sha }}",
