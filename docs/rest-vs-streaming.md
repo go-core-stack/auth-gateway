@@ -17,8 +17,11 @@ This guide helps you choose the right interaction model for your endpoints, unde
 Auth-gateway is protocol-agnostic and acts as a reverse proxy, forwarding authenticated and authorized requests to your backend services. It supports HTTP/1.1 and HTTP/2, which means your backend can implement any of these interaction models:
 
 **REST (Request-Response):** Client sends HTTP requests; server responds with data. Simple, cacheable, stateless. Best for CRUD operations, admin interfaces, and low-frequency updates.
+
 **Server-Sent Events (SSE):** Server pushes one-way messages to clients over HTTP. Built into browsers via `EventSource` API. Perfect for dashboards, notifications, live logs, and event streams where clients only consume data.
+
 **WebSockets:** Full-duplex, bidirectional communication over a single TCP connection. Required for chat, collaborative editing, real-time gaming, trading platforms, and interactive agent loops where both client and server actively exchange messages.
+
 **gRPC Streaming:** Binary, schema-first protocol with strong type contracts. Auth-gateway uses gRPC internally for its API services and exposes them via gRPC-gateway (REST). Your backend can use gRPC server streaming for efficient service-to-service communication.
 
 ### How Auth-Gateway Processes Each Model
