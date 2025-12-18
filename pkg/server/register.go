@@ -5,9 +5,10 @@ package server
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"log"
-	"math/rand"
+	"math/big"
 	"os"
 	"time"
 
@@ -87,8 +88,12 @@ func (s *RegistrationServer) GetRegisterOtp(ctx context.Context, req *api.Regist
 		// needs to be handled better and more granular
 		return nil, status.Errorf(codes.ResourceExhausted, "Server Busy, Please try again later")
 	}
-	// Generate a random number between 0 and 999999
-	otp := rand.Intn(1000000)
+	otpRaw, err := rand.Int(rand.Reader, big.NewInt(1000000))
+	if err != nil {
+		log.Printf("failed to generate otp: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+	otp := int(otpRaw.Int64())
 
 	entry := &table.EmailVerificationEntry{
 		Key: &table.Email{
