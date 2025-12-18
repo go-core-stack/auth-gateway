@@ -5,8 +5,9 @@ package server
 
 import (
 	"context"
+	"crypto/rand"
 	"log"
-	"math/rand"
+	"math/big"
 	"slices"
 	"strings"
 	"time"
@@ -36,14 +37,29 @@ var (
 	secretKeyLength = 35
 )
 
-func generateSecret() string {
-	// keep the length variable from 35 to 45
-	l := rand.Intn(10)
-	b := make([]rune, (secretKeyLength + l))
-	for i := range b {
-		b[i] = secretCharset[rand.Intn(len(secretCharset))]
+func cryptoRandInt(max int64) (int64, error) {
+	n, err := rand.Int(rand.Reader, big.NewInt(max))
+	if err != nil {
+		return 0, err
 	}
-	return string(b)
+	return n.Int64(), nil
+}
+
+func generateSecret() (string, error) {
+	extraLength, err := cryptoRandInt(11) // 0..10 -> 35..45
+	if err != nil {
+		return "", err
+	}
+
+	secret := make([]rune, secretKeyLength+int(extraLength))
+	for i := range secret {
+		idx, err := cryptoRandInt(int64(len(secretCharset)))
+		if err != nil {
+			return "", err
+		}
+		secret[i] = secretCharset[idx]
+	}
+	return string(secret), nil
 }
 
 // MyAccountServer implements the api.MyAccountServer interface.
@@ -212,12 +228,17 @@ func (s *MyAccountServer) CreateApiKey(ctx context.Context, req *api.ApiKeyCreat
 
 	now := time.Now().Unix()
 	uid := uuid.New().String() // Generate a new UUID for the API key ID
+	secret, err := generateSecret()
+	if err != nil {
+		log.Printf("failed to generate api key secret: %s", err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
 	apiKey := &table.ApiKeyEntry{
 		Key: table.ApiKeyId{
 			Id: uid,
 		},
 		Secret: &table.ApiKeySecret{
-			Value: generateSecret(), // Generate a random secret key
+			Value: secret,
 		},
 		UserInfo: &table.ApiKeyUserInfo{
 			Tenant:   authInfo.Realm, // Use tenant from auth info
@@ -233,7 +254,7 @@ func (s *MyAccountServer) CreateApiKey(ctx context.Context, req *api.ApiKeyCreat
 		apiKey.Config.ExpireAt = now + req.Validity // Set expiration time based on validity
 	}
 
-	err := s.apiKeys.Insert(ctx, &apiKey.Key, apiKey) // Add the API key to the table
+	err = s.apiKeys.Insert(ctx, &apiKey.Key, apiKey) // Add the API key to the table
 
 	if err != nil {
 		if errors.IsAlreadyExists(err) {
