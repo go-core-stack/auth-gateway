@@ -86,11 +86,12 @@ func (r *SetupReconciler) Reconcile(k any) (*reconciler.Result, error) {
 		if err != nil {
 			log.Panicf("keycloak session not active: %s", err)
 		}
+		ctx := context.Background()
 		clientId := "controller"
 		params := gocloak.GetClientsParams{
 			ClientID: gocloak.StringP(clientId),
 		}
-		found, err := r.ctrl.client.GetClients(context.Background(), token, key.Name, params)
+		found, err := r.ctrl.client.GetClients(ctx, token, key.Name, params)
 		if err != nil {
 			log.Printf("failed to fetch clients from keycloak: %s", err)
 			return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
@@ -105,13 +106,23 @@ func (r *SetupReconciler) Reconcile(k any) (*reconciler.Result, error) {
 				RedirectURIs: &[]string{"*"},
 				WebOrigins:   &[]string{"*"},
 			}
-			id, err = r.ctrl.client.CreateClient(context.Background(), token, key.Name, authClient)
+			id, err = r.ctrl.client.CreateClient(ctx, token, key.Name, authClient)
 			if err != nil {
 				log.Printf("failed to create auth client in keycloak: %s", err)
 				return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
 			}
 		} else {
 			id = *found[0].ID
+		}
+
+		existingMappers := map[string]struct{}{}
+		if len(found) != 0 && found[0].ProtocolMappers != nil {
+			for _, mapper := range *found[0].ProtocolMappers {
+				if mapper.Name == nil {
+					continue
+				}
+				existingMappers[*mapper.Name] = struct{}{}
+			}
 		}
 
 		mList := []gocloak.ProtocolMapperRepresentation{
@@ -140,19 +151,12 @@ func (r *SetupReconciler) Reconcile(k any) (*reconciler.Result, error) {
 		}
 
 		for _, mapper := range mList {
-			if len(found) != 0 {
-				// we need to handle this as we may have a situation for a partial
-				// keycloak client configuration
-				if found[0].ProtocolMappers != nil {
-					for _, m := range *found[0].ProtocolMappers {
-						if *m.Name == *mapper.Name {
-							// skip if mapper already exists
-							continue
-						}
-					}
+			if mapper.Name != nil {
+				if _, ok := existingMappers[*mapper.Name]; ok {
+					continue
 				}
 			}
-			_, err := r.ctrl.client.CreateClientProtocolMapper(context.Background(), token, key.Name, id, mapper)
+			_, err := r.ctrl.client.CreateClientProtocolMapper(ctx, token, key.Name, id, mapper)
 			if err != nil {
 				log.Printf("failed to create client protocol mapper: %s", err)
 				return &reconciler.Result{RequeueAfter: 5 * time.Second}, nil
