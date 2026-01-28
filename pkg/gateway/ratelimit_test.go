@@ -3,7 +3,10 @@
 
 package gateway
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestTenantRateLimiterDisabled(t *testing.T) {
 	rl := NewTenantRateLimiter(RateLimitConfig{Enabled: false})
@@ -79,5 +82,65 @@ func TestTenantRateLimiterCleanup(t *testing.T) {
 	defer rl.mu.RUnlock()
 	if len(rl.limiters) != 0 {
 		t.Fatalf("expected 0 limiters after cleanup, got %d", len(rl.limiters))
+	}
+}
+
+// TestTenantRateLimiterCleanupRemovesIdleLimiters verifies that cleanup removes
+// only limiters that have been idle longer than maxIdle duration.
+func TestTenantRateLimiterCleanupRemovesIdleLimiters(t *testing.T) {
+	rl := NewTenantRateLimiter(RateLimitConfig{
+		Enabled:    true,
+		DefaultRPS: 10,
+		BurstSize:  10,
+	})
+
+	// Create limiters for multiple tenants
+	rl.Allow("tenant1")
+	rl.Allow("tenant2")
+	rl.Allow("tenant3")
+
+	rl.mu.RLock()
+	if len(rl.limiters) != 3 {
+		rl.mu.RUnlock()
+		t.Fatalf("expected 3 limiters, got %d", len(rl.limiters))
+	}
+	rl.mu.RUnlock()
+
+	// Wait briefly to simulate idle time
+	time.Sleep(100 * time.Millisecond)
+
+	// Cleanup should remove idle limiters (100ms > 50ms maxIdle)
+	rl.Cleanup(50 * time.Millisecond)
+
+	rl.mu.RLock()
+	remaining := len(rl.limiters)
+	rl.mu.RUnlock()
+
+	if remaining != 0 {
+		t.Fatalf("expected 0 limiters after cleanup with 50ms maxIdle, got %d", remaining)
+	}
+}
+
+// TestTenantRateLimiterCleanupKeepsActiveLimiters verifies that cleanup does not
+// remove limiters that have been used recently.
+func TestTenantRateLimiterCleanupKeepsActiveLimiters(t *testing.T) {
+	rl := NewTenantRateLimiter(RateLimitConfig{
+		Enabled:    true,
+		DefaultRPS: 10,
+		BurstSize:  10,
+	})
+
+	// Create limiter
+	rl.Allow("active-tenant")
+
+	// Cleanup with long maxIdle should keep the limiter
+	rl.Cleanup(1 * time.Hour)
+
+	rl.mu.RLock()
+	remaining := len(rl.limiters)
+	rl.mu.RUnlock()
+
+	if remaining != 1 {
+		t.Fatalf("expected 1 limiter to remain (not idle), got %d", remaining)
 	}
 }
