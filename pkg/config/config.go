@@ -5,6 +5,7 @@ package config
 
 import (
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -31,6 +32,40 @@ type CorsConfig struct {
 	Enabled bool `yaml:"enabled,omitempty"`
 }
 
+// CleanupConfig holds rate limiter cleanup settings.
+// Defaults: Interval=5m, MaxIdle=10m.
+type CleanupConfig struct {
+	Interval time.Duration `yaml:"interval"`
+	MaxIdle  time.Duration `yaml:"maxIdle"`
+}
+
+// RateLimitsConfig holds rate limiting configuration.
+// Defaults: Enabled=false (opt-in), DefaultRPS=200, BurstSize=DefaultRPS when 0.
+type RateLimitsConfig struct {
+	Enabled    bool          `yaml:"enabled"`
+	DefaultRPS float64       `yaml:"defaultRPS"`
+	BurstSize  int           `yaml:"burstSize"`
+	Cleanup    CleanupConfig `yaml:"cleanup"`
+}
+
+// WithDefaults applies sane defaults when values are not specified.
+func (c RateLimitsConfig) WithDefaults() RateLimitsConfig {
+	if c.DefaultRPS == 0 {
+		c.DefaultRPS = 200.0
+	}
+	if c.BurstSize == 0 {
+		c.BurstSize = int(c.DefaultRPS)
+	}
+	if c.Cleanup.Interval == 0 {
+		c.Cleanup.Interval = 5 * time.Minute
+	}
+	if c.Cleanup.MaxIdle == 0 {
+		c.Cleanup.MaxIdle = 10 * time.Minute
+	}
+
+	return c
+}
+
 // Base config struct
 type BaseConfig struct {
 	ConfigDB        *MongoDB         `yaml:"configDB,omitempty"`
@@ -38,6 +73,7 @@ type BaseConfig struct {
 	Keycloak        *Keycloak        `yaml:"keycloak,omitempty"`
 	LocationService *LocationService `yaml:"locationService,omitempty"`
 	Cors            CorsConfig       `yaml:"cors,omitempty"`
+	RateLimits      RateLimitsConfig `yaml:"rateLimits"`
 }
 
 // get Config database information, if the struct
@@ -130,6 +166,8 @@ func ParseConfig(filePath string) (*BaseConfig, error) {
 			return nil, err
 		}
 	}
+
+	config.RateLimits = config.RateLimits.WithDefaults()
 
 	return config, nil
 }
