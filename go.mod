@@ -1,6 +1,8 @@
 module github.com/go-core-stack/auth-gateway
 
-go 1.24
+go 1.24.0
+
+toolchain go1.24.2
 
 require (
 	github.com/go-core-stack/auth v0.0.1-beta
@@ -12,6 +14,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.38.0
+	golang.org/x/time v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
