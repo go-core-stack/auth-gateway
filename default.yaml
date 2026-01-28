@@ -5,3 +5,24 @@ swagger:
 locationService:
   host: "location-services"
   port: "8080"
+
+# Rate limiting configuration
+# Applies to all authenticated requests at the gateway
+rateLimits:
+  # Enable/disable rate limiting (default: false)
+  enabled: true
+
+  # Default requests per second per tenant (default: 200)
+  defaultRPS: 200
+
+  # Maximum burst size - allows temporary bursts above sustained rate
+  # Defaults to defaultRPS if set to 0
+  burstSize: 200
+
+  # Cleanup settings for idle rate limiters
+  cleanup:
+    # How often to check for idle limiters (default: 5m)
+    interval: 5m
+
+    # Remove limiters not used within this duration (default: 10m)
+    maxIdle: 10m
