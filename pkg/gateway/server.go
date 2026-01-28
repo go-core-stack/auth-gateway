@@ -65,6 +65,7 @@ type gateway struct {
 	// - Skips normal authentication (AuthN) flows (API keys, bearer tokens)
 	// - Still performs full authorization (AuthZ) checks (RBAC, PBAC, org unit roles)
 	// - Enables service-to-service communication while maintaining user context
+	// - Bypasses rate limiting (rateLimiter is always nil for internal gateways)
 	// This should only be enabled for gateways deployed in trusted internal networks.
 	internal bool
 }
@@ -340,7 +341,10 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Authentication failed: %s", err), status)
 			return
 		}
-		if s.rateLimiter != nil {
+		// Rate limit check: skip for internal gateways which handle trusted service-to-service
+		// communication. Internal gateways should always have rateLimiter=nil (set in New()),
+		// but we explicitly check s.internal as a safety guard against future changes.
+		if !s.internal && s.rateLimiter != nil {
 			if !s.rateLimiter.Allow(authInfo.Realm) {
 				status = http.StatusTooManyRequests
 				w.Header().Set("Retry-After", "1")
@@ -517,6 +521,7 @@ func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
 // before forwarding them to backend services. It supports both HTTP/1.1 and HTTP/2 protocols.
 //
 // Parameters:
+//   - ctx: Context for lifecycle management. When canceled, the cleanup goroutine (if running) will exit.
 //   - internal: Configures the gateway for internal or external use.
 //     1. false (external gateway): Performs full authentication using API keys or bearer tokens,
 //     then creates and injects auth context headers for backend services.
@@ -531,7 +536,7 @@ func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
 //     exposed directly to external clients, as they trust pre-processed auth headers.
 //
 // Returns an http.Handler that can be used with http.Serve or similar functions.
-func New(internal bool, rateLimits config.RateLimitsConfig) http.Handler {
+func New(ctx context.Context, internal bool, rateLimits config.RateLimitsConfig) http.Handler {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("unable to get api keys table: %s", err)
@@ -576,6 +581,10 @@ func New(internal bool, rateLimits config.RateLimitsConfig) http.Handler {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
+	// Apply defaults to ensure Cleanup.Interval and MaxIdle have valid values.
+	// This guards against panic from time.NewTicker if Interval <= 0.
+	rateLimits = rateLimits.WithDefaults()
+
 	var rateLimiter *TenantRateLimiter
 	if rateLimits.Enabled && !internal {
 		rateLimiter = NewTenantRateLimiter(RateLimitConfig{
@@ -583,12 +592,18 @@ func New(internal bool, rateLimits config.RateLimitsConfig) http.Handler {
 			DefaultRPS: rateLimits.DefaultRPS,
 			BurstSize:  rateLimits.BurstSize,
 		})
-		// Start cleanup goroutine to prune idle tenant limiters
+		// Start cleanup goroutine to prune idle tenant limiters.
+		// The goroutine exits when ctx is canceled.
 		go func() {
 			ticker := time.NewTicker(rateLimits.Cleanup.Interval)
 			defer ticker.Stop()
-			for range ticker.C {
-				rateLimiter.Cleanup(rateLimits.Cleanup.MaxIdle)
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+					rateLimiter.Cleanup(rateLimits.Cleanup.MaxIdle)
+				}
 			}
 		}()
 	}
