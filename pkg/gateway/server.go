@@ -30,6 +30,7 @@ import (
 	"github.com/go-core-stack/core/utils"
 
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
+	"github.com/go-core-stack/auth-gateway/pkg/config"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
@@ -40,19 +41,24 @@ const (
 	ouKey   gwContextKey = "ou"
 )
 
+const rateLimitResponseBody = `{"error":"rate_limit_exceeded","message":"Too many requests"}`
+
 var logger *zap.Logger
 
 type gateway struct {
 	http.Handler
-	validator hash.Validator
-	apiKeys   *table.ApiKeyTable
-	userTbl   *table.UserTable
-	tenantTbl *table.TenantTable
-	routes    *route.RouteTable
-	ouTbl     *table.OrgUnitTable
-	ouUserTbl *table.OrgUnitUserTable
-	proxyV1   *httputil.ReverseProxy
-	proxyV2   *httputil.ReverseProxy
+	validator   hash.Validator
+	apiKeys     *table.ApiKeyTable
+	userTbl     *table.UserTable
+	tenantTbl   *table.TenantTable
+	routes      *route.RouteTable
+	ouTbl       *table.OrgUnitTable
+	ouUserTbl   *table.OrgUnitUserTable
+	proxyV1     *httputil.ReverseProxy
+	proxyV2     *httputil.ReverseProxy
+	rateLimiter *TenantRateLimiter
+	// authenticateRequest is a test seam for injecting auth behavior.
+	authenticateRequest func(*http.Request) (*common.AuthInfo, error)
 	// internal indicates whether this gateway instance is configured for internal routing.
 	// When true, the gateway:
 	// - Accepts pre-processed authentication headers (X-Auth-Context) from trusted sources
@@ -324,11 +330,25 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		authInfo, err = s.AuthenticateRequest(r)
+		authFn := s.authenticateRequest
+		if authFn == nil {
+			authFn = s.AuthenticateRequest
+		}
+		authInfo, err = authFn(r)
 		if err != nil {
 			status = http.StatusUnauthorized
 			http.Error(w, fmt.Sprintf("Authentication failed: %s", err), status)
 			return
+		}
+		if s.rateLimiter != nil {
+			if !s.rateLimiter.Allow(authInfo.Realm) {
+				status = http.StatusTooManyRequests
+				w.Header().Set("Retry-After", "1")
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(status)
+				_, _ = w.Write([]byte(rateLimitResponseBody))
+				return
+			}
 		}
 		newCtx := context.WithValue(r.Context(), authKey, *authInfo)
 		newCtx = context.WithValue(newCtx, ouKey, orgUnit)
@@ -511,7 +531,7 @@ func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
 //     exposed directly to external clients, as they trust pre-processed auth headers.
 //
 // Returns an http.Handler that can be used with http.Serve or similar functions.
-func New(internal bool) http.Handler {
+func New(internal bool, rateLimits config.RateLimitsConfig) http.Handler {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("unable to get api keys table: %s", err)
@@ -556,15 +576,33 @@ func New(internal bool) http.Handler {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
+	var rateLimiter *TenantRateLimiter
+	if rateLimits.Enabled && !internal {
+		rateLimiter = NewTenantRateLimiter(RateLimitConfig{
+			Enabled:    rateLimits.Enabled,
+			DefaultRPS: rateLimits.DefaultRPS,
+			BurstSize:  rateLimits.BurstSize,
+		})
+		// Start cleanup goroutine to prune idle tenant limiters
+		go func() {
+			ticker := time.NewTicker(rateLimits.Cleanup.Interval)
+			defer ticker.Stop()
+			for range ticker.C {
+				rateLimiter.Cleanup(rateLimits.Cleanup.MaxIdle)
+			}
+		}()
+	}
+
 	gateway := &gateway{
-		validator: hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
-		apiKeys:   apiKeys,
-		userTbl:   userTbl,
-		routes:    routes,
-		ouTbl:     ouTbl,
-		ouUserTbl: ouUserTbl,
-		tenantTbl: tenantTbl,
-		internal:  internal, // Configure authentication mode (internal vs external)
+		validator:   hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
+		apiKeys:     apiKeys,
+		userTbl:     userTbl,
+		routes:      routes,
+		ouTbl:       ouTbl,
+		ouUserTbl:   ouUserTbl,
+		tenantTbl:   tenantTbl,
+		internal:    internal, // Configure authentication mode (internal vs external)
+		rateLimiter: rateLimiter,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,
@@ -580,6 +618,7 @@ func New(internal bool) http.Handler {
 	// set modify response handler for both v1 and v2 proxy
 	gateway.proxyV1.ModifyResponse = gateway.ModifyResponse
 	gateway.proxyV2.ModifyResponse = gateway.ModifyResponse
+	gateway.authenticateRequest = gateway.AuthenticateRequest
 
 	r := &gatewayReconciler{
 		gw: gateway,
