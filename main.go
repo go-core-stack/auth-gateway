@@ -284,7 +284,7 @@ func handleCORS(h http.Handler) http.Handler {
 	})
 }
 
-func startServerContext(ctx context.Context, serverCtx *model.GrpcServerContext, rateLimits config.RateLimitsConfig) {
+func startServerContext(ctx context.Context, serverCtx *model.GrpcServerContext, rateLimits config.RateLimitsConfig, aliases config.ResourceAliasesConfig) {
 	go func() {
 		lis, err := net.Listen("tcp", GrpcPort)
 		if err != nil {
@@ -305,7 +305,7 @@ func startServerContext(ctx context.Context, serverCtx *model.GrpcServerContext,
 	// This gateway performs full authentication (AuthN) and authorization (AuthZ) for all incoming requests.
 	// It validates API keys or bearer tokens, creates auth context, and enforces RBAC/PBAC policies.
 	go func() {
-		gw := gateway.New(ctx, false, rateLimits)
+		gw := gateway.New(ctx, false, rateLimits, aliases)
 		oa := apidocs.NewApiDocsServer()
 		rs := public.NewRealmInfoServer()
 		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -347,7 +347,7 @@ func startServerContext(ctx context.Context, serverCtx *model.GrpcServerContext,
 		if err != nil {
 			log.Panicf("failed to start Internal Auth Gateway Server: %s", err)
 		}
-		log.Panic(http.Serve(lis, handleCORS(gateway.New(ctx, true, rateLimits))))
+		log.Panic(http.Serve(lis, handleCORS(gateway.New(ctx, true, rateLimits, aliases))))
 	}()
 }
 
@@ -585,7 +585,7 @@ func main() {
 
 	// once all the servers are added to the list
 	// start server
-	startServerContext(ctx, serverCtx, conf.RateLimits)
+	startServerContext(ctx, serverCtx, conf.RateLimits, conf.GetResourceAliases())
 	log.Println("Initialization of Auth Gateway completed")
 
 	sigc := make(chan os.Signal, 1)
