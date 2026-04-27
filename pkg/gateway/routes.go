@@ -16,6 +16,12 @@ import (
 	"github.com/go-core-stack/patricia"
 )
 
+// canonicalOrgUnitScope is the scope name (and path-param key) that
+// auth-gateway uses internally to recognize an org-unit-scoped route.
+// A deployment may configure an alias (e.g. "workspace") that the
+// gateway will accept as semantically equivalent.
+const canonicalOrgUnitScope = "ou"
+
 type routeData struct {
 	scheme         string
 	host           string
@@ -69,7 +75,21 @@ func populateRoutes(routes *route.RouteTable) {
 	gwRoutes = nRoutes
 }
 
-func matchRoute(m string, url string) (*routeData, string, error) {
+// isOrgUnitScope reports whether the given scope/key name is recognized
+// as an org-unit reference, accepting either the canonical "ou" or the
+// optional configured alias (e.g. "workspace"). When alias is empty, only
+// the canonical form is accepted.
+func isOrgUnitScope(name, alias string) bool {
+	if name == canonicalOrgUnitScope {
+		return true
+	}
+	if alias != "" && name == alias {
+		return true
+	}
+	return false
+}
+
+func matchRoute(m string, url string, orgUnitAlias string) (*routeData, string, error) {
 	var node *routeNodes
 	var ok bool
 	var keys, values []string
@@ -117,11 +137,14 @@ func matchRoute(m string, url string) (*routeData, string, error) {
 	orgUnit := ""
 	switch len(data.scopes) {
 	case 1:
-		if data.scopes[0] != "ou" {
+		// An alias-scoped route (e.g. scope "workspace") is treated
+		// as equivalent to "ou" so the existing org-unit RBAC pipeline
+		// applies unchanged.
+		if !isOrgUnitScope(data.scopes[0], orgUnitAlias) {
 			return nil, "", errors.Wrapf(errors.InvalidArgument, "invalid scope %s for %s", data.scopes[0], url)
 		}
 		for i, k := range keys {
-			if k == "ou" {
+			if isOrgUnitScope(k, orgUnitAlias) {
 				orgUnit = values[i]
 				break
 			}

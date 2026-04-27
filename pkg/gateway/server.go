@@ -68,6 +68,10 @@ type gateway struct {
 	// - Bypasses rate limiting (rateLimiter is always nil for internal gateways)
 	// This should only be enabled for gateways deployed in trusted internal networks.
 	internal bool
+	// orgUnitAlias, when non-empty, is the scope/path-param name that
+	// matchRoute will treat as equivalent to the canonical "ou" during
+	// route scope evaluation and org-unit id extraction.
+	orgUnitAlias string
 }
 
 type gatewayReconciler struct {
@@ -302,7 +306,7 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// RawPath will be an empty string
 		path = r.URL.Path
 	}
-	match, orgUnit, err := matchRoute(r.Method, path)
+	match, orgUnit, err := matchRoute(r.Method, path, s.orgUnitAlias)
 	if err != nil {
 		status = http.StatusNotFound
 		http.Error(w, fmt.Sprintf("No route found for %s %s", r.Method, path), status)
@@ -536,7 +540,7 @@ func gatewayErrorHandler(w http.ResponseWriter, req *http.Request, err error) {
 //     exposed directly to external clients, as they trust pre-processed auth headers.
 //
 // Returns an http.Handler that can be used with http.Serve or similar functions.
-func New(ctx context.Context, internal bool, rateLimits config.RateLimitsConfig) http.Handler {
+func New(ctx context.Context, internal bool, rateLimits config.RateLimitsConfig, aliases config.ResourceAliasesConfig) http.Handler {
 	apiKeys, err := table.GetApiKeyTable()
 	if err != nil {
 		log.Panicf("unable to get api keys table: %s", err)
@@ -609,15 +613,16 @@ func New(ctx context.Context, internal bool, rateLimits config.RateLimitsConfig)
 	}
 
 	gateway := &gateway{
-		validator:   hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
-		apiKeys:     apiKeys,
-		userTbl:     userTbl,
-		routes:      routes,
-		ouTbl:       ouTbl,
-		ouUserTbl:   ouUserTbl,
-		tenantTbl:   tenantTbl,
-		internal:    internal, // Configure authentication mode (internal vs external)
-		rateLimiter: rateLimiter,
+		validator:    hash.NewValidator(300), // Allow an API request to be valid for 5 mins, to handle offer if any
+		apiKeys:      apiKeys,
+		userTbl:      userTbl,
+		routes:       routes,
+		ouTbl:        ouTbl,
+		ouUserTbl:    ouUserTbl,
+		tenantTbl:    tenantTbl,
+		internal:     internal, // Configure authentication mode (internal vs external)
+		rateLimiter:  rateLimiter,
+		orgUnitAlias: aliases.OrgUnitScope,
 		proxyV1: &httputil.ReverseProxy{
 			Director:     director,
 			Transport:    tr1,

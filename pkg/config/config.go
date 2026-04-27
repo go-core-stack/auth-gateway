@@ -66,14 +66,30 @@ func (c RateLimitsConfig) WithDefaults() RateLimitsConfig {
 	return c
 }
 
+// ResourceAliasesConfig lets a deployment configure alternate names that
+// the gateway will accept as semantically equivalent to its canonical
+// org-unit identifier. This is for deployments whose generated routes
+// declare a scope and path-param name using a different term (e.g.
+// "workspace") for the same concept. The internal model, database
+// tables, and X-Auth-Context key remain canonical.
+type ResourceAliasesConfig struct {
+	// OrgUnitScope, when non-empty, is treated as equivalent to "ou"
+	// during route scope evaluation and org-unit id extraction. A
+	// route declaring scope "workspace" with a {workspace} path
+	// parameter behaves identically to a canonical scope "ou" route
+	// with {ou}.
+	OrgUnitScope string `yaml:"orgUnitScope,omitempty"`
+}
+
 // Base config struct
 type BaseConfig struct {
-	ConfigDB        *MongoDB         `yaml:"configDB,omitempty"`
-	Swagger         Swagger          `yaml:"swagger,omitempty"`
-	Keycloak        *Keycloak        `yaml:"keycloak,omitempty"`
-	LocationService *LocationService `yaml:"locationService,omitempty"`
-	Cors            CorsConfig       `yaml:"cors,omitempty"`
-	RateLimits      RateLimitsConfig `yaml:"rateLimits"`
+	ConfigDB        *MongoDB              `yaml:"configDB,omitempty"`
+	Swagger         Swagger               `yaml:"swagger,omitempty"`
+	Keycloak        *Keycloak             `yaml:"keycloak,omitempty"`
+	LocationService *LocationService      `yaml:"locationService,omitempty"`
+	Cors            CorsConfig            `yaml:"cors,omitempty"`
+	RateLimits      RateLimitsConfig      `yaml:"rateLimits"`
+	ResourceAliases ResourceAliasesConfig `yaml:"resourceAliases,omitempty"`
 }
 
 // get Config database information, if the struct
@@ -136,6 +152,11 @@ func (c *BaseConfig) GetLocationServicePort() string {
 		return c.LocationService.Port
 	}
 	return ""
+}
+
+// GetResourceAliases returns the configured resource alias settings.
+func (c *BaseConfig) GetResourceAliases() ResourceAliasesConfig {
+	return c.ResourceAliases
 }
 
 // Parse YAML Config file from the provided config file path

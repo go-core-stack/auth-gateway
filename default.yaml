@@ -26,3 +26,19 @@ rateLimits:
 
     # Remove limiters not used within this duration (default: 10m)
     maxIdle: 10m
+
+# Optional aliases recognized by the gateway when interpreting routes.
+# Use this when a deployment's generated routes declare a scope and
+# path-param name using a different term (e.g. "workspace") for the
+# org-unit concept. The gateway treats that term as equivalent to "ou"
+# during scope evaluation and org-unit id extraction; the org-unit RBAC
+# pipeline (role checks against org-unit-users, org-unit existence
+# checks, etc.) then applies unchanged. Database tables, the
+# X-Auth-Context key, and audit log fields stay canonical ("ou").
+# Default: not configured (no alias).
+#resourceAliases:
+#  # Scope/path-param name to recognize as equivalent to "ou". With the
+#  # value below, a route declaring scope "workspace" and a {workspace}
+#  # path param is treated identically to a route declaring scope "ou"
+#  # with {ou}.
+#  orgUnitScope: "workspace"
