@@ -3512,6 +3512,15 @@
           "type": "string",
           "format": "int64",
           "title": "create time"
+        },
+        "status": {
+          "$ref": "#/definitions/apiOrgUnitStatus",
+          "title": "current status of the org unit"
+        },
+        "deleted": {
+          "type": "string",
+          "format": "int64",
+          "title": "unix timestamp when the org unit was soft-deleted, 0 if active"
         }
       }
     },
@@ -3555,6 +3564,16 @@
       },
       "description": "eventually if we start working with longer list of roles\n keep first index for count to provide pagination\n int32 count = 1;",
       "title": "org unit roles list response - includes both built-in and custom roles"
+    },
+    "apiOrgUnitStatus": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Deleted"
+      ],
+      "default": "Active",
+      "description": "- Active: Org unit is active\n - Deleted: Org unit has been soft-deleted",
+      "title": "Status of an org unit"
     },
     "apiOrgUnitUpdateResp": {
       "type": "object"
@@ -3635,6 +3654,10 @@
           "type": "string",
           "format": "int64",
           "title": "create time"
+        },
+        "status": {
+          "$ref": "#/definitions/apiOrgUnitStatus",
+          "title": "current status of the org unit"
         }
       }
     },

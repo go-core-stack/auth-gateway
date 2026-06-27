@@ -26,6 +26,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Status of an org unit
+type OrgUnitStatus int32
+
+const (
+	// Org unit is active
+	OrgUnitStatus_Active OrgUnitStatus = 0
+	// Org unit has been soft-deleted
+	OrgUnitStatus_Deleted OrgUnitStatus = 1
+)
+
+// Enum value maps for OrgUnitStatus.
+var (
+	OrgUnitStatus_name = map[int32]string{
+		0: "Active",
+		1: "Deleted",
+	}
+	OrgUnitStatus_value = map[string]int32{
+		"Active":  0,
+		"Deleted": 1,
+	}
+)
+
+func (x OrgUnitStatus) Enum() *OrgUnitStatus {
+	p := new(OrgUnitStatus)
+	*p = x
+	return p
+}
+
+func (x OrgUnitStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OrgUnitStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_org_unit_proto_enumTypes[0].Descriptor()
+}
+
+func (OrgUnitStatus) Type() protoreflect.EnumType {
+	return &file_org_unit_proto_enumTypes[0]
+}
+
+func (x OrgUnitStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OrgUnitStatus.Descriptor instead.
+func (OrgUnitStatus) EnumDescriptor() ([]byte, []int) {
+	return file_org_unit_proto_rawDescGZIP(), []int{0}
+}
+
 // list org units for my tenant
 // typically available only for tenant admin
 type OrgUnitsListReq struct {
@@ -93,7 +142,9 @@ type OrgUnitsListEntry struct {
 	// created by
 	CreatedBy string `protobuf:"bytes,4,opt,name=createdBy,proto3" json:"createdBy,omitempty"`
 	// create time
-	Created       int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	// current status of the org unit
+	Status        OrgUnitStatus `protobuf:"varint,6,opt,name=status,proto3,enum=api.OrgUnitStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -161,6 +212,13 @@ func (x *OrgUnitsListEntry) GetCreated() int64 {
 		return x.Created
 	}
 	return 0
+}
+
+func (x *OrgUnitsListEntry) GetStatus() OrgUnitStatus {
+	if x != nil {
+		return x.Status
+	}
+	return OrgUnitStatus_Active
 }
 
 // list org units response
@@ -476,7 +534,11 @@ type OrgUnitGetResp struct {
 	// created by
 	CreatedBy string `protobuf:"bytes,4,opt,name=createdBy,proto3" json:"createdBy,omitempty"`
 	// create time
-	Created       int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	Created int64 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	// current status of the org unit
+	Status OrgUnitStatus `protobuf:"varint,6,opt,name=status,proto3,enum=api.OrgUnitStatus" json:"status,omitempty"`
+	// unix timestamp when the org unit was soft-deleted, 0 if active
+	Deleted       int64 `protobuf:"varint,7,opt,name=deleted,proto3" json:"deleted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -542,6 +604,20 @@ func (x *OrgUnitGetResp) GetCreatedBy() string {
 func (x *OrgUnitGetResp) GetCreated() int64 {
 	if x != nil {
 		return x.Created
+	}
+	return 0
+}
+
+func (x *OrgUnitGetResp) GetStatus() OrgUnitStatus {
+	if x != nil {
+		return x.Status
+	}
+	return OrgUnitStatus_Active
+}
+
+func (x *OrgUnitGetResp) GetDeleted() int64 {
+	if x != nil {
+		return x.Deleted
 	}
 	return 0
 }
@@ -860,13 +936,14 @@ const file_org_unit_proto_rawDesc = "" +
 	"\x0eorg-unit.proto\x12\x03api\x1a\x1cgoogle/api/annotations.proto\x1a\x17coreapis/api/role.proto\"?\n" +
 	"\x0fOrgUnitsListReq\x12\x16\n" +
 	"\x06offset\x18\x01 \x01(\x05R\x06offset\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\x05R\x05limit\"\x83\x01\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\"\xaf\x01\n" +
 	"\x11OrgUnitsListEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x03 \x01(\tR\x04desc\x12\x1c\n" +
 	"\tcreatedBy\x18\x04 \x01(\tR\tcreatedBy\x12\x18\n" +
-	"\acreated\x18\x05 \x01(\x03R\acreated\"V\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\x12*\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x12.api.OrgUnitStatusR\x06status\"V\n" +
 	"\x10OrgUnitsListResp\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12,\n" +
 	"\x05items\x18\x02 \x03(\v2\x16.api.OrgUnitsListEntryR\x05items\":\n" +
@@ -881,13 +958,15 @@ const file_org_unit_proto_rawDesc = "" +
 	"\x04desc\x18\x03 \x01(\tR\x04desc\"\x13\n" +
 	"\x11OrgUnitUpdateResp\"\x1f\n" +
 	"\rOrgUnitGetReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x80\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\xc6\x01\n" +
 	"\x0eOrgUnitGetResp\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x03 \x01(\tR\x04desc\x12\x1c\n" +
 	"\tcreatedBy\x18\x04 \x01(\tR\tcreatedBy\x12\x18\n" +
-	"\acreated\x18\x05 \x01(\x03R\acreated\"\"\n" +
+	"\acreated\x18\x05 \x01(\x03R\acreated\x12*\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x12.api.OrgUnitStatusR\x06status\x12\x18\n" +
+	"\adeleted\x18\a \x01(\x03R\adeleted\"\"\n" +
 	"\x10OrgUnitDeleteReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x13\n" +
 	"\x11OrgUnitDeleteResp\"Q\n" +
@@ -906,7 +985,11 @@ const file_org_unit_proto_rawDesc = "" +
 	"\tuserAgent\x18\b \x01(\tR\tuserAgent\x12\x16\n" +
 	"\x06tenant\x18\t \x01(\tR\x06tenant\"G\n" +
 	"\x18OrgUnitAccessLogsGetResp\x12+\n" +
-	"\x05items\x18\x01 \x03(\v2\x15.api.OrgUnitAccessLogR\x05items2\xf0\x05\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.api.OrgUnitAccessLogR\x05items*(\n" +
+	"\rOrgUnitStatus\x12\n" +
+	"\n" +
+	"\x06Active\x10\x00\x12\v\n" +
+	"\aDeleted\x10\x012\xf0\x05\n" +
 	"\aOrgUnit\x12m\n" +
 	"\fListOrgUnits\x12\x14.api.OrgUnitsListReq\x1a\x15.api.OrgUnitsListResp\"0\x8a\xb5\x18\x10\n" +
 	"\borg-unit\x1a\x04list\x82\xd3\xe4\x93\x02\x16\x12\x14/api/mytenant/v1/ous\x12t\n" +
@@ -934,43 +1017,47 @@ func file_org_unit_proto_rawDescGZIP() []byte {
 	return file_org_unit_proto_rawDescData
 }
 
+var file_org_unit_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_org_unit_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_org_unit_proto_goTypes = []any{
-	(*OrgUnitsListReq)(nil),          // 0: api.OrgUnitsListReq
-	(*OrgUnitsListEntry)(nil),        // 1: api.OrgUnitsListEntry
-	(*OrgUnitsListResp)(nil),         // 2: api.OrgUnitsListResp
-	(*OrgUnitCreateReq)(nil),         // 3: api.OrgUnitCreateReq
-	(*OrgUnitCreateResp)(nil),        // 4: api.OrgUnitCreateResp
-	(*OrgUnitUpdateReq)(nil),         // 5: api.OrgUnitUpdateReq
-	(*OrgUnitUpdateResp)(nil),        // 6: api.OrgUnitUpdateResp
-	(*OrgUnitGetReq)(nil),            // 7: api.OrgUnitGetReq
-	(*OrgUnitGetResp)(nil),           // 8: api.OrgUnitGetResp
-	(*OrgUnitDeleteReq)(nil),         // 9: api.OrgUnitDeleteReq
-	(*OrgUnitDeleteResp)(nil),        // 10: api.OrgUnitDeleteResp
-	(*OrgUnitAccessLogsGetReq)(nil),  // 11: api.OrgUnitAccessLogsGetReq
-	(*OrgUnitAccessLog)(nil),         // 12: api.OrgUnitAccessLog
-	(*OrgUnitAccessLogsGetResp)(nil), // 13: api.OrgUnitAccessLogsGetResp
+	(OrgUnitStatus)(0),               // 0: api.OrgUnitStatus
+	(*OrgUnitsListReq)(nil),          // 1: api.OrgUnitsListReq
+	(*OrgUnitsListEntry)(nil),        // 2: api.OrgUnitsListEntry
+	(*OrgUnitsListResp)(nil),         // 3: api.OrgUnitsListResp
+	(*OrgUnitCreateReq)(nil),         // 4: api.OrgUnitCreateReq
+	(*OrgUnitCreateResp)(nil),        // 5: api.OrgUnitCreateResp
+	(*OrgUnitUpdateReq)(nil),         // 6: api.OrgUnitUpdateReq
+	(*OrgUnitUpdateResp)(nil),        // 7: api.OrgUnitUpdateResp
+	(*OrgUnitGetReq)(nil),            // 8: api.OrgUnitGetReq
+	(*OrgUnitGetResp)(nil),           // 9: api.OrgUnitGetResp
+	(*OrgUnitDeleteReq)(nil),         // 10: api.OrgUnitDeleteReq
+	(*OrgUnitDeleteResp)(nil),        // 11: api.OrgUnitDeleteResp
+	(*OrgUnitAccessLogsGetReq)(nil),  // 12: api.OrgUnitAccessLogsGetReq
+	(*OrgUnitAccessLog)(nil),         // 13: api.OrgUnitAccessLog
+	(*OrgUnitAccessLogsGetResp)(nil), // 14: api.OrgUnitAccessLogsGetResp
 }
 var file_org_unit_proto_depIdxs = []int32{
-	1,  // 0: api.OrgUnitsListResp.items:type_name -> api.OrgUnitsListEntry
-	12, // 1: api.OrgUnitAccessLogsGetResp.items:type_name -> api.OrgUnitAccessLog
-	0,  // 2: api.OrgUnit.ListOrgUnits:input_type -> api.OrgUnitsListReq
-	3,  // 3: api.OrgUnit.CreateOrgUnit:input_type -> api.OrgUnitCreateReq
-	5,  // 4: api.OrgUnit.UpdateOrgUnit:input_type -> api.OrgUnitUpdateReq
-	7,  // 5: api.OrgUnit.GetOrgUnit:input_type -> api.OrgUnitGetReq
-	9,  // 6: api.OrgUnit.DeleteOrgUnit:input_type -> api.OrgUnitDeleteReq
-	11, // 7: api.OrgUnit.GetOrgUnitAccessLogs:input_type -> api.OrgUnitAccessLogsGetReq
-	2,  // 8: api.OrgUnit.ListOrgUnits:output_type -> api.OrgUnitsListResp
-	4,  // 9: api.OrgUnit.CreateOrgUnit:output_type -> api.OrgUnitCreateResp
-	6,  // 10: api.OrgUnit.UpdateOrgUnit:output_type -> api.OrgUnitUpdateResp
-	8,  // 11: api.OrgUnit.GetOrgUnit:output_type -> api.OrgUnitGetResp
-	10, // 12: api.OrgUnit.DeleteOrgUnit:output_type -> api.OrgUnitDeleteResp
-	13, // 13: api.OrgUnit.GetOrgUnitAccessLogs:output_type -> api.OrgUnitAccessLogsGetResp
-	8,  // [8:14] is the sub-list for method output_type
-	2,  // [2:8] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	0,  // 0: api.OrgUnitsListEntry.status:type_name -> api.OrgUnitStatus
+	2,  // 1: api.OrgUnitsListResp.items:type_name -> api.OrgUnitsListEntry
+	0,  // 2: api.OrgUnitGetResp.status:type_name -> api.OrgUnitStatus
+	13, // 3: api.OrgUnitAccessLogsGetResp.items:type_name -> api.OrgUnitAccessLog
+	1,  // 4: api.OrgUnit.ListOrgUnits:input_type -> api.OrgUnitsListReq
+	4,  // 5: api.OrgUnit.CreateOrgUnit:input_type -> api.OrgUnitCreateReq
+	6,  // 6: api.OrgUnit.UpdateOrgUnit:input_type -> api.OrgUnitUpdateReq
+	8,  // 7: api.OrgUnit.GetOrgUnit:input_type -> api.OrgUnitGetReq
+	10, // 8: api.OrgUnit.DeleteOrgUnit:input_type -> api.OrgUnitDeleteReq
+	12, // 9: api.OrgUnit.GetOrgUnitAccessLogs:input_type -> api.OrgUnitAccessLogsGetReq
+	3,  // 10: api.OrgUnit.ListOrgUnits:output_type -> api.OrgUnitsListResp
+	5,  // 11: api.OrgUnit.CreateOrgUnit:output_type -> api.OrgUnitCreateResp
+	7,  // 12: api.OrgUnit.UpdateOrgUnit:output_type -> api.OrgUnitUpdateResp
+	9,  // 13: api.OrgUnit.GetOrgUnit:output_type -> api.OrgUnitGetResp
+	11, // 14: api.OrgUnit.DeleteOrgUnit:output_type -> api.OrgUnitDeleteResp
+	14, // 15: api.OrgUnit.GetOrgUnitAccessLogs:output_type -> api.OrgUnitAccessLogsGetResp
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_org_unit_proto_init() }
@@ -983,13 +1070,14 @@ func file_org_unit_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_org_unit_proto_rawDesc), len(file_org_unit_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_org_unit_proto_goTypes,
 		DependencyIndexes: file_org_unit_proto_depIdxs,
+		EnumInfos:         file_org_unit_proto_enumTypes,
 		MessageInfos:      file_org_unit_proto_msgTypes,
 	}.Build()
 	File_org_unit_proto = out.File
