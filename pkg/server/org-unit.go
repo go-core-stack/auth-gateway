@@ -17,13 +17,23 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/go-core-stack/auth-gateway/api"
+	"github.com/go-core-stack/auth-gateway/pkg/config"
 	"github.com/go-core-stack/auth-gateway/pkg/model"
 	"github.com/go-core-stack/auth-gateway/pkg/table"
 )
 
 type OrgUnitServer struct {
 	api.UnimplementedOrgUnitServer
-	ouTable *table.OrgUnitTable
+	ouTable      *table.OrgUnitTable
+	experimental config.ExperimentalConfig
+}
+
+// ouStatus derives the proto OrgUnitStatus from the entry's Deleted field.
+func ouStatus(entry *table.OrgUnitEntry) api.OrgUnitStatus {
+	if entry.Deleted > 0 {
+		return api.OrgUnitStatus_Deleted
+	}
+	return api.OrgUnitStatus_Active
 }
 
 func (s *OrgUnitServer) ListOrgUnits(ctx context.Context, req *api.OrgUnitsListReq) (*api.OrgUnitsListResp, error) {
@@ -48,6 +58,7 @@ func (s *OrgUnitServer) ListOrgUnits(ctx context.Context, req *api.OrgUnitsListR
 			Desc:      ou.Desc,
 			Created:   ou.Created,
 			CreatedBy: ou.CreatedBy,
+			Status:    ouStatus(ou),
 		}
 		resp.Items = append(resp.Items, item)
 	}
@@ -104,6 +115,10 @@ func (s *OrgUnitServer) UpdateOrgUnit(ctx context.Context, req *api.OrgUnitUpdat
 		log.Printf("user belongs to %s, but trying to update org unit for %s", authInfo.Realm, found.Tenant)
 		return nil, status.Errorf(codes.PermissionDenied, "You do not have permission to update this Org Unit")
 	}
+	// Guard: reject updates on soft-deleted OUs
+	if found.Deleted > 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "Org Unit %s has been deleted and cannot be updated", req.Id)
+	}
 	err = s.ouTable.Update(ctx, update.Key, update)
 	if err != nil {
 		log.Printf("failed to update org unit for tenant %s: %s", authInfo.Realm, err)
@@ -138,12 +153,61 @@ func (s *OrgUnitServer) GetOrgUnit(ctx context.Context, req *api.OrgUnitGetReq) 
 		Desc:      entry.Desc,
 		Created:   entry.Created,
 		CreatedBy: entry.CreatedBy,
+		Status:    ouStatus(entry),
+		Deleted:   entry.Deleted,
 	}, nil
 }
 
 func (s *OrgUnitServer) DeleteOrgUnit(ctx context.Context, req *api.OrgUnitDeleteReq) (*api.OrgUnitDeleteResp, error) {
-	log.Printf("Got Delete Org unit request for ID: %s", req.Id)
-	return nil, status.Errorf(codes.Unimplemented, "DeleteOrgUnit is not implemented yet")
+	authInfo, _ := auth.GetAuthInfoFromContext(ctx)
+	if authInfo == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
+	}
+
+	// Feature gate: soft-delete must be explicitly enabled
+	if !s.experimental.AllowOUDelete {
+		log.Printf("Got Delete Org unit request for ID: %s, but feature is disabled", req.Id)
+		return nil, status.Errorf(codes.Unimplemented, "DeleteOrgUnit is not implemented yet")
+	}
+
+	key := &table.OrgUnitKey{
+		ID: req.Id,
+	}
+
+	// Look up the OU to validate ownership
+	found, err := s.ouTable.Find(ctx, key)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "Org Unit with ID %s not found", req.Id)
+		}
+		log.Printf("failed to find org unit %s for deletion: %s", req.Id, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	if found.Tenant != authInfo.Realm {
+		return nil, status.Errorf(codes.NotFound, "Org Unit with ID %s not found", req.Id)
+	}
+
+	// Idempotent: if already deleted, return success without changing
+	// the timestamp
+	if found.Deleted > 0 {
+		return &api.OrgUnitDeleteResp{}, nil
+	}
+
+	// Set the deleted timestamp via update
+	update := &table.OrgUnitEntry{
+		Key:     key,
+		Deleted: time.Now().Unix(),
+	}
+
+	err = s.ouTable.Update(ctx, key, update)
+	if err != nil {
+		log.Printf("failed to soft-delete org unit %s: %s", req.Id, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
+	}
+
+	log.Printf("Soft-deleted org unit %s for tenant %s", req.Id, authInfo.Realm)
+	return &api.OrgUnitDeleteResp{}, nil
 }
 
 func (s *OrgUnitServer) GetOrgUnitAccessLogs(ctx context.Context, req *api.OrgUnitAccessLogsGetReq) (*api.OrgUnitAccessLogsGetResp, error) {
@@ -186,13 +250,14 @@ func (s *OrgUnitServer) GetOrgUnitAccessLogs(ctx context.Context, req *api.OrgUn
 	return resp, nil
 }
 
-func NewOrgUnitServer(ctx *model.GrpcServerContext, ep string) *OrgUnitServer {
+func NewOrgUnitServer(ctx *model.GrpcServerContext, experimental config.ExperimentalConfig, ep string) *OrgUnitServer {
 	ouTbl, err := table.GetOrgUnitTable()
 	if err != nil {
 		log.Panicf("failed to get Org Unit table: %s", err)
 	}
 	srv := &OrgUnitServer{
-		ouTable: ouTbl, // Initialize the Org Unit table
+		ouTable:      ouTbl,
+		experimental: experimental,
 	}
 	api.RegisterOrgUnitServer(ctx.Server, srv)
 	err = api.RegisterOrgUnitHandler(context.Background(), ctx.Mux, ctx.Conn)
