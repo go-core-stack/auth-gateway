@@ -10,6 +10,15 @@ import "coreapis/api/role.proto";
 
 option go_package = "github.com/go-core-stack/auth-gateway/api";
 
+// Status of an org unit
+enum OrgUnitStatus {
+  // Org unit is active
+  Active = 0;
+
+  // Org unit has been soft-deleted
+  Deleted = 1;
+}
+
 // Service provided to manage orgunits for user/tenant
 service OrgUnit {
   // Get List of existing org units in my tenant
@@ -106,6 +115,9 @@ message OrgUnitsListEntry {
 
   // create time
   int64 created = 5;
+
+  // current status of the org unit
+  OrgUnitStatus status = 6;
 }
 
 // list org units response
@@ -168,6 +180,12 @@ message OrgUnitGetResp {
 
   // create time
   int64 created = 5;
+
+  // current status of the org unit
+  OrgUnitStatus status = 6;
+
+  // unix timestamp when the org unit was soft-deleted, 0 if active
+  int64 deleted = 7;
 }
 
 // delete org unit req
