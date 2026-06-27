@@ -575,7 +575,7 @@ func main() {
 	_ = server.NewRegistrationServer(serverCtx, APIEndpoint)
 
 	// setup Org Unit server
-	_ = server.NewOrgUnitServer(serverCtx, APIEndpoint)
+	_ = server.NewOrgUnitServer(serverCtx, conf.GetExperimental(), APIEndpoint)
 
 	// setup org unit role server
 	_ = server.NewOrgUnitRoleServer(serverCtx, APIEndpoint)

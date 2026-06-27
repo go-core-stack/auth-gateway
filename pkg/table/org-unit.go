@@ -36,6 +36,11 @@ type OrgUnitEntry struct {
 
 	// Tenant this OU belongs to
 	Tenant string `bson:"tenant,omitempty"`
+
+	// Deleted is the unix timestamp when the OU was soft-deleted.
+	// Zero value means the OU is active; omitted from MongoDB documents
+	// when zero.
+	Deleted int64 `bson:"deleted,omitempty"`
 }
 
 type OrgUnitTable struct {
