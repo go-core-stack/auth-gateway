@@ -5,6 +5,9 @@ package table
 
 import (
 	"context"
+	"log"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 
 	"github.com/go-core-stack/core/db"
 	"github.com/go-core-stack/core/errors"
@@ -63,6 +66,29 @@ func (t *OrgUnitTable) FindByTenant(ctx context.Context, tenant, ouId string) ([
 	}
 
 	return t.FindMany(ctx, filter, 0, 0)
+}
+
+// ReconcilerGetAllKeys returns keys for all soft-deleted org-unit entries
+// (deleted > 0). This overrides the generic Table.ReconcilerGetAllKeys to
+// ensure the reconciler only bootstraps entries that are pending hard-delete.
+func (t *OrgUnitTable) ReconcilerGetAllKeys() []any {
+	type keyOnly struct {
+		Key OrgUnitKey `bson:"_id,omitempty"`
+	}
+
+	filter := bson.M{"deleted": bson.M{"$gt": 0}}
+
+	list := []keyOnly{}
+	err := t.col.FindMany(context.Background(), filter, &list)
+	if err != nil {
+		log.Panicf("orgunit: failed to fetch deleted keys: %s", err)
+	}
+
+	keys := make([]any, 0, len(list))
+	for _, k := range list {
+		keys = append(keys, &k.Key)
+	}
+	return keys
 }
 
 func (t *OrgUnitTable) StartEventLogger() error {
