@@ -42,3 +42,14 @@ rateLimits:
 #  # path param is treated identically to a route declaring scope "ou"
 #  # with {ou}.
 #  orgUnitScope: "workspace"
+
+# Experimental features — not yet generally available.
+# When absent, all experimental features remain disabled.
+#experimental:
+#  # Enable org-unit soft-delete. When false (default), delete requests
+#  # return 501 Unimplemented.
+#  allow_ou_delete: true
+#
+#  # Seconds to retain a soft-deleted org unit before the reconciler
+#  # hard-deletes it. Only meaningful when allow_ou_delete is true.
+#  hold_deleted_ou: 3600
