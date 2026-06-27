@@ -462,17 +462,22 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 			log.Printf("got error while fetching org unit user list for user %s: %s", authInfo.UserName, err)
 			return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
 		}
-		for i, entry := range list {
+		for _, entry := range list {
 			ou, err := s.ouTable.Find(ctx, &table.OrgUnitKey{ID: entry.Key.OrgUnitId})
 			if err != nil {
 				log.Printf("failed to find org unit %s, while user role exists, got error: %s", entry.Key.OrgUnitId, err)
+				continue
+			}
+			// Skip soft-deleted org units — user-facing endpoint
+			// only shows active OUs
+			if ou.Deleted > 0 {
 				continue
 			}
 			item := &api.MyOrgUnitEntry{
 				Id:   ou.Key.ID,
 				Name: ou.Name,
 			}
-			if i == 0 {
+			if len(resp.Items) == 0 {
 				// TODO: need to handle senario where a specifig default org unit is set for a user
 				// for now, we will just set the first org unit as default
 				resp.Default = item
@@ -499,12 +504,17 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 		defaultOU = utils.Dereference(pref.DefaultOU)
 	}
 
-	for i, ou := range OrgUnits {
+	for _, ou := range OrgUnits {
+		// Skip soft-deleted org units — user-facing endpoint
+		// only shows active OUs
+		if ou.Deleted > 0 {
+			continue
+		}
 		item := &api.MyOrgUnitEntry{
 			Id:   ou.Key.ID,
 			Name: ou.Name,
 		}
-		if i == 0 {
+		if len(resp.Items) == 0 {
 			// by default ensure settign the first org unit as default
 			resp.Default = item
 		}
