@@ -31,6 +31,7 @@ import (
 	"github.com/go-core-stack/auth-gateway/pkg/apidocs"
 	"github.com/go-core-stack/auth-gateway/pkg/auth"
 	"github.com/go-core-stack/auth-gateway/pkg/config"
+	"github.com/go-core-stack/auth-gateway/pkg/controller/orgunit"
 	"github.com/go-core-stack/auth-gateway/pkg/controller/request"
 	"github.com/go-core-stack/auth-gateway/pkg/controller/roledef"
 	"github.com/go-core-stack/auth-gateway/pkg/controller/tenant"
@@ -544,6 +545,16 @@ func main() {
 		log.Panicf("failed to create email verification cleanup controller: %s", err)
 	}
 
+	// Start org-unit cleanup reconciler only when soft-delete is enabled.
+	// The reconciler handles hold-period expiry and hard-delete of
+	// soft-deleted org-units.
+	if conf.GetExperimental().AllowOUDelete {
+		_, err = orgunit.NewOrgUnitCleanupController(conf.GetExperimental())
+		if err != nil {
+			log.Panicf("failed to create org-unit cleanup controller: %s", err)
+		}
+	}
+
 	// role definition manager
 	resourceMgr := roledef.NewResourceManager()
 
@@ -575,7 +586,7 @@ func main() {
 	_ = server.NewRegistrationServer(serverCtx, APIEndpoint)
 
 	// setup Org Unit server
-	_ = server.NewOrgUnitServer(serverCtx, APIEndpoint)
+	_ = server.NewOrgUnitServer(serverCtx, conf.GetExperimental(), APIEndpoint)
 
 	// setup org unit role server
 	_ = server.NewOrgUnitRoleServer(serverCtx, APIEndpoint)
