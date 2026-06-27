@@ -22,7 +22,8 @@ import (
 
 type OrgUnitUserServer struct {
 	api.UnimplementedOrgUnitUserServer
-	tbl *table.OrgUnitUserTable
+	tbl     *table.OrgUnitUserTable
+	ouTable *table.OrgUnitTable
 }
 
 func (s *OrgUnitUserServer) ListOrgUnitUsers(ctx context.Context, req *api.OrgUnitUsersListReq) (*api.OrgUnitUsersListResp, error) {
@@ -67,6 +68,20 @@ func (s *OrgUnitUserServer) AddOrgUnitUser(ctx context.Context, req *api.OrgUnit
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid role: %s", req.Role)
 	}
 
+	// Guard: reject adding users to a deleted OU
+	ouKey := &table.OrgUnitKey{ID: req.Ou}
+	ou, err := s.ouTable.Find(ctx, ouKey)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "Org Unit %s not found", req.Ou)
+		}
+		log.Printf("failed to look up org unit %s: %s", req.Ou, err)
+		return nil, status.Errorf(codes.Internal, "Something went wrong, please try again later")
+	}
+	if ou.Deleted > 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "Org Unit %s has been deleted, cannot add users", req.Ou)
+	}
+
 	// TODO: validate if user exists, this might be never done to allow adding users
 	// that are not yet logged in or registered with the system
 
@@ -81,7 +96,7 @@ func (s *OrgUnitUserServer) AddOrgUnitUser(ctx context.Context, req *api.OrgUnit
 		Role:      req.Role,
 	}
 
-	err := s.tbl.Insert(ctx, entry.Key, entry)
+	err = s.tbl.Insert(ctx, entry.Key, entry)
 	if err != nil {
 		if errors.IsAlreadyExists(err) {
 			return nil, status.Errorf(codes.AlreadyExists, "Org Unit User %s, already exists", req.User)
@@ -153,8 +168,13 @@ func NewOrgUnitUserServer(ctx *model.GrpcServerContext, ep string) *OrgUnitUserS
 	if err != nil {
 		log.Panicf("failed to get org unit user table: %s", err)
 	}
+	ouTbl, err := table.GetOrgUnitTable()
+	if err != nil {
+		log.Panicf("failed to get org unit table: %s", err)
+	}
 	srv := &OrgUnitUserServer{
-		tbl: tbl,
+		tbl:     tbl,
+		ouTable: ouTbl,
 	}
 	api.RegisterOrgUnitUserServer(ctx.Server, srv)
 	err = api.RegisterOrgUnitUserHandler(context.Background(), ctx.Mux, ctx.Conn)
