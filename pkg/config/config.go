@@ -81,6 +81,20 @@ type ResourceAliasesConfig struct {
 	OrgUnitScope string `yaml:"orgUnitScope,omitempty"`
 }
 
+// ExperimentalConfig holds feature flags and settings for features
+// that are not yet generally available. When absent from the config
+// file, all experimental features remain disabled.
+type ExperimentalConfig struct {
+	// AllowOUDelete enables the org-unit soft-delete feature.
+	// When false (default), delete requests return 501 Unimplemented.
+	AllowOUDelete bool `yaml:"allow_ou_delete"`
+
+	// HoldDeletedOU is the duration in seconds to retain a
+	// soft-deleted org unit before the reconciler hard-deletes it.
+	// Only meaningful when AllowOUDelete is true.
+	HoldDeletedOU int `yaml:"hold_deleted_ou"`
+}
+
 // Base config struct
 type BaseConfig struct {
 	ConfigDB        *MongoDB              `yaml:"configDB,omitempty"`
@@ -90,6 +104,7 @@ type BaseConfig struct {
 	Cors            CorsConfig            `yaml:"cors,omitempty"`
 	RateLimits      RateLimitsConfig      `yaml:"rateLimits"`
 	ResourceAliases ResourceAliasesConfig `yaml:"resourceAliases,omitempty"`
+	Experimental    ExperimentalConfig    `yaml:"experimental,omitempty"`
 }
 
 // get Config database information, if the struct
@@ -157,6 +172,11 @@ func (c *BaseConfig) GetLocationServicePort() string {
 // GetResourceAliases returns the configured resource alias settings.
 func (c *BaseConfig) GetResourceAliases() ResourceAliasesConfig {
 	return c.ResourceAliases
+}
+
+// GetExperimental returns the experimental feature configuration.
+func (c *BaseConfig) GetExperimental() ExperimentalConfig {
+	return c.Experimental
 }
 
 // Parse YAML Config file from the provided config file path
