@@ -1,0 +1,29 @@
+name: Notify MCP Server about changes in proto files
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/*.proto'
+
+jobs:
+  notify-mcp-server-repo:
+    runs-on: self-hosted
+    steps:
+      - name: Send repository_dispatch to Repo mcp-server
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.PSETHI_GIT_TOKEN }}" \
+            https://api.github.com/repos/go-core-stack/mcp-server/dispatches \
+            -d @- <<EOF
+          {
+            "event_type": "auth_gateway_proto_changed",
+            "client_payload": {
+              "ref": "${{ github.ref }}",
+              "sha": "${{ github.sha }}",
+              "repository": "${{ github.repository }}"
+            }
+          }
+          EOF
