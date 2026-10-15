@@ -139,6 +139,9 @@ func (s *gateway) AuthenticateRequest(r *http.Request) (*common.AuthInfo, error)
 		if entry.Config.ExpireAt != 0 && entry.Config.ExpireAt < now {
 			return nil, errors.Wrapf(errors.Unauthorized, "Api Key is %s expired", keyId)
 		}
+		if entry.Secret == nil || entry.Secret.Value == "" {
+			return nil, errors.Wrapf(errors.Unauthorized, "Invalid Api Key")
+		}
 		_, err = s.validator.Validate(r, entry.Secret.Value)
 		if err != nil {
 			return nil, errors.Wrapf(errors.Unauthorized, "Invalid Signature")

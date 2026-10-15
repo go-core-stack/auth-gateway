@@ -3,7 +3,11 @@
 
 package table
 
-import "go.mongodb.org/mongo-driver/bson"
+import (
+	"log"
+
+	"go.mongodb.org/mongo-driver/bson"
+)
 
 type AccountType int32
 
@@ -92,6 +96,9 @@ func (c *UserCredentials) UnmarshalBSON(data []byte) error {
 		return err
 	}
 	c.UserID = raw.UserID
-	c.Password, _ = encryptor.DecryptString(raw.Password)
+	c.Password, err = encryptor.DecryptString(raw.Password)
+	if err != nil {
+		log.Printf("failed to decrypt user credentials for %s, treating the password as empty: %s", raw.UserID, err)
+	}
 	return nil
 }

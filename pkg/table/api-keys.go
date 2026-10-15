@@ -5,6 +5,7 @@ package table
 
 import (
 	"context"
+	"log"
 
 	"github.com/go-core-stack/core/db"
 	"github.com/go-core-stack/core/errors"
@@ -62,7 +63,10 @@ func (s *ApiKeySecret) UnmarshalBSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-	s.Value, _ = encryptor.DecryptString(raw.Value)
+	s.Value, err = encryptor.DecryptString(raw.Value)
+	if err != nil {
+		log.Printf("failed to decrypt api key secret, treating it as empty: %s", err)
+	}
 	return nil
 }
 
