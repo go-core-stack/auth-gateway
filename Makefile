@@ -14,7 +14,9 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 all: build
 
 build: go-format go-vet go-lint
-	sudo docker build --build-arg GIT_TOKEN="${GIT_TOKEN}" \
+	GIT_TOKEN="${GIT_TOKEN}" sudo --preserve-env=GIT_TOKEN \
+		DOCKER_BUILDKIT=1 docker build \
+		--secret id=git_token,env=GIT_TOKEN \
 		-t ${IMG} .
 
 go-format:
