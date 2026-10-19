@@ -2,7 +2,7 @@
 # Author: Prabhjot Singh Sethi <prabhjot.sethi@gmail.com>
 
 # git token to be used for fetching private repos to build
-GIT_TOKEN ?= ""
+GIT_TOKEN ?=
 
 # Container image build information
 VERSION ?= latest
