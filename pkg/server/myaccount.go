@@ -452,6 +452,19 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 		return nil, status.Errorf(codes.Unauthenticated, "User not authenticated")
 	}
 	resp := &api.MyOrgUnitsListResp{}
+
+	uKey := &table.UserKey{
+		Tenant:   authInfo.Realm,
+		Username: authInfo.UserName,
+	}
+
+	pref, _ := s.userPreferenceTable.Find(ctx, uKey)
+
+	defaultOU := ""
+	if pref != nil {
+		defaultOU = utils.Dereference(pref.DefaultOU)
+	}
+
 	if authInfo.Roles == nil || !slices.Contains(authInfo.Roles, "admin") {
 		// user is not a tenant admin, so we will just return the org units where the user is assigned specific role
 		list, err := s.ouUserTable.GetByUser(ctx, authInfo.Realm, authInfo.UserName)
@@ -478,8 +491,12 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 				Name: ou.Name,
 			}
 			if len(resp.Items) == 0 {
-				// TODO: need to handle senario where a specifig default org unit is set for a user
-				// for now, we will just set the first org unit as default
+				// by default ensure setting the first org unit as default
+				resp.Default = item
+			}
+			if defaultOU != "" && defaultOU == ou.Key.ID {
+				// if a default org unit is set for a user then ensure
+				// switching to the configured default org unit
 				resp.Default = item
 			}
 			resp.Items = append(resp.Items, item)
@@ -490,18 +507,6 @@ func (s *MyAccountServer) ListMyOrgUnits(ctx context.Context, req *api.MyOrgUnit
 	if err != nil && !errors.IsNotFound(err) {
 		log.Printf("got error while fetching org unit list for tenant %s: %s", authInfo.Realm, err)
 		return nil, status.Errorf(codes.Internal, "Something went wrong, Please try again later")
-	}
-
-	uKey := &table.UserKey{
-		Tenant:   authInfo.Realm,
-		Username: authInfo.UserName,
-	}
-
-	pref, _ := s.userPreferenceTable.Find(ctx, uKey)
-
-	defaultOU := ""
-	if pref != nil {
-		defaultOU = utils.Dereference(pref.DefaultOU)
 	}
 
 	for _, ou := range OrgUnits {
