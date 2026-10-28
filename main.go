@@ -285,7 +285,33 @@ func handleCORS(h http.Handler) http.Handler {
 	})
 }
 
-func startServerContext(ctx context.Context, serverCtx *model.GrpcServerContext, rateLimits config.RateLimitsConfig, aliases config.ResourceAliasesConfig) {
+// newExternalHandler builds the external listener's handler. When
+// apiDocsEnabled is true, newApiDocs is called once to construct the
+// /apidocs/ server and paths under /apidocs/ are sent to it. When it
+// is false, no /apidocs/ server is constructed and those paths go to
+// the authenticated gateway like any other path.
+func newExternalHandler(apiDocsEnabled bool, gw, rs http.Handler, newApiDocs func() http.Handler) http.Handler {
+	var oa http.Handler
+	if apiDocsEnabled {
+		oa = newApiDocs()
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if oa != nil && strings.HasPrefix(r.URL.Path, "/apidocs/") {
+			// remove the auth context header to ensure we do not
+			// allow it to be passed on to backend services without
+			// processing the authentication
+			r.Header.Del(common.HttpClientAuthContext)
+			oa.ServeHTTP(w, r)
+		} else if r.URL.Path == "/api/v1/realm.json" {
+			rs.ServeHTTP(w, r)
+		} else {
+			// all APIs are handled via GRPC gateway
+			gw.ServeHTTP(w, r)
+		}
+	})
+}
+
+func startServerContext(ctx context.Context, serverCtx *model.GrpcServerContext, rateLimits config.RateLimitsConfig, aliases config.ResourceAliasesConfig, apiDocsEnabled bool) {
 	go func() {
 		lis, err := net.Listen("tcp", GrpcPort)
 		if err != nil {
@@ -307,21 +333,9 @@ func startServerContext(ctx context.Context, serverCtx *model.GrpcServerContext,
 	// It validates API keys or bearer tokens, creates auth context, and enforces RBAC/PBAC policies.
 	go func() {
 		gw := gateway.New(ctx, false, rateLimits, aliases)
-		oa := apidocs.NewApiDocsServer()
 		rs := public.NewRealmInfoServer()
-		gwHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/apidocs/") {
-				// remove the auth context header to ensure we do not
-				// allow it to be passed on to backend services without
-				// processing the authentication
-				r.Header.Del(common.HttpClientAuthContext)
-				oa.ServeHTTP(w, r)
-			} else if r.URL.Path == "/api/v1/realm.json" {
-				rs.ServeHTTP(w, r)
-			} else {
-				// all APIs are handled via GRPC gateway
-				gw.ServeHTTP(w, r)
-			}
+		gwHandler := newExternalHandler(apiDocsEnabled, gw, rs, func() http.Handler {
+			return apidocs.NewApiDocsServer()
 		})
 		lis, err := net.Listen("tcp", GatewayPort)
 		if err != nil {
@@ -375,6 +389,12 @@ func main() {
 
 	// update cors enabled flag based on config file
 	enableCORS = conf.IsCORSEnabled()
+
+	if conf.IsApiDocsEnabled() {
+		log.Println("API docs enabled: /apidocs/ is served")
+	} else {
+		log.Println("API docs disabled by config, /apidocs/ goes through the authenticated gateway")
+	}
 
 	log.Printf("Got Uri config %s", conf.GetConfigDB().Uri)
 
@@ -596,7 +616,7 @@ func main() {
 
 	// once all the servers are added to the list
 	// start server
-	startServerContext(ctx, serverCtx, conf.RateLimits, conf.GetResourceAliases())
+	startServerContext(ctx, serverCtx, conf.RateLimits, conf.GetResourceAliases(), conf.IsApiDocsEnabled())
 	log.Println("Initialization of Auth Gateway completed")
 
 	sigc := make(chan os.Signal, 1)
