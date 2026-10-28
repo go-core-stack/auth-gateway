@@ -32,6 +32,17 @@ type CorsConfig struct {
 	Enabled bool `yaml:"enabled,omitempty"`
 }
 
+// ApiDocsConfig controls the external gateway's /apidocs/ handling:
+// the embedded Swagger UI and the forwarder that relays
+// /apidocs/<name>/... to <name>:8080 without authentication.
+// When absent from the config file, /apidocs/ is served.
+type ApiDocsConfig struct {
+	// Disabled turns off /apidocs/ handling. Requests to /apidocs/
+	// then go through the authenticated gateway like any other
+	// path. When false (default), /apidocs/ is served as before.
+	Disabled bool `yaml:"disabled,omitempty"`
+}
+
 // CleanupConfig holds rate limiter cleanup settings.
 // Defaults: Interval=5m, MaxIdle=10m.
 type CleanupConfig struct {
@@ -102,6 +113,7 @@ type BaseConfig struct {
 	Keycloak        *Keycloak             `yaml:"keycloak,omitempty"`
 	LocationService *LocationService      `yaml:"locationService,omitempty"`
 	Cors            CorsConfig            `yaml:"cors,omitempty"`
+	ApiDocs         ApiDocsConfig         `yaml:"apiDocs,omitempty"`
 	RateLimits      RateLimitsConfig      `yaml:"rateLimits"`
 	ResourceAliases ResourceAliasesConfig `yaml:"resourceAliases,omitempty"`
 	Experimental    ExperimentalConfig    `yaml:"experimental,omitempty"`
@@ -143,6 +155,12 @@ func (c *BaseConfig) GetSwaggerDir() string {
 
 func (c *BaseConfig) IsCORSEnabled() bool {
 	return c.Cors.Enabled
+}
+
+// IsApiDocsEnabled reports whether the external gateway serves
+// /apidocs/. It is true unless the config sets apiDocs.disabled.
+func (c *BaseConfig) IsApiDocsEnabled() bool {
+	return !c.ApiDocs.Disabled
 }
 
 // IsLocationServiceConfigured checks if location service is properly configured

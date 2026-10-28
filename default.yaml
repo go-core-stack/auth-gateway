@@ -2,6 +2,18 @@ configDB:
   uri: "mongodb://localhost:27017"
 swagger:
   dir: ""
+
+# API docs served by the external gateway under /apidocs/: the embedded
+# Swagger UI, and a forwarder that relays /apidocs/<name>/... to
+# <name>:8080 without authentication. A deployment that does not want
+# the gateway to relay unauthenticated requests to its services can
+# disable it; requests to /apidocs/ then go through the authenticated
+# gateway like any other path.
+# Default: not configured (/apidocs/ is served).
+#apiDocs:
+#  # Turn off /apidocs/ handling (default: false).
+#  disabled: true
+
 locationService:
   host: "location-services"
   port: "8080"

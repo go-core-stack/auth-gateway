@@ -112,3 +112,26 @@ and resources supported in auth gateways
 - Expand customer APIs beyond the bootstrap stub to create, read, and update
   real records, driving automated tenant provisioning for dedicated customers
   and configurable sharing for shared tenants.
+
+## Configuration
+
+The gateway reads a YAML config file passed with `-config`;
+[`default.yaml`](default.yaml) is a sample config that documents the
+settings.
+
+### API docs (`/apidocs/`)
+
+By default the external gateway serves `/apidocs/` itself, outside the
+authenticated path: `/apidocs/<file>` returns the embedded Swagger UI,
+and `/apidocs/<name>/<path>` is forwarded to `<name>:8080` without
+authentication. A deployment that does not want the gateway to relay
+unauthenticated requests to its services can turn this off:
+
+```yaml
+apiDocs:
+  disabled: true
+```
+
+With `disabled: true`, `/apidocs/` gets no special handling: requests to
+it go through the authenticated gateway like any other path. Leaving the
+setting out keeps `/apidocs/` served as before.
