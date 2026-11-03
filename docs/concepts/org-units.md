@@ -103,6 +103,9 @@ Request with org-unit scope
         ▼
 ┌─────────────────────────────────┐
 │ 3. Check tenant admin           │
+│    Root-only route, caller not  │
+│      in root tenancy → 403      │
+│      (user-specific too)        │
 │    If tenant admin → allow      │
 │    If user-specific route → allow│
 └─────────────────────────────────┘

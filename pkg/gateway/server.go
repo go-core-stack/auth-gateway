@@ -364,13 +364,14 @@ func (s *gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		newCtx := context.WithValue(r.Context(), authKey, *authInfo)
 		newCtx = context.WithValue(newCtx, ouKey, orgUnit)
 		r = r.WithContext(newCtx)
+		if match.isRoot && !authInfo.IsRoot {
+			// access to the route is meant to come only from root tenancy,
+			// for a user-specific route too
+			status = http.StatusForbidden
+			http.Error(w, "Access Denied", status)
+			return
+		}
 		if !match.isUserSpecific {
-			if match.isRoot && !authInfo.IsRoot {
-				// access to the route is meant to come only from root tenancy
-				status = http.StatusForbidden
-				http.Error(w, "Access Denied", status)
-				return
-			}
 			// perform RBAC / PBAC and scope validations
 			// TODO(prabhjot) currently only allow admin role
 			isTenantAdmin := slices.Contains(authInfo.Roles, "admin")
