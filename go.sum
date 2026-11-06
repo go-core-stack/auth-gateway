@@ -7,10 +7,10 @@ github.com/coreos/go-oidc/v3 v3.14.1/go.mod h1:HaZ3szPaZ0e4r6ebqvsLWlk2Tn+aejfmr
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/go-core-stack/auth v0.0.1-beta h1:hhgYtb7RFIaZ8vYa3gGAQGwspCc1gR+sMDE1ecstwqM=
-github.com/go-core-stack/auth v0.0.1-beta/go.mod h1:YFJKusgoiX4xOaVWJqdtxWssL8Aj4PKwPzv0wJRl5WM=
-github.com/go-core-stack/core v0.0.2-0.20261015050518-133a30917ee8 h1:OhMRUlr1brA46TlrZX8b19LEu+D+DAU/7iaMtrJ6vfU=
-github.com/go-core-stack/core v0.0.2-0.20261015050518-133a30917ee8/go.mod h1:XQg8kwBOhnk/YJQmrcArCQ5+aeWCRmiv7trDxFaE0bc=
+github.com/go-core-stack/auth v0.0.2-0.20261106063934-df060cb528ed h1:QJDDhFEf+1t0zPmJoble/6nAMVM8tkM0sHRI+SLwVOQ=
+github.com/go-core-stack/auth v0.0.2-0.20261106063934-df060cb528ed/go.mod h1:CSL6lJkhjl5lvbE+jtZSSnW3qNET5RLVnod15fRgJeE=
+github.com/go-core-stack/core v0.0.2-0.20261106062727-00aeb965a82a h1:HTyAd+Pa0a0oEiMDQCpQ0Ulplutzbqm/xVJ5W9VSznM=
+github.com/go-core-stack/core v0.0.2-0.20261106062727-00aeb965a82a/go.mod h1:XQg8kwBOhnk/YJQmrcArCQ5+aeWCRmiv7trDxFaE0bc=
 github.com/go-core-stack/grpc-core v0.0.1 h1:sqeYhFuCsc+vO//x2weDw2rfEbQdObwTSg+M/sj+o5s=
 github.com/go-core-stack/grpc-core v0.0.1/go.mod h1:69IvnRYY+3UkO3m1Y5tWfGG4K3RdBdI1bOnq01Ev638=
 github.com/go-core-stack/location-services v0.0.1 h1:9xMpUDbHwlga9RPVHYuzVvQBN3CVuhX7SzC6oSqPnRs=
