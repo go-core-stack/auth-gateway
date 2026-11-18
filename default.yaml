@@ -1,4 +1,7 @@
 configDB:
+  # MongoDB connection string. A timeoutMS set in it must be longer than
+  # the change stream wait, 10s: with timeoutMS=10000 or less the
+  # gateway fails to start.
   uri: "mongodb://localhost:27017"
 swagger:
   dir: ""
