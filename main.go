@@ -374,6 +374,16 @@ func main() {
 		// Allow a buffer time of 10 seconds for processing the closure
 		// of the provided context
 		time.Sleep(10 * time.Second)
+		// Close the database client last: work ended by the context
+		// above, such as releasing this process's owner table entry,
+		// still writes through it. Closing ends the client's change
+		// streams and kills their cursors on the server, which would
+		// otherwise stay until their sessions expire.
+		if client != nil {
+			if err := client.Close(); err != nil {
+				log.Printf("failed to close mongodb client: %s", err)
+			}
+		}
 	}()
 
 	// evaluate ports to be used from ENV variables
