@@ -6,7 +6,7 @@ toolchain go1.24.2
 
 require (
 	github.com/go-core-stack/auth v0.0.2-0.20261107180134-19ad1015159f
-	github.com/go-core-stack/core v0.0.2-0.20261106141035-3b5249b41d75
+	github.com/go-core-stack/core v0.0.2-0.20261118054755-3a009064f672
 	github.com/go-core-stack/grpc-core v0.0.1
 	github.com/go-core-stack/location-services v0.0.1
 	github.com/go-core-stack/patricia v0.0.2-0.20251203094222-7893ec56683f
