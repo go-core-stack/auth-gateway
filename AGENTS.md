@@ -71,7 +71,7 @@ See `docs/integration/` for detailed integration guides.
 ## Build, Test, and Development Commands
 - `make build` — runs `go fmt`, `go vet`, `golangci-lint`, then produces the container image (`REPO`/`auth-gateway:VERSION`).
 - `go test ./...` — executes unit and integration tests; pass `-run` to scope modules during rapid iteration.
-- `go run main.go -config default.yaml` — launches the gateway locally; override ports via `API_PORT`, `GATEWAY_PORT`, and `GRPC_PORT`.
+- `ENCRYPTOR_KEY=<key> go run main.go -config default.yaml` — launches the gateway locally; override ports via `API_PORT`, `GATEWAY_PORT`, and `GRPC_PORT`. `ENCRYPTOR_KEY` is required: it seals the stored API-key secrets and passwords, has no built-in default, and the process refuses to start without it. Use at least 32 random characters (`openssl rand -base64 24`) and keep the same value across restarts, or what was sealed with the old one cannot be read.
 - `script/keycloak-dev-setup.sh` — provisions a development Keycloak realm to mirror tenant flows before running integration suites.
 
 ## Coding Style & Naming Conventions

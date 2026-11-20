@@ -367,6 +367,13 @@ func startServerContext(ctx context.Context, serverCtx *model.GrpcServerContext,
 }
 
 func main() {
+	// The stored secrets are sealed with ENCRYPTOR_KEY, which has no
+	// built-in fallback: without a usable key, refuse to start before
+	// anything reads or writes a table.
+	if err := table.CheckEncryptor(); err != nil {
+		log.Panicf("cannot encrypt stored secrets: %s", err)
+	}
+
 	// setup a context for the main function allowing cleanup
 	ctx, cancelFn := context.WithCancel(context.Background())
 	defer func() {
